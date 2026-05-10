@@ -1,0 +1,201 @@
+/*
+ * ============================================================
+ * FMBY 设计 Token
+ * ============================================================
+ *
+ * 品牌设计系统的唯一真相来源。
+ * 所有颜色、字体、间距、栅格、圆角、阴影、动效、层级等统一在此维护。
+ *
+ * 命名规范：--{category}-{variant}
+ * 例如：--bg-base, --text-primary, --space-4
+ */
+
+:root {
+  /* ============================================================
+   * 颜色系统
+   * ============================================================ */
+
+  /* 背景 */
+  --bg-base: #0B0D12;
+  --bg-immersive: #06080C;
+
+  /* 表面 */
+  --surface-1: rgba(14, 17, 24, 0.82);
+  --surface-2: rgba(18, 22, 32, 0.92);
+  --surface-3: rgba(255, 255, 255, 0.04);
+
+  /* 文本 */
+  --text-primary: #F5F7FB;
+  --text-secondary: #97A0B3;
+  --text-muted: #5A6478;
+
+  /* 品牌强调 */
+  --brand-gold: #E4AF50;
+  --brand-gold-hover: #D4A040;
+  --brand-gold-active: #C49030;
+  --manage-cyan: #5ED6CC;
+  --manage-cyan-hover: #4EC6BC;
+  --manage-cyan-active: #3EB6AC;
+  --accent-blue: #7DB4FF;
+
+  /* 语义色 */
+  --success: #66D19E;
+  --warning: #F0C274;
+  --danger: #F27F7F;
+  --info: #7DB4FF;
+
+  /* 边框 */
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-muted: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* ============================================================
+   * 字体系统
+   * ============================================================ */
+
+  /* 字体栈 */
+  --font-sans: 'Noto Sans SC', 'Inter', 'Microsoft YaHei UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', monospace;
+
+  /* 字号层级 */
+  --text-display: clamp(32px, 4vw, 44px);
+  --text-h1: 28px;
+  --text-h2: 20px;
+  --text-h3: 16px;
+  --text-body-lg: 16px;
+  --text-body: 14px;
+  --text-body-sm: 13px;
+  --text-caption: 12px;
+  --text-mono: 12px;
+
+  /* 字重 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ============================================================
+   * 间距系统（固定刻度）
+   * ============================================================ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ============================================================
+   * 栅格系统
+   * ============================================================ */
+  --grid-max-width: 1760px;
+  --grid-gutter-desktop: 24px;
+  --grid-gutter-tablet: 20px;
+  --grid-gutter-mobile: 12px;
+  --grid-margin: clamp(16px, 3vw, 40px);
+
+  /* ============================================================
+   * 断点（语义变量；CSS @media 暂不能直接消费 var()，主要供 JS / 文档约束）
+   * ============================================================ */
+  --bp-xs: 480px;     /* 手机大屏起点 */
+  --bp-sm: 768px;     /* iPad 竖屏起点 */
+  --bp-md: 1024px;    /* iPad 横屏 / 中型笔记本起点 */
+  --bp-lg: 1280px;    /* 标准笔记本起点 */
+  --bp-xl: 1600px;    /* 桌面常规起点 */
+  --bp-2xl: 1920px;   /* 2K 起点 */
+  --bp-3xl: 2560px;   /* 超宽 / 4K 起点 */
+
+  /* 实际 @media 写法约定（见 docs/plans 与 styles/responsive.css 注释）：
+   * (max-width: 479px)            small-phone
+   * (max-width: 767px)            phone
+   * (max-width: 1023px)           tablet 含 iPad 竖屏
+   * (max-width: 1279px)           middle-laptop 1366 主战场
+   * (max-width: 1599px)           desktop 标准
+   * (max-width: 1919px)           desktop-wide
+   * (max-width: 2559px)           desktop-2k
+   * (min-width: 2560px)           ultra
+   */
+
+  /* ============================================================
+   * 容器查询断点（@container 用）
+   * ============================================================ */
+  --cq-xs: 320px;
+  --cq-sm: 480px;
+  --cq-md: 720px;
+  --cq-lg: 960px;
+  --cq-xl: 1200px;
+
+  /* ============================================================
+   * 触控热区与最小可读字号（移动端可访问性 / Apple HIG / Material）
+   * ============================================================ */
+  --touch-min: 44px;                /* 触控目标最小命中区（iOS HIG / WCAG 2.5.5） */
+  --touch-min-comfortable: 48px;    /* 推荐 */
+  --text-mobile-min: 14px;          /* 移动端主文本最小字号，避免 iOS 自动缩放 */
+
+  /* ============================================================
+   * iOS 安全区（刘海 / Dynamic Island）
+   * ============================================================ */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* ============================================================
+   * 圆角
+   * ============================================================ */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* ============================================================
+   * 阴影
+   * ============================================================ */
+  --shadow-l1: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-l2: 0 18px 44px rgba(0, 0, 0, 0.28);
+  --shadow-l3: 0 28px 80px rgba(0, 0, 0, 0.38);
+
+  /* ============================================================
+   * 动效
+   * ============================================================ */
+  --duration-micro: 180ms;
+  --duration-fast: 150ms;
+  --duration-panel: 260ms;
+  --duration-page: 320ms;
+  --duration-hero: 400ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ============================================================
+   * 层级
+   * ============================================================ */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+  --z-tooltip: 500;
+
+  /* ============================================================
+   * 布局
+   * ============================================================ */
+  --topbar-height-desktop: 64px;
+  --topbar-height-tablet: 60px;
+  --topbar-height-mobile: 56px;
+  --manage-rail-width: 272px;
+}
+
+/* 减弱动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-micro: 0ms;
+    --duration-fast: 0ms;
+    --duration-panel: 0ms;
+    --duration-page: 0ms;
+    --duration-hero: 0ms;
+  }
+}

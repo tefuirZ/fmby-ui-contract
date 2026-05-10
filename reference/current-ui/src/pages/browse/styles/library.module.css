@@ -1,0 +1,326 @@
+/* ============================================================
+ * 库列表 & 库详情 Hero
+ * ============================================================
+ * LibrariesPage / LibraryDetailPage 的 hero / backdrop / stats
+ */
+
+.libraryDirectoryHero,
+.libraryDetailHero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  background: #070a11;
+  box-shadow: var(--shadow-l3);
+}
+
+.libraryDirectoryHero {
+  min-height: 320px;
+}
+
+.libraryDetailHero {
+  min-height: clamp(320px, 28vw, 430px);
+}
+
+.libraryDirectoryBackdrop,
+.libraryDetailBackdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.libraryDirectoryBackdrop {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(228, 175, 80, 0.24), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(125, 180, 255, 0.24), transparent 32%),
+    linear-gradient(135deg, rgba(9, 12, 20, 0.94), rgba(15, 20, 32, 0.72));
+}
+
+.libraryDetailBackdropBlur {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(34px) saturate(1.08);
+  transform: scale(1.08);
+  opacity: 0.78;
+}
+
+.libraryDetailBackdropFrame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding-left: clamp(180px, 22vw, 420px);
+  padding-right: clamp(8px, 2vw, 28px);
+}
+
+.libraryDetailBackdropImage {
+  display: block;
+  width: auto;
+  max-width: min(100%, 860px);
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+  filter: saturate(1.05);
+  opacity: 0.92;
+}
+
+.libraryDirectoryBackdrop::after,
+.libraryDetailBackdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 14, 0.94), rgba(7, 9, 14, 0.46) 54%, rgba(7, 9, 14, 0.22) 74%, rgba(7, 9, 14, 0.66)),
+    linear-gradient(180deg, rgba(7, 9, 14, 0.12), rgba(7, 9, 14, 0.92)),
+    radial-gradient(circle at top right, rgba(228, 175, 80, 0.16), transparent 34%);
+}
+
+.libraryDirectoryContent,
+.libraryDetailHeroContent {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: var(--space-6);
+  min-height: inherit;
+  align-items: end;
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.libraryDetailHeroContent {
+  align-items: center;
+}
+
+.libraryDirectoryCopy,
+.libraryDetailHeroMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 760px;
+}
+
+.libraryDirectoryStats,
+.libraryDetailHeroStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.libraryDetailHeroStats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: center;
+  align-content: center;
+}
+
+.libraryDetailHeroSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.libraryDetailPreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.libraryDetailPreviewTile {
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 18px;
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.libraryDetailPreviewImage,
+.libraryDetailPreviewFallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.libraryDetailPreviewFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 2rem;
+  font-weight: var(--font-weight-extrabold);
+}
+
+.libraryDetailPreviewTile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgba(7, 9, 14, 0.88));
+}
+
+.libraryDetailPreviewTitle {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.libraryDirectoryStat,
+.libraryDetailHeroStat {
+  display: flex;
+  min-height: 104px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 16, 26, 0.58);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.libraryDirectoryStat span,
+.libraryDetailHeroStat span {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.libraryDirectoryStat strong,
+.libraryDetailHeroStat strong {
+  color: var(--text-primary);
+  font-size: clamp(24px, 4vw, 36px);
+  line-height: 1;
+}
+
+.libraryDetailHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.libraryControlPanel,
+.loadMoreHintCard {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  background: rgba(14, 18, 28, 0.72);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.libraryControlPanel {
+  position: sticky;
+  top: var(--space-4);
+  z-index: 4;
+  padding: var(--space-4);
+}
+
+.loadMoreHintCard {
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.activeFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1279px) {
+  .libraryDirectoryContent,
+  .libraryDetailHeroContent {
+    grid-template-columns: 1fr;
+  }
+
+  .libraryDetailBackdropFrame {
+    padding-left: clamp(140px, 18vw, 260px);
+  }
+}
+
+@media (max-width: 767px) {
+  .libraryDetailHero,
+  .libraryDirectoryHero {
+    border-radius: 20px;
+  }
+
+  .libraryDirectoryContent,
+  .libraryDetailHeroContent {
+    padding: var(--space-4);
+  }
+
+  .libraryDirectoryStats,
+  .libraryDetailHeroStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .libraryDetailPreviewGrid {
+    display: flex;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .libraryDetailPreviewGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .libraryDetailPreviewTile {
+    flex: 0 0 180px;
+    min-height: 112px;
+  }
+
+  .libraryDetailPreviewImage,
+  .libraryDetailPreviewFallback {
+    min-height: 112px;
+  }
+
+  .libraryControlPanel {
+    position: static;
+  }
+
+  .libraryDetailBackdropFrame {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+  }
+
+  .libraryDetailBackdropImage {
+    width: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.68;
+  }
+}

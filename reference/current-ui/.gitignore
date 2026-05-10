@@ -1,0 +1,17 @@
+node_modules/
+dist/
+
+# TypeScript 编译产物
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+src/**/*.d.ts
+src/**/*.d.ts.map
+vite.config.d.ts
+vite.config.d.ts.map
+!src/vite-env.d.ts
+!src/types/**/*.d.ts
+
+# Playwright 视觉回归产物（baseline 截图保留入库，结果不入库）
+test-results/
+playwright-report/
+playwright/.cache/

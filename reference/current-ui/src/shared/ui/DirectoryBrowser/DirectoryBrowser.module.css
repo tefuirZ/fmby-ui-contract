@@ -1,0 +1,229 @@
+/* ===== DirectoryBrowser 通用目录浏览器 ===== */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  padding: var(--space-4);
+}
+
+.container[data-disabled='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.breadcrumbItem {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default);
+}
+
+.breadcrumbItem:hover {
+  color: var(--text-primary);
+  background: var(--surface-3);
+}
+
+.breadcrumbItem[data-current='true'] {
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: default;
+}
+
+.breadcrumbSeparator {
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* 状态信息栏 */
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.selectedPath {
+  font-family: var(--font-mono, monospace);
+  word-break: break-all;
+}
+
+/* 目录列表 */
+.directoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.directoryItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-default);
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  text-align: left;
+  width: 100%;
+  font-size: var(--text-body);
+}
+
+.directoryItem:hover {
+  background: var(--surface-3);
+}
+
+.directoryItem[data-selected='true'] {
+  background: rgba(228, 175, 80, 0.1);
+  border: 1px solid rgba(228, 175, 80, 0.2);
+}
+
+.directoryIcon {
+  flex-shrink: 0;
+  color: var(--brand-gold);
+}
+
+.directoryMeta {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.directoryName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.directoryPath {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.directoryActions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* 操作栏 */
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* 空态 */
+.emptyState {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-body);
+}
+
+/* 加载态 */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  color: var(--text-secondary);
+}
+
+/* 错误态 */
+.errorState {
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--text-primary);
+  font-size: var(--text-body);
+}
+
+.errorMessage {
+  color: var(--feedback-error);
+}
+
+/* 按钮 */
+.smallButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  cursor: pointer;
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default);
+}
+
+.smallButton:hover {
+  color: var(--text-primary);
+  background: var(--surface-3);
+}
+
+.confirmButton {
+  composes: smallButton;
+  background: var(--brand-gold);
+  color: #101116;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.confirmButton:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: var(--space-3);
+  }
+
+  .directoryList {
+    max-height: 240px;
+  }
+
+  .directoryActions {
+    flex-direction: column;
+  }
+}

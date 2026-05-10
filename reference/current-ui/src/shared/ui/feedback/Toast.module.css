@@ -1,0 +1,145 @@
+.viewport {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+  /* 桌面端：右下角 */
+  right: var(--space-6);
+  bottom: var(--space-6);
+  max-width: min(420px, calc(100vw - var(--space-8)));
+}
+
+/* 移动端：顶部居中 */
+@media (max-width: 1023px) {
+  .viewport {
+    right: var(--space-3);
+    left: var(--space-3);
+    top: var(--space-3);
+    bottom: auto;
+    max-width: none;
+    align-items: stretch;
+  }
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-l2);
+  backdrop-filter: blur(10px);
+  animation: toast-in-desktop var(--duration-panel) var(--ease-spring);
+}
+
+@media (max-width: 1023px) {
+  .toast {
+    animation: toast-in-mobile var(--duration-panel) var(--ease-spring);
+  }
+}
+
+.toast[data-variant='success'] .icon {
+  color: var(--success);
+}
+
+.toast[data-variant='error'] .icon {
+  color: var(--danger);
+}
+
+.toast[data-variant='warning'] .icon {
+  color: var(--warning);
+}
+
+.toast[data-variant='info'] .icon {
+  color: var(--info);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.description {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--duration-micro) var(--ease-default),
+    color var(--duration-micro) var(--ease-default);
+}
+
+.close:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+@keyframes toast-in-desktop {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-in-mobile {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

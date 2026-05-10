@@ -1,0 +1,50 @@
+.stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.hintBox {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--surface-3);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.hintTitle {
+  display: block;
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.input:focus-visible {
+  outline: 2px solid rgba(242, 127, 127, 0.28);
+  outline-offset: 2px;
+}
+
+.helpText {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}

@@ -1,0 +1,307 @@
+/* ============================================================
+ * ItemDetailPage - Hero 区域
+ * ============================================================
+ * detailHero / detailBackdrop / detailLayout / detailPoster
+ */
+
+.detailHero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid var(--border-default);
+  background: #080b12;
+}
+
+.detailBackdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(0px);
+}
+
+.detailBackdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 10, 16, 0.28), rgba(8, 10, 16, 0.96)),
+    linear-gradient(90deg, rgba(8, 10, 16, 0.98), rgba(8, 10, 16, 0.36) 60%);
+}
+
+.detailLayout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--space-6);
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.detailPosterColumn {
+  display: flex;
+  align-items: flex-start;
+}
+
+.detailPosterPanel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detailPosterWrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+}
+
+.detailPoster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  box-shadow: var(--shadow-l2);
+}
+
+.detailPosterFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  color: var(--text-muted);
+  background:
+    radial-gradient(circle at top, rgba(228, 175, 80, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(125, 180, 255, 0.14), rgba(255, 255, 255, 0.04));
+}
+
+.detailPosterMetaCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 22, 0.58);
+  backdrop-filter: blur(16px);
+
+  /* B4 容器查询：在 detailLayout 侧边栏收起时调整 */
+  container-type: inline-size;
+  container-name: detailMeta;
+}
+
+/* B4: 容器查询 - 窄容器时调整内边距 */
+@container detailMeta (max-width: 200px) {
+  .detailPosterMetaCard {
+    padding: var(--space-3);
+  }
+
+  .detailPosterMetaEyebrow,
+  .detailPosterMetaTitle {
+    font-size: var(--text-body-sm);
+  }
+
+  .detailPosterFact {
+    padding: 10px 12px;
+  }
+}
+
+.detailPosterMetaEyebrow {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.detailPosterMetaTitle {
+  color: var(--text-primary);
+  font-size: var(--text-h3);
+}
+
+.detailPosterFacts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.detailPosterFact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.detailPosterFactLabel {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+.detailPosterFactValue {
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.detailCopy {
+  padding-top: var(--space-4);
+}
+
+.detailTitle {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.1;
+}
+
+.detailSubtitle {
+  color: var(--text-secondary);
+}
+
+.detailMeta {
+  gap: var(--space-2);
+}
+
+.detailPrimaryFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.detailPrimaryFact {
+  color: rgba(245, 247, 251, 0.92);
+  font-size: var(--text-body-sm);
+}
+
+.detailPrimaryFact:not(:last-child)::after {
+  content: '·';
+  margin-left: var(--space-3);
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.detailSummaryBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.detailHeroFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  max-width: 760px;
+}
+
+.detailHeroFact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-4);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 22, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+}
+
+.detailHeroFactLabel {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+.detailHeroFactValue {
+  color: var(--text-primary);
+  line-height: 1.65;
+}
+
+.detailSummary {
+  max-width: 680px;
+  color: rgba(245, 247, 251, 0.86);
+  font-size: var(--text-body-lg);
+  line-height: 1.7;
+}
+
+.detailSummaryCollapsed {
+  display: -webkit-box;
+  line-clamp: 5;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.detailSummaryToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand-gold);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.detailStateChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.detailTagRow {
+  gap: var(--space-2);
+}
+
+.detailTag {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1279px) {
+  .detailHeroFacts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1023px) {
+  .detailLayout {
+    grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 767px) {
+  .detailHero {
+    border-radius: 20px;
+  }
+
+  .detailLayout {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
+
+  .detailPosterColumn {
+    display: none;
+  }
+
+  .detailPosterMetaCard {
+    padding: var(--space-3);
+  }
+}

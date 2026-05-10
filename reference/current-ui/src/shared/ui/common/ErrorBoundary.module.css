@@ -1,0 +1,20 @@
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--manage-cyan);
+  color: #081112;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: transform var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default);
+}
+
+.retryButton:hover {
+  transform: translateY(-1px);
+  background: var(--manage-cyan-hover);
+}

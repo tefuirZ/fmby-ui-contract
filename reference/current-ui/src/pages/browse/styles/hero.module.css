@@ -1,0 +1,391 @@
+/* ============================================================
+ * HeroSpotlight 组件样式
+ * ============================================================
+ * 首页大 Banner / Carousel / Thumbs / Kicker / Poster
+ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: clamp(460px, 39vw, 560px);
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #06080c;
+  box-shadow: var(--shadow-l3);
+}
+
+.heroBackground {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.heroBackgroundBlur {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(34px) saturate(1.08);
+  transform: scale(1.08);
+  opacity: 0.78;
+}
+
+.heroBackgroundFrame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding-left: clamp(280px, 28vw, 620px);
+  padding-right: clamp(12px, 2.5vw, 34px);
+}
+
+.heroBackgroundImage {
+  display: block;
+  width: auto;
+  max-width: min(100%, 1000px);
+  height: 100%;
+  object-fit: contain;
+  object-position: right center;
+  filter: saturate(1.05);
+  opacity: 0.94;
+}
+
+.heroBackground::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(6, 8, 12, 0.92), rgba(6, 8, 12, 0.38) 42%, rgba(6, 8, 12, 0.16) 72%, rgba(6, 8, 12, 0.5)),
+    radial-gradient(circle at top right, rgba(228, 175, 80, 0.2), transparent 36%),
+    linear-gradient(180deg, rgba(6, 8, 12, 0.12), rgba(6, 8, 12, 0.88));
+}
+
+.heroLayout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-inline: auto;
+  min-height: clamp(460px, 39vw, 560px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(210px, 280px);
+  gap: var(--space-8);
+  align-items: center;
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 780px;
+}
+
+.heroKicker {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 12, 20, 0.46);
+  backdrop-filter: blur(14px) saturate(120%);
+}
+
+.heroCounter {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+.heroTitle {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.08;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.heroDescription {
+  max-width: 620px;
+  color: rgba(245, 247, 251, 0.82);
+  font-size: var(--text-body-lg);
+}
+
+.heroCarouselControls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: fit-content;
+  padding: 8px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 12, 20, 0.5);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+.heroThumbRail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+  width: min(840px, 100%);
+  margin-top: 2px;
+}
+
+.heroThumb {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  background: rgba(8, 12, 20, 0.52);
+  cursor: pointer;
+  overflow: hidden;
+  backdrop-filter: blur(14px) saturate(120%);
+  transition: border-color var(--duration-fast) var(--ease-default), background var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default);
+}
+
+.heroThumb:hover,
+.heroThumb[data-active='true'] {
+  transform: translateY(-1px);
+  border-color: rgba(228, 175, 80, 0.42);
+  background: rgba(18, 23, 34, 0.78);
+}
+
+.heroThumb[data-active='true']::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-gold), #f3ca7d);
+}
+
+.heroThumbIndex {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: #15100a;
+  background: var(--brand-gold);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+.heroThumbImageWrap,
+.heroThumbImage,
+.heroThumbFallback {
+  display: block;
+  width: 72px;
+}
+
+.heroThumbImageWrap {
+  aspect-ratio: 16 / 9;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.heroThumbImage,
+.heroThumbFallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroThumbFallback {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: var(--font-weight-bold);
+}
+
+.heroThumbText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.heroThumbText strong,
+.heroThumbText span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heroThumbText strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.heroThumbText span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.heroArrowButton,
+.heroDot {
+  border: 0;
+  cursor: pointer;
+}
+
+.heroArrowButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  transition: background var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default);
+}
+
+.heroArrowButton:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.heroDots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.heroDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.26);
+  transition: width var(--duration-fast) var(--ease-default), background var(--duration-fast) var(--ease-default);
+}
+
+.heroDot[data-active='true'] {
+  width: 26px;
+  background: linear-gradient(90deg, var(--brand-gold), #f3ca7d);
+}
+
+.heroPosterWrap {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: min(280px, 100%);
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.heroPoster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  box-shadow: 0 26px 50px rgba(0, 0, 0, 0.34);
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1279px) {
+  .heroLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .heroPosterWrap {
+    justify-content: flex-start;
+  }
+
+  .heroThumbRail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .heroBackgroundFrame {
+    padding-left: clamp(220px, 22vw, 420px);
+  }
+}
+
+@media (max-width: 767px) {
+  .hero,
+  .heroLayout {
+    min-height: 320px;
+  }
+
+  .heroLayout {
+    width: min(100%, calc(100vw - var(--grid-margin) * 2));
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-4);
+  }
+
+  .heroPosterWrap {
+    display: none;
+  }
+
+  .heroBackgroundFrame {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+  }
+
+  .heroBackgroundImage {
+    width: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.68;
+  }
+
+  .heroCarouselControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .heroKicker {
+    max-width: 100%;
+  }
+
+  .heroThumbRail {
+    display: flex;
+    width: calc(100vw - var(--grid-margin) * 2);
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .heroThumbRail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .heroThumb {
+    flex: 0 0 min(250px, 78vw);
+  }
+}

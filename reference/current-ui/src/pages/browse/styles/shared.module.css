@@ -1,0 +1,294 @@
+/* ============================================================
+ * 通用布局 & 工具类
+ * ============================================================
+ * 被多个页面共享的基础布局类：page / header / section / button / input
+ */
+
+.page {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) 0 var(--space-10);
+}
+
+.pageHeader,
+.sectionCard,
+.detailInfoCard,
+.detailTechnicalCard,
+.detailVersionsCard,
+.detailRelatedCard {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-l1);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: linear-gradient(180deg, rgba(125, 180, 255, 0.08), transparent), var(--surface-2);
+}
+
+.headerCopy,
+.sectionCopy,
+.wideBody,
+.posterBody,
+.libraryBody,
+.detailCopy,
+.detailSection,
+.detailInfoCard,
+.detailTechnicalCard,
+.detailVersionsCard,
+.detailRelatedCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.eyebrow,
+.heroEyebrow {
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+  font-weight: var(--font-weight-bold);
+}
+
+.pageTitle {
+  font-size: var(--text-h1);
+  font-weight: var(--font-weight-bold);
+}
+
+.pageDescription,
+.sectionDescription,
+.metaText,
+.cardDescription,
+.cardMeta,
+.detailSummary,
+.detailListValue,
+.detailTechnicalValue,
+.detailVersionSummary,
+.smallStatLabel,
+.emptyHint {
+  color: var(--text-secondary);
+}
+
+.headerMeta,
+.headerActions,
+.sectionHeader,
+.sectionAction,
+.cardMetaRow,
+.buttonRow,
+.detailMeta,
+.detailButtonRow,
+.detailTagRow,
+.detailShortcuts,
+.toolbar,
+.filterGroup,
+.libraryStats,
+.smallStatsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.headerActions,
+.sectionAction {
+  justify-content: flex-end;
+}
+
+.sectionCard,
+.detailInfoCard,
+.detailTechnicalCard,
+.detailVersionsCard,
+.detailRelatedCard {
+  width: 100%;
+  padding: var(--space-6);
+  background:
+    linear-gradient(180deg, rgba(228, 175, 80, 0.05), transparent 110px),
+    linear-gradient(135deg, rgba(125, 180, 255, 0.04), transparent 45%),
+    var(--surface-2);
+}
+
+.sectionShelf {
+  padding: clamp(18px, 2vw, 26px);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(228, 175, 80, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)),
+    rgba(14, 18, 28, 0.82);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.sectionHeader {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sectionTitle {
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-bold);
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.primaryButton {
+  background: var(--brand-gold);
+  color: #101116;
+}
+
+.secondaryButton {
+  border: 1px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.ghostButton {
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.primaryButton[aria-disabled='true'],
+.secondaryButton[aria-disabled='true'],
+.ghostButton[aria-disabled='true'] {
+  opacity: 0.56;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.toolbar {
+  justify-content: space-between;
+}
+
+.filterGroup {
+  flex: 1;
+}
+
+.input,
+.select {
+  min-width: 180px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.wideList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.posterGrid,
+.detailRelatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-4);
+}
+
+.emptyGrid {
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-default);
+  text-align: center;
+}
+
+.metaChip,
+.microChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+}
+
+.microChip {
+  padding: 4px 8px;
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1279px) {
+  .wideList,
+  .posterGrid,
+  .detailRelatedGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1023px) {
+  .page {
+    gap: var(--space-4);
+  }
+
+  .pageHeader,
+  .sectionHeader,
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wideList {
+    grid-template-columns: 1fr;
+  }
+
+  .posterGrid,
+  .detailRelatedGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    width: min(100%, calc(100vw - var(--grid-margin) * 2));
+  }
+
+  .pageHeader,
+  .sectionCard,
+  .detailInfoCard,
+  .detailTechnicalCard,
+  .detailVersionsCard,
+  .detailRelatedCard {
+    padding: var(--space-4);
+  }
+
+  .posterGrid,
+  .detailRelatedGrid {
+    gap: var(--space-3);
+  }
+
+  .filterGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input,
+  .select {
+    min-width: 100%;
+  }
+}

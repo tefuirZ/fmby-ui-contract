@@ -1,0 +1,8 @@
+/* ===== BrowseLayout 浏览页面布局 ===== */
+
+.browse {
+  max-width: var(--grid-max-width);
+  margin: 0 auto;
+  padding: 0 var(--grid-margin);
+  width: 100%;
+}

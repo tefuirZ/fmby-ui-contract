@@ -1,0 +1,321 @@
+/* ============================================================
+ * BrowsePages 样式聚合入口
+ * ============================================================
+ * 本文件作为统一入口，通过 `composes from` 聚合所有子样式模块。
+ * 外部 .tsx 保持原有引用：import styles from './BrowsePages.module.css'
+ * 
+ * 拆分后结构：
+ *   - shared.module.css      通用布局 & 工具类
+ *   - hero.module.css        HeroSpotlight 组件
+ *   - rails.module.css       横向滚动轨道
+ *   - cards.module.css       各种媒体卡片 & 人物卡片（含容器查询）
+ *   - library.module.css     库列表 & 库详情
+ *   - detail-hero.module.css ItemDetailPage Hero 区域（含容器查询）
+ *   - detail-content.module.css ItemDetailPage 内容区（含容器查询）
+ *   - skeleton.module.css    骨架屏
+ * 
+ * 容器查询引入点（B4）：
+ *   1. PosterCard 内字号根据容器宽度调整
+ *   2. PersonCard 头像在窄容器下缩小
+ *   3. EpisodeRow 描述截断行数根据容器
+ *   4. LibraryCard 统计块响应容器宽度
+ *   5. DetailPosterMetaCard 在侧边栏收起时调整内边距
+ */
+
+/* ============================================================
+ * 通用布局 & 工具类（从 shared.module.css）
+ * ============================================================ */
+.page { composes: page from './styles/shared.module.css'; }
+.pageHeader { composes: pageHeader from './styles/shared.module.css'; }
+.headerCopy { composes: headerCopy from './styles/shared.module.css'; }
+.headerMeta { composes: headerMeta from './styles/shared.module.css'; }
+.headerActions { composes: headerActions from './styles/shared.module.css'; }
+.pageTitle { composes: pageTitle from './styles/shared.module.css'; }
+.pageDescription { composes: pageDescription from './styles/shared.module.css'; }
+.eyebrow { composes: eyebrow from './styles/shared.module.css'; }
+.sectionCard { composes: sectionCard from './styles/shared.module.css'; }
+.sectionShelf { composes: sectionShelf from './styles/shared.module.css'; }
+.sectionHeader { composes: sectionHeader from './styles/shared.module.css'; }
+.sectionTitle { composes: sectionTitle from './styles/shared.module.css'; }
+.sectionDescription { composes: sectionDescription from './styles/shared.module.css'; }
+.sectionAction { composes: sectionAction from './styles/shared.module.css'; }
+.sectionCopy { composes: sectionCopy from './styles/shared.module.css'; }
+.primaryButton { composes: primaryButton from './styles/shared.module.css'; }
+.secondaryButton { composes: secondaryButton from './styles/shared.module.css'; }
+.ghostButton { composes: ghostButton from './styles/shared.module.css'; }
+.toolbar { composes: toolbar from './styles/shared.module.css'; }
+.filterGroup { composes: filterGroup from './styles/shared.module.css'; }
+.input { composes: input from './styles/shared.module.css'; }
+.select { composes: select from './styles/shared.module.css'; }
+.wideList { composes: wideList from './styles/shared.module.css'; }
+.posterGrid { composes: posterGrid from './styles/shared.module.css'; }
+.emptyGrid { composes: emptyGrid from './styles/shared.module.css'; }
+.metaChip { composes: metaChip from './styles/shared.module.css'; }
+.microChip { composes: microChip from './styles/shared.module.css'; }
+.metaText { composes: metaText from './styles/shared.module.css'; }
+.cardMetaRow { composes: cardMetaRow from './styles/shared.module.css'; }
+.buttonRow { composes: buttonRow from './styles/shared.module.css'; }
+.detailInfoCard { composes: detailInfoCard from './styles/shared.module.css'; }
+.detailTechnicalCard { composes: detailTechnicalCard from './styles/shared.module.css'; }
+.detailVersionsCard { composes: detailVersionsCard from './styles/shared.module.css'; }
+.detailRelatedCard { composes: detailRelatedCard from './styles/shared.module.css'; }
+.detailRelatedGrid { composes: detailRelatedGrid from './styles/shared.module.css'; }
+.wideBody { composes: wideBody from './styles/shared.module.css'; }
+.posterBody { composes: posterBody from './styles/shared.module.css'; }
+.libraryBody { composes: libraryBody from './styles/shared.module.css'; }
+.detailCopy { composes: detailCopy from './styles/shared.module.css'; }
+.detailSection { composes: detailSection from './styles/shared.module.css'; }
+.emptyHint { composes: emptyHint from './styles/shared.module.css'; }
+
+/* ============================================================
+ * Hero Spotlight（从 hero.module.css）
+ * ============================================================ */
+.hero { composes: hero from './styles/hero.module.css'; }
+.heroBackground { composes: heroBackground from './styles/hero.module.css'; }
+.heroBackgroundBlur { composes: heroBackgroundBlur from './styles/hero.module.css'; }
+.heroBackgroundFrame { composes: heroBackgroundFrame from './styles/hero.module.css'; }
+.heroBackgroundImage { composes: heroBackgroundImage from './styles/hero.module.css'; }
+.heroLayout { composes: heroLayout from './styles/hero.module.css'; }
+.heroCopy { composes: heroCopy from './styles/hero.module.css'; }
+.heroKicker { composes: heroKicker from './styles/hero.module.css'; }
+.heroCounter { composes: heroCounter from './styles/hero.module.css'; }
+.heroTitle { composes: heroTitle from './styles/hero.module.css'; }
+.heroMeta { composes: heroMeta from './styles/hero.module.css'; }
+.heroDescription { composes: heroDescription from './styles/hero.module.css'; }
+.heroCarouselControls { composes: heroCarouselControls from './styles/hero.module.css'; }
+.heroThumbRail { composes: heroThumbRail from './styles/hero.module.css'; }
+.heroThumb { composes: heroThumb from './styles/hero.module.css'; }
+.heroThumbIndex { composes: heroThumbIndex from './styles/hero.module.css'; }
+.heroThumbImageWrap { composes: heroThumbImageWrap from './styles/hero.module.css'; }
+.heroThumbImage { composes: heroThumbImage from './styles/hero.module.css'; }
+.heroThumbFallback { composes: heroThumbFallback from './styles/hero.module.css'; }
+.heroThumbText { composes: heroThumbText from './styles/hero.module.css'; }
+.heroArrowButton { composes: heroArrowButton from './styles/hero.module.css'; }
+.heroDots { composes: heroDots from './styles/hero.module.css'; }
+.heroDot { composes: heroDot from './styles/hero.module.css'; }
+.heroPosterWrap { composes: heroPosterWrap from './styles/hero.module.css'; }
+.heroPoster { composes: heroPoster from './styles/hero.module.css'; }
+.heroEyebrow { composes: eyebrow from './styles/shared.module.css'; }
+
+/* ============================================================
+ * 横向滚动轨道（从 rails.module.css）
+ * ============================================================ */
+.mediaRail { composes: mediaRail from './styles/rails.module.css'; }
+.posterRailItem { composes: posterRailItem from './styles/rails.module.css'; }
+.continueRailItem { composes: continueRailItem from './styles/rails.module.css'; }
+.landscapeRailItem { composes: landscapeRailItem from './styles/rails.module.css'; }
+.libraryRailItem { composes: libraryRailItem from './styles/rails.module.css'; }
+.detailPosterRail { composes: detailPosterRail from './styles/rails.module.css'; }
+.detailPosterRailItem { composes: detailPosterRailItem from './styles/rails.module.css'; }
+.peopleRail { composes: peopleRail from './styles/rails.module.css'; }
+.seasonSelector { composes: seasonSelector from './styles/rails.module.css'; }
+.seasonChip { composes: seasonChip from './styles/rails.module.css'; }
+.seasonChipMeta { composes: seasonChipMeta from './styles/rails.module.css'; }
+.episodeList { composes: episodeList from './styles/rails.module.css'; }
+
+/* ============================================================
+ * 媒体卡片 & 人物卡片（从 cards.module.css）
+ * ============================================================ */
+.wideCard { composes: wideCard from './styles/cards.module.css'; }
+.wideThumbLink { composes: wideThumbLink from './styles/cards.module.css'; }
+.wideThumb { composes: wideThumb from './styles/cards.module.css'; }
+.landscapeCard { composes: landscapeCard from './styles/cards.module.css'; }
+.landscapeMediaLink { composes: landscapeMediaLink from './styles/cards.module.css'; }
+.landscapeImageWrap { composes: landscapeImageWrap from './styles/cards.module.css'; }
+.landscapeImage { composes: landscapeImage from './styles/cards.module.css'; }
+.landscapeOverlay { composes: landscapeOverlay from './styles/cards.module.css'; }
+.landscapeProgress { composes: landscapeProgress from './styles/cards.module.css'; }
+.landscapePlayPill { composes: landscapePlayPill from './styles/cards.module.css'; }
+.landscapeBody { composes: landscapeBody from './styles/cards.module.css'; }
+.posterCard { composes: posterCard from './styles/cards.module.css'; }
+.posterLink { composes: posterLink from './styles/cards.module.css'; }
+.posterImageWrap { composes: posterImageWrap from './styles/cards.module.css'; }
+.posterImage { composes: posterImage from './styles/cards.module.css'; }
+.posterArtworkFallback { composes: posterArtworkFallback from './styles/cards.module.css'; }
+.posterArtworkInitial { composes: posterArtworkInitial from './styles/cards.module.css'; }
+.posterArtworkType { composes: posterArtworkType from './styles/cards.module.css'; }
+.posterCornerBadge { composes: posterCornerBadge from './styles/cards.module.css'; }
+.posterBadgeTopLeft { composes: posterBadgeTopLeft from './styles/cards.module.css'; }
+.posterBadgeTopRight { composes: posterBadgeTopRight from './styles/cards.module.css'; }
+.posterBadgeBottomLeft { composes: posterBadgeBottomLeft from './styles/cards.module.css'; }
+.posterBadgeBottomRight { composes: posterBadgeBottomRight from './styles/cards.module.css'; }
+.posterFeatureBadge { composes: posterFeatureBadge from './styles/cards.module.css'; }
+.posterScoreBadge { composes: posterScoreBadge from './styles/cards.module.css'; }
+.posterFooterBadge { composes: posterFooterBadge from './styles/cards.module.css'; }
+.posterResolutionBadge { composes: posterResolutionBadge from './styles/cards.module.css'; }
+.posterResolution4k { composes: posterResolution4k from './styles/cards.module.css'; }
+.posterResolutionFhd { composes: posterResolutionFhd from './styles/cards.module.css'; }
+.posterResolutionHd { composes: posterResolutionHd from './styles/cards.module.css'; }
+.posterResolutionSd { composes: posterResolutionSd from './styles/cards.module.css'; }
+.posterResolutionYear { composes: posterResolutionYear from './styles/cards.module.css'; }
+.posterProgress { composes: posterProgress from './styles/cards.module.css'; }
+.posterProgressFill { composes: posterProgressFill from './styles/cards.module.css'; }
+.cardTitleLink { composes: cardTitleLink from './styles/cards.module.css'; }
+.cardTitle { composes: cardTitle from './styles/cards.module.css'; }
+.cardMeta { composes: cardMeta from './styles/cards.module.css'; }
+.cardDescription { composes: cardDescription from './styles/cards.module.css'; }
+.cardNotice { composes: cardNotice from './styles/cards.module.css'; }
+.progressGroup { composes: progressGroup from './styles/cards.module.css'; }
+.progressBar { composes: progressBar from './styles/cards.module.css'; }
+.progressFill { composes: progressFill from './styles/cards.module.css'; }
+.progressLabel { composes: progressLabel from './styles/cards.module.css'; }
+.imageFallback { composes: imageFallback from './styles/cards.module.css'; }
+.libraryCard { composes: libraryCard from './styles/cards.module.css'; }
+.libraryBackdrop { composes: libraryBackdrop from './styles/cards.module.css'; }
+.libraryStats { composes: libraryStats from './styles/cards.module.css'; }
+.libraryGrid { composes: libraryGrid from './styles/cards.module.css'; }
+.libraryDetailGrid { composes: libraryDetailGrid from './styles/cards.module.css'; }
+.personCard { composes: personCard from './styles/cards.module.css'; }
+.personAvatar { composes: personAvatar from './styles/cards.module.css'; }
+.personAvatarImage { composes: personAvatarImage from './styles/cards.module.css'; }
+.personText { composes: personText from './styles/cards.module.css'; }
+.personName { composes: personName from './styles/cards.module.css'; }
+.personNameLink { composes: personNameLink from './styles/cards.module.css'; }
+.personRole { composes: personRole from './styles/cards.module.css'; }
+.personGrid { composes: personGrid from './styles/cards.module.css'; }
+.peopleGridExpanded { composes: peopleGridExpanded from './styles/cards.module.css'; }
+.peopleSectionBody { composes: peopleSectionBody from './styles/cards.module.css'; }
+
+/* ============================================================
+ * 库列表 & 库详情（从 library.module.css）
+ * ============================================================ */
+.libraryDirectoryHero { composes: libraryDirectoryHero from './styles/library.module.css'; }
+.libraryDirectoryBackdrop { composes: libraryDirectoryBackdrop from './styles/library.module.css'; }
+.libraryDirectoryContent { composes: libraryDirectoryContent from './styles/library.module.css'; }
+.libraryDirectoryCopy { composes: libraryDirectoryCopy from './styles/library.module.css'; }
+.libraryDirectoryStats { composes: libraryDirectoryStats from './styles/library.module.css'; }
+.libraryDirectoryStat { composes: libraryDirectoryStat from './styles/library.module.css'; }
+.libraryDetailHero { composes: libraryDetailHero from './styles/library.module.css'; }
+.libraryDetailBackdrop { composes: libraryDetailBackdrop from './styles/library.module.css'; }
+.libraryDetailBackdropBlur { composes: libraryDetailBackdropBlur from './styles/library.module.css'; }
+.libraryDetailBackdropFrame { composes: libraryDetailBackdropFrame from './styles/library.module.css'; }
+.libraryDetailBackdropImage { composes: libraryDetailBackdropImage from './styles/library.module.css'; }
+.libraryDetailHeroContent { composes: libraryDetailHeroContent from './styles/library.module.css'; }
+.libraryDetailHeroMain { composes: libraryDetailHeroMain from './styles/library.module.css'; }
+.libraryDetailHeroSide { composes: libraryDetailHeroSide from './styles/library.module.css'; }
+.libraryDetailHeroStats { composes: libraryDetailHeroStats from './styles/library.module.css'; }
+.libraryDetailHeroStat { composes: libraryDetailHeroStat from './styles/library.module.css'; }
+.libraryDetailHeroActions { composes: libraryDetailHeroActions from './styles/library.module.css'; }
+.libraryDetailPreviewGrid { composes: libraryDetailPreviewGrid from './styles/library.module.css'; }
+.libraryDetailPreviewTile { composes: libraryDetailPreviewTile from './styles/library.module.css'; }
+.libraryDetailPreviewImage { composes: libraryDetailPreviewImage from './styles/library.module.css'; }
+.libraryDetailPreviewFallback { composes: libraryDetailPreviewFallback from './styles/library.module.css'; }
+.libraryDetailPreviewTitle { composes: libraryDetailPreviewTitle from './styles/library.module.css'; }
+.libraryControlPanel { composes: libraryControlPanel from './styles/library.module.css'; }
+.loadMoreHintCard { composes: loadMoreHintCard from './styles/library.module.css'; }
+.activeFilterRow { composes: activeFilterRow from './styles/library.module.css'; }
+.filterChip { composes: filterChip from './styles/library.module.css'; }
+
+/* ============================================================
+ * ItemDetailPage Hero（从 detail-hero.module.css）
+ * ============================================================ */
+.detailHero { composes: detailHero from './styles/detail-hero.module.css'; }
+.detailBackdrop { composes: detailBackdrop from './styles/detail-hero.module.css'; }
+.detailLayout { composes: detailLayout from './styles/detail-hero.module.css'; }
+.detailPosterColumn { composes: detailPosterColumn from './styles/detail-hero.module.css'; }
+.detailPosterPanel { composes: detailPosterPanel from './styles/detail-hero.module.css'; }
+.detailPosterWrap { composes: detailPosterWrap from './styles/detail-hero.module.css'; }
+.detailPoster { composes: detailPoster from './styles/detail-hero.module.css'; }
+.detailPosterFallback { composes: detailPosterFallback from './styles/detail-hero.module.css'; }
+.detailPosterMetaCard { composes: detailPosterMetaCard from './styles/detail-hero.module.css'; }
+.detailPosterMetaEyebrow { composes: detailPosterMetaEyebrow from './styles/detail-hero.module.css'; }
+.detailPosterMetaTitle { composes: detailPosterMetaTitle from './styles/detail-hero.module.css'; }
+.detailPosterFacts { composes: detailPosterFacts from './styles/detail-hero.module.css'; }
+.detailPosterFact { composes: detailPosterFact from './styles/detail-hero.module.css'; }
+.detailPosterFactLabel { composes: detailPosterFactLabel from './styles/detail-hero.module.css'; }
+.detailPosterFactValue { composes: detailPosterFactValue from './styles/detail-hero.module.css'; }
+.detailTitle { composes: detailTitle from './styles/detail-hero.module.css'; }
+.detailSubtitle { composes: detailSubtitle from './styles/detail-hero.module.css'; }
+.detailMeta { composes: detailMeta from './styles/detail-hero.module.css'; }
+.detailPrimaryFacts { composes: detailPrimaryFacts from './styles/detail-hero.module.css'; }
+.detailPrimaryFact { composes: detailPrimaryFact from './styles/detail-hero.module.css'; }
+.detailSummaryBlock { composes: detailSummaryBlock from './styles/detail-hero.module.css'; }
+.detailHeroFacts { composes: detailHeroFacts from './styles/detail-hero.module.css'; }
+.detailHeroFact { composes: detailHeroFact from './styles/detail-hero.module.css'; }
+.detailHeroFactLabel { composes: detailHeroFactLabel from './styles/detail-hero.module.css'; }
+.detailHeroFactValue { composes: detailHeroFactValue from './styles/detail-hero.module.css'; }
+.detailSummary { composes: detailSummary from './styles/detail-hero.module.css'; }
+.detailSummaryCollapsed { composes: detailSummaryCollapsed from './styles/detail-hero.module.css'; }
+.detailSummaryToggle { composes: detailSummaryToggle from './styles/detail-hero.module.css'; }
+.detailStateChip { composes: detailStateChip from './styles/detail-hero.module.css'; }
+.detailTagRow { composes: detailTagRow from './styles/detail-hero.module.css'; }
+.detailTag { composes: detailTag from './styles/detail-hero.module.css'; }
+.detailButtonRow { composes: buttonRow from './styles/shared.module.css'; }
+.detailShortcuts { composes: cardMetaRow from './styles/shared.module.css'; }
+
+/* ============================================================
+ * ItemDetailPage 内容区（从 detail-content.module.css）
+ * ============================================================ */
+.detailContentGrid { composes: detailContentGrid from './styles/detail-content.module.css'; }
+.detailContentSingle { composes: detailContentSingle from './styles/detail-content.module.css'; }
+.detailMainColumn { composes: detailMainColumn from './styles/detail-content.module.css'; }
+.detailSideColumn { composes: detailSideColumn from './styles/detail-content.module.css'; }
+.detailSectionHeader { composes: detailSectionHeader from './styles/detail-content.module.css'; }
+.sectionHeadingStack { composes: sectionHeadingStack from './styles/detail-content.module.css'; }
+.detailSectionHint { composes: detailSectionHint from './styles/detail-content.module.css'; }
+.detailList { composes: detailList from './styles/detail-content.module.css'; }
+.detailListItem { composes: detailListItem from './styles/detail-content.module.css'; }
+.detailListLabel { composes: detailListLabel from './styles/detail-content.module.css'; }
+.detailListValue { composes: cardMeta from './styles/cards.module.css'; }
+.detailTechnicalList { composes: detailTechnicalList from './styles/detail-content.module.css'; }
+.detailTechnicalItem { composes: detailTechnicalItem from './styles/detail-content.module.css'; }
+.detailTechnicalLabel { composes: detailTechnicalLabel from './styles/detail-content.module.css'; }
+.detailTechnicalValue { composes: cardMeta from './styles/cards.module.css'; }
+.detailVersionsList { composes: detailVersionsList from './styles/detail-content.module.css'; }
+.detailVersionItem { composes: detailVersionItem from './styles/detail-content.module.css'; }
+.detailVersionSummary { composes: cardMeta from './styles/cards.module.css'; }
+.detailInfoGrid { composes: detailInfoGrid from './styles/detail-content.module.css'; }
+.detailNarrativeBlock { composes: detailNarrativeBlock from './styles/detail-content.module.css'; }
+.detailSubsection { composes: detailSubsection from './styles/detail-content.module.css'; }
+.detailSubsectionTitle { composes: detailSubsectionTitle from './styles/detail-content.module.css'; }
+.detailLongCopy { composes: detailLongCopy from './styles/detail-content.module.css'; }
+.detailFactsGrid { composes: detailFactsGrid from './styles/detail-content.module.css'; }
+.detailFactCard { composes: detailFactCard from './styles/detail-content.module.css'; }
+.detailFactLabel { composes: detailFactLabel from './styles/detail-content.module.css'; }
+.detailFactValue { composes: detailFactValue from './styles/detail-content.module.css'; }
+.detailFactsList { composes: detailFactsList from './styles/detail-content.module.css'; }
+.detailFactRow { composes: detailFactRow from './styles/detail-content.module.css'; }
+.detailFactTerm { composes: detailFactTerm from './styles/detail-content.module.css'; }
+.detailFactDescription { composes: detailFactDescription from './styles/detail-content.module.css'; }
+.detailFactInline { composes: detailFactInline from './styles/detail-content.module.css'; }
+.detailTechnicalGrid { composes: detailTechnicalGrid from './styles/detail-content.module.css'; }
+.detailTechnicalPanel { composes: detailTechnicalPanel from './styles/detail-content.module.css'; }
+.detailTechnicalPanelTitle { composes: detailTechnicalPanelTitle from './styles/detail-content.module.css'; }
+.detailTechnicalPanelValue { composes: detailTechnicalPanelValue from './styles/detail-content.module.css'; }
+.detailTechnicalPanelHint { composes: detailTechnicalPanelHint from './styles/detail-content.module.css'; }
+.detailStreamBlock { composes: detailStreamBlock from './styles/detail-content.module.css'; }
+.detailGroupDisclosure { composes: detailGroupDisclosure from './styles/detail-content.module.css'; }
+.detailGroupSummary { composes: detailGroupSummary from './styles/detail-content.module.css'; }
+.detailGroupBody { composes: detailGroupBody from './styles/detail-content.module.css'; }
+.detailStreamList { composes: detailStreamList from './styles/detail-content.module.css'; }
+.detailStreamItem { composes: detailStreamItem from './styles/detail-content.module.css'; }
+.detailDisclosure { composes: detailDisclosure from './styles/detail-content.module.css'; }
+.detailDisclosureSummary { composes: detailDisclosureSummary from './styles/detail-content.module.css'; }
+.detailDisclosureHint { composes: detailDisclosureHint from './styles/detail-content.module.css'; }
+.detailDisclosureBody { composes: detailDisclosureBody from './styles/detail-content.module.css'; }
+.detailVersionBadges { composes: detailVersionBadges from './styles/detail-content.module.css'; }
+.detailVersionBadge { composes: detailVersionBadge from './styles/detail-content.module.css'; }
+.episodeRow { composes: episodeRow from './styles/detail-content.module.css'; }
+.episodeCardMedia { composes: episodeCardMedia from './styles/detail-content.module.css'; }
+.episodeCardImage { composes: episodeCardImage from './styles/detail-content.module.css'; }
+.episodeCardFallback { composes: episodeCardFallback from './styles/detail-content.module.css'; }
+.episodeCardIndex { composes: episodeCardIndex from './styles/detail-content.module.css'; }
+.episodeRowCopy { composes: episodeRowCopy from './styles/detail-content.module.css'; }
+.episodeRowTitle { composes: episodeRowTitle from './styles/detail-content.module.css'; }
+.episodeRowMeta { composes: episodeRowMeta from './styles/detail-content.module.css'; }
+.episodeRowDescription { composes: episodeRowDescription from './styles/detail-content.module.css'; }
+.episodeRowActions { composes: episodeRowActions from './styles/detail-content.module.css'; }
+.episodeSelectorEmpty { composes: episodeSelectorEmpty from './styles/detail-content.module.css'; }
+.smallStatsGrid { composes: smallStatsGrid from './styles/detail-content.module.css'; }
+.smallStat { composes: smallStat from './styles/detail-content.module.css'; }
+.smallStatLabel { composes: cardMeta from './styles/cards.module.css'; }
+.smallStatLabelRow { composes: smallStatLabelRow from './styles/detail-content.module.css'; }
+
+/* ============================================================
+ * 骨架屏（从 skeleton.module.css）
+ * ============================================================ */
+.skeletonHero { composes: skeletonHero from './styles/skeleton.module.css'; }
+.skeletonSection { composes: skeletonSection from './styles/skeleton.module.css'; }
+.skeletonWideCard { composes: skeletonWideCard from './styles/skeleton.module.css'; }
+.skeletonGrid { composes: skeletonGrid from './styles/skeleton.module.css'; }
+.skeletonPosterCard { composes: skeletonPosterCard from './styles/skeleton.module.css'; }

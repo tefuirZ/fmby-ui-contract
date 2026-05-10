@@ -1,0 +1,68 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--surface-2);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.description {
+  color: var(--text-secondary);
+}
+
+.banner[data-variant='success'] {
+  border-color: rgba(102, 209, 158, 0.4);
+  background: rgba(102, 209, 158, 0.08);
+}
+
+.banner[data-variant='success'] .icon,
+.banner[data-variant='success'] .title {
+  color: var(--success);
+}
+
+.banner[data-variant='error'] {
+  border-color: rgba(242, 127, 127, 0.4);
+  background: rgba(242, 127, 127, 0.08);
+}
+
+.banner[data-variant='error'] .icon,
+.banner[data-variant='error'] .title {
+  color: var(--danger);
+}
+
+.banner[data-variant='warning'] {
+  border-color: rgba(240, 194, 116, 0.4);
+  background: rgba(240, 194, 116, 0.08);
+}
+
+.banner[data-variant='warning'] .icon,
+.banner[data-variant='warning'] .title {
+  color: var(--warning);
+}
+
+.banner[data-variant='info'] {
+  border-color: rgba(125, 180, 255, 0.4);
+  background: rgba(125, 180, 255, 0.08);
+}
+
+.banner[data-variant='info'] .icon,
+.banner[data-variant='info'] .title {
+  color: var(--accent-blue);
+}

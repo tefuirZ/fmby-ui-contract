@@ -1,0 +1,395 @@
+/* ===== TopBar 顶部导航栏 ===== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  height: var(--topbar-height-desktop);
+  background: rgba(11, 13, 18, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.container {
+  max-width: var(--grid-max-width);
+  margin: 0 auto;
+  padding: 0 var(--grid-margin);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* ===== 左区 ===== */
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.brand {
+  font-weight: 800;
+  font-size: var(--text-h2);
+  color: var(--brand-gold);
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand:hover {
+  opacity: 0.9;
+}
+
+/* 汉堡菜单按钮 —— 默认隐藏，手机端显示 */
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-micro) var(--ease-default);
+}
+
+.menuButton:hover {
+  color: var(--text-primary);
+}
+
+.menuButton:focus-visible,
+.mobileNavCloseButton:focus-visible,
+.mobileNavLink:focus-visible {
+  outline: 2px solid var(--brand-gold);
+  outline-offset: 3px;
+}
+
+.mobileNavOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mobileNavSheet {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: calc(var(--z-modal) + 1);
+  display: flex;
+  width: min(380px, calc(100vw - 20px));
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl, 24px);
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(224, 170, 62, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+  box-shadow: var(--shadow-l3);
+}
+
+.mobileNavHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mobileNavTitleBlock {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mobileNavEyebrow {
+  color: var(--brand-gold);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mobileNavTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-h2);
+  line-height: 1.2;
+}
+
+.mobileNavDescription {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: 1.5;
+}
+
+.mobileNavCloseButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full, 999px);
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default),
+    border-color var(--duration-micro) var(--ease-default);
+}
+
+.mobileNavCloseButton:hover {
+  color: var(--text-primary);
+  background: var(--surface-3);
+  border-color: var(--border-strong);
+}
+
+.mobileNavList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default),
+    border-color var(--duration-micro) var(--ease-default),
+    transform var(--duration-micro) var(--ease-default);
+}
+
+.mobileNavLink:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+  transform: translateX(2px);
+}
+
+.mobileNavLink.active {
+  color: var(--text-primary);
+  border-color: rgba(224, 170, 62, 0.36);
+  background: rgba(224, 170, 62, 0.12);
+}
+
+.mobileManageLink {
+  color: var(--manage-cyan);
+}
+
+.mobileManageLink.active {
+  border-color: rgba(104, 228, 215, 0.38);
+  background: rgba(104, 228, 215, 0.14);
+}
+
+.mobileNavIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== 导航 ===== */
+
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-body);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default);
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+}
+
+.navLink.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ===== 右区 ===== */
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.manageEntry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--manage-cyan);
+  font-size: var(--text-body);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background var(--duration-micro) var(--ease-default),
+    color var(--duration-micro) var(--ease-default);
+}
+
+.manageEntry:hover {
+  background: var(--surface-3);
+}
+
+.manageEntry.active {
+  background: var(--surface-3);
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default);
+}
+
+.userMenu:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+}
+
+/* ===== 搜索按钮 ===== */
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  cursor: pointer;
+  font-size: var(--text-body);
+  transition: color var(--duration-micro) var(--ease-default),
+    background var(--duration-micro) var(--ease-default),
+    border-color var(--duration-micro) var(--ease-default);
+}
+
+.searchButton:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+  border-color: var(--border-default);
+}
+
+.searchLabel {
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+.searchKbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-3);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  line-height: 1.4;
+}
+
+/* ===== 响应式 ===== */
+
+/* 平板：隐藏导航文字只保留图标 */
+@media (max-width: 1023px) {
+  .topbar {
+    height: var(--topbar-height-tablet);
+  }
+
+  .navLabel {
+    display: none;
+  }
+
+  .manageLabel {
+    display: none;
+  }
+
+  .searchLabel,
+  .searchKbd {
+    display: none;
+  }
+
+  .left {
+    gap: var(--space-4);
+  }
+}
+
+/* 手机：隐藏整个导航区域，显示汉堡菜单 */
+@media (max-width: 767px) {
+  .topbar {
+    height: var(--topbar-height-mobile);
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .menuButton {
+    display: flex;
+  }
+
+  .manageEntry {
+    display: none;
+  }
+
+  .searchLabel,
+  .searchKbd {
+    display: none;
+  }
+
+  .mobileNavSheet {
+    inset: 8px;
+    width: auto;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg, 20px);
+  }
+}

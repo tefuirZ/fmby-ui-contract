@@ -1,0 +1,65 @@
+/* ============================================================
+ * 骨架屏加载态
+ * ============================================================
+ * BrowseLoadingState 组件使用的骨架屏样式
+ */
+
+.skeletonHero,
+.skeletonWideCard,
+.skeletonPosterCard {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+.skeletonHero {
+  min-height: 420px;
+}
+
+.skeletonSection {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.skeletonWideCard {
+  min-height: 240px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.skeletonPosterCard {
+  aspect-ratio: 2 / 3;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1023px) {
+  .skeletonGrid,
+  .skeletonSection {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .skeletonGrid,
+  .skeletonSection {
+    grid-template-columns: 1fr;
+  }
+}

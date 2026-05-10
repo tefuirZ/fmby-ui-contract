@@ -1,0 +1,253 @@
+/* ============================================================
+ * 横向滚动轨道（Rails）
+ * ============================================================
+ * mediaRail / rail item 宽度计算 / rail 与 shelf 容器
+ */
+
+.mediaRail {
+  width: 100%;
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+}
+
+.mediaRail[data-wheel-scrolling='true'] {
+  scroll-snap-type: none;
+}
+
+.mediaRail::-webkit-scrollbar {
+  display: none;
+}
+
+.sectionShelf .mediaRail {
+  margin-inline: calc(clamp(18px, 2vw, 26px) * -1);
+  padding-inline: clamp(18px, 2vw, 26px);
+  padding-bottom: 10px;
+}
+
+.posterRailItem,
+.libraryRailItem {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.posterRailItem {
+  width: clamp(132px, 14vw, 172px);
+}
+
+.continueRailItem {
+  flex: 0 0 auto;
+  width: clamp(300px, 24vw, 380px);
+  scroll-snap-align: start;
+}
+
+.landscapeRailItem {
+  width: clamp(320px, 38vw, 540px);
+}
+
+.libraryRailItem {
+  width: clamp(220px, 26vw, 320px);
+}
+
+.detailPosterRail {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  padding: 2px 2px 10px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(243, 202, 125, 0.72) rgba(255, 255, 255, 0.08);
+}
+
+.detailPosterRail[data-wheel-scrolling='true'] {
+  scroll-snap-type: none;
+}
+
+.detailPosterRail::-webkit-scrollbar {
+  height: 10px;
+}
+
+.detailPosterRail::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.detailPosterRail::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(228, 175, 80, 0.92), rgba(243, 202, 125, 0.86));
+}
+
+.detailPosterRailItem {
+  flex: 0 0 auto;
+  width: clamp(148px, 16vw, 184px);
+  scroll-snap-align: start;
+}
+
+.peopleRail {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.peopleRail > .personCard {
+  min-width: 220px;
+  flex: 0 0 220px;
+}
+
+.peopleRail::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================
+ * Season / Episode Rail（detail 场景）
+ * ============================================================ */
+
+.seasonSelector {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  padding: 2px 2px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(243, 202, 125, 0.72) rgba(255, 255, 255, 0.08);
+}
+
+.seasonSelector::-webkit-scrollbar {
+  height: 8px;
+}
+
+.seasonSelector::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seasonSelector::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(228, 175, 80, 0.92), rgba(243, 202, 125, 0.86));
+}
+
+.seasonSelector[data-wheel-scrolling='true'] {
+  scroll-snap-type: none;
+}
+
+.seasonChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: var(--text-body-sm);
+}
+
+.seasonChip[data-selected='true'] {
+  border-color: rgba(228, 175, 80, 0.28);
+  background: rgba(228, 175, 80, 0.12);
+  color: #ffe4a9;
+}
+
+.seasonChipMeta {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.episodeList {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  padding: 2px 2px 12px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(243, 202, 125, 0.72) rgba(255, 255, 255, 0.08);
+}
+
+.episodeList::-webkit-scrollbar {
+  height: 10px;
+}
+
+.episodeList::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.episodeList::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(228, 175, 80, 0.92), rgba(243, 202, 125, 0.86));
+}
+
+.episodeList[data-wheel-scrolling='true'] {
+  scroll-snap-type: none;
+}
+
+/* ============================================================
+ * 响应式断点
+ * ============================================================ */
+
+@media (max-width: 1023px) {
+  .posterRailItem {
+    width: min(160px, 38vw);
+  }
+
+  .continueRailItem {
+    width: min(540px, 82vw);
+  }
+
+  .detailPosterRailItem {
+    width: min(172px, 40vw);
+  }
+
+  .libraryRailItem {
+    width: min(280px, 74vw);
+  }
+
+  .landscapeRailItem {
+    width: min(460px, 78vw);
+  }
+}
+
+@media (max-width: 767px) {
+  .posterRailItem {
+    width: min(150px, 44vw);
+  }
+
+  .continueRailItem {
+    width: min(340px, 88vw);
+  }
+
+  .landscapeRailItem {
+    width: min(320px, 86vw);
+  }
+
+  .detailPosterRailItem {
+    width: min(164px, 54vw);
+  }
+
+  .libraryRailItem {
+    width: min(260px, 82vw);
+  }
+
+  .peopleRail > .personCard {
+    min-width: min(220px, 82vw);
+    flex-basis: min(220px, 82vw);
+  }
+}

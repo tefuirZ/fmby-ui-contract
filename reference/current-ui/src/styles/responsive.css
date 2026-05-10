@@ -1,0 +1,123 @@
+/*
+ * ============================================================
+ * FMBY 响应式工程化基础设施
+ * ============================================================
+ *
+ * 本文件提供 FMBY 全尺寸适配的统一约定与工具类。
+ * 与 tokens.css 配合：tokens 定义"是什么"，本文件定义"怎么落"。
+ *
+ * 内容：
+ *   1. 全局 @media 断点书写约定（注释，工程纪律由 review 守住）
+ *   2. 容器查询基础：.cqInline / .cqSize 工具类
+ *   3. 触控目标兜底：.touchTarget（hover:none + pointer:coarse 触发）
+ *   4. iOS 安全区工具类
+ *   5. 仅移动 / 仅桌面 显示工具类（替代散落的内联 display:none）
+ *
+ * 任何新写的 @media 都应使用 §1 的 8 档断点约定，禁止再引入 720/1100/1180 这类散值。
+ */
+
+/* ============================================================
+ * 1. 8 档断点书写约定（仅注释；浏览器尚不支持 @media (max-width: var(--bp-*))
+ *    JS 侧可读 :root 上的 --bp-* 自定义属性获取一致值）
+ * ============================================================
+ *   small-phone     (max-width: 479px)
+ *   phone           (max-width: 767px)
+ *   tablet          (max-width: 1023px)   ← iPad 竖屏 / Surface 抽屉化分界
+ *   middle-laptop   (max-width: 1279px)   ← 1366 笔记本主战场
+ *   desktop         (max-width: 1599px)
+ *   desktop-wide    (max-width: 1919px)
+ *   desktop-2k      (max-width: 2559px)
+ *   ultra           (min-width: 2560px)
+ * ============================================================ */
+
+/* ============================================================
+ * 2. 容器查询基础工具
+ * ----
+ *   - .cqInline：声明只对宽度做容器查询的容器（最常用）
+ *   - .cqSize：声明对宽高都做容器查询的容器（卡片自适应海报比例时用）
+ *
+ *   使用约定：在卡片或栏目根元素加 .cqInline / .cqSize，子组件在自己的 .module.css
+ *   中用 @container (min-width: var(--cq-xx)) 内插值响应。
+ * ============================================================ */
+.cqInline {
+  container-type: inline-size;
+}
+
+.cqSize {
+  container-type: size;
+}
+
+/* ============================================================
+ * 3. 触控目标兜底
+ * ----
+ *   仅在触控指针设备（手机 / 平板）启用，桌面鼠标场景保持紧凑视觉。
+ *   通过 hover:none + pointer:coarse 媒体查询识别。
+ * ============================================================ */
+@media (hover: none) and (pointer: coarse) {
+  .touchTarget,
+  .touchTarget button,
+  .touchTarget a {
+    min-height: var(--touch-min);
+    min-width: var(--touch-min);
+  }
+}
+
+/* ============================================================
+ * 4. iOS 安全区工具类
+ * ----
+ *   .safePaddingTop / .safePaddingBottom / .safePaddingX
+ *   适合 PWA 全屏模式下顶部刘海 / 底部 home indicator 避让。
+ * ============================================================ */
+.safePaddingTop {
+  padding-top: var(--safe-area-top);
+}
+
+.safePaddingBottom {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.safePaddingX {
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+}
+
+/* ============================================================
+ * 5. 仅移动 / 仅桌面 显示工具类
+ * ----
+ *   消除散落在各 .module.css 中的「@media (max-width: 767px) { display: none }」重复
+ * ============================================================ */
+.showMobile {
+  display: none;
+}
+
+.hideMobile {
+  display: revert;
+}
+
+@media (max-width: 767px) {
+  .showMobile {
+    display: revert;
+  }
+
+  .hideMobile {
+    display: none;
+  }
+}
+
+.showTablet {
+  display: none;
+}
+
+.hideTablet {
+  display: revert;
+}
+
+@media (max-width: 1023px) {
+  .showTablet {
+    display: revert;
+  }
+
+  .hideTablet {
+    display: none;
+  }
+}
