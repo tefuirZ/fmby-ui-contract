@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tefuirZ/fmby-ui-contract/schemas/bootstrap.schema.json",
+  "title": "FMBY Bootstrap Object",
+  "description": "Shape of window.__FMBY_BOOTSTRAP__ injected by fmby-server into index.html (contract 0.1.x).",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "fmby_version",
+    "active_skin",
+    "site",
+    "auth",
+    "api",
+    "features"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$",
+      "description": "Contract version the backend currently implements."
+    },
+    "fmby_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$",
+      "description": "fmby-server binary version (informational)."
+    },
+    "active_skin": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "description": "Currently active skin name; should match this skin's manifest.name."
+    },
+    "site": {
+      "type": "object",
+      "required": ["site_name"],
+      "additionalProperties": false,
+      "properties": {
+        "site_name": { "type": "string" },
+        "homepage_message": { "type": "string" },
+        "maintenance_banner": { "type": "string" },
+        "support_contact": { "type": "string" }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "required": [
+        "csrf_cookie_name",
+        "session_cookie_name",
+        "csrf_header_name",
+        "logged_in"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "csrf_cookie_name": { "type": "string", "default": "fmby_csrf" },
+        "session_cookie_name": { "type": "string", "default": "fmby_session" },
+        "csrf_header_name": { "type": "string", "default": "X-CSRF-Token" },
+        "logged_in": { "type": "boolean" },
+        "user_id": { "type": ["string", "null"] },
+        "username": { "type": ["string", "null"] }
+      }
+    },
+    "api": {
+      "type": "object",
+      "required": ["base_url"],
+      "additionalProperties": false,
+      "properties": {
+        "base_url": {
+          "type": "string",
+          "description": "Always '/api' for same-origin deployments.",
+          "default": "/api"
+        },
+        "compat_base_url": {
+          "type": "string",
+          "description": "Emby/Jellyfin compat base; skin should NOT depend on it."
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "description": "Feature flags inferred from server config & enabled features.",
+      "additionalProperties": { "type": "boolean" },
+      "properties": {
+        "pan115_imghost_enabled": { "type": "boolean" },
+        "pan115_provider_enabled": { "type": "boolean" },
+        "registration_enabled": { "type": "boolean" }
+      }
+    }
+  }
+}

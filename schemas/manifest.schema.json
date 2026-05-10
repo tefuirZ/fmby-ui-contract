@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tefuirZ/fmby-ui-contract/schemas/manifest.schema.json",
+  "title": "FMBY Skin Manifest",
+  "description": "Schema for skin manifest.json (contract 0.1.x).",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "name",
+    "display_name",
+    "version",
+    "description",
+    "author",
+    "license",
+    "entry"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "description": "fmby-ui-contract version this skin targets.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Unique slug, used as URL segment and directory name.",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "version": {
+      "type": "string",
+      "description": "Skin's own semver version.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "author": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (or 'Proprietary').",
+      "minLength": 1
+    },
+    "entry": {
+      "type": "string",
+      "description": "Path to the entry HTML file relative to the skin package root.",
+      "const": "dist/index.html"
+    },
+    "homepage_url": { "type": "string", "format": "uri" },
+    "repository_url": { "type": "string", "format": "uri" },
+    "screenshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_./\\-]+$",
+            "description": "Relative path inside the skin package; cannot contain '..'."
+          },
+          "caption": { "type": "string", "maxLength": 120 }
+        }
+      },
+      "maxItems": 12
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "*",
+          "auth",
+          "browse",
+          "playback",
+          "assets",
+          "settings",
+          "manage",
+          "pan115_imghost",
+          "pan115_provider",
+          "task_center",
+          "audit_logs",
+          "runtime_logs"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "localStorage_keys": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Prefixes the skin uses for window.localStorage keys."
+    },
+    "min_fmby_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "max_fmby_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{0,31}$"
+      },
+      "uniqueItems": true,
+      "maxItems": 16
+    }
+  }
+}
