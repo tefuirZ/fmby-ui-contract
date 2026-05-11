@@ -1,6 +1,11 @@
 # Manage · Pan115 Imghost (115 图床子系统)
 
-> Feature flag：`features.pan115_imghost`（默认 OFF）。`GET /api/site/info` 中读取；皮肤未亮该 flag 时整块入口隐藏。
+> Feature gate：
+>
+> - 站点 / 产品层：`features.pan115_imghost`
+> - 当前 classic WebUI 构建层常量：`PAN115_IMGHOST_ENABLED = true`
+>
+> 皮肤实现仍应以产品配置为最终展示门禁，不要只依赖构建层常量。
 
 把任意小图（海报/截图）上传到 115 图床，返回 `sha1` + `host_url`（115 永久直链）。刮削管线可联动自动镜像（见 [tasks.md naming-scrape `imghost_auto_upload`]）。
 

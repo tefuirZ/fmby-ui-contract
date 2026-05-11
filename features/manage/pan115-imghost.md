@@ -1,6 +1,11 @@
 # Features · Manage · Pan115 Imghost
 
-> Feature flag：`features.pan115_imghost`。flag 关闭时整页 + 设置开关 + 二级菜单都不渲染。
+> Feature gate：
+>
+> - 产品契约层：`features.pan115_imghost`
+> - 当前 classic WebUI 构建常量：`PAN115_IMGHOST_ENABLED = true`
+>
+> 新皮肤应同时尊重这两层门禁，避免只因为构建常量打开就暴露未准备好的入口。
 
 ## 路由
 - `/manage/tools/pan115-imghost`
@@ -10,9 +15,12 @@
 
 ## UI
 
-**凭据卡**：扫码弹窗 + cookie_app `<select>` + 状态徽标 + 解绑按钮  
-**上传区**：拖拽 + multipart / 进度 / sha1 dedup 提示  
-**资产网格**：缩略图 + sha1 / size / mirror_status 徽标 + 复制 host_url（HTTP 走 fallback）+ 删除  
+**凭据卡**：扫码弹窗 + cookie_app `<select>` + 状态徽标 + 解绑按钮
+
+**上传区**：拖拽 + multipart / 进度 / sha1 dedup 提示
+
+**资产网格**：缩略图 + sha1 / size / mirror_status 徽标 + 复制 host_url（HTTP 走 fallback）+ 删除
+
 **调试入口**：permanent-url / final-url（仅开发模式或显式开关）
 
 ## mirror_status 徽标
