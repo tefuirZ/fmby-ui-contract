@@ -186,8 +186,31 @@ manageSettingsPage:
 
 - `bootstrap.site.*` 字段来自 `server/general`
 - `bootstrap.features.registration_enabled` 来自 `server/security`
+- `naming-scrape.imghost_governance` 是 `115 图床` 治理入口的唯一结构化真相；历史 `imghost_auto_upload` 只保留兼容语义
 - 用户登录页面"是否显示注册按钮" → 看 bootstrap 或读 security
 - 用户角色 / capability 的修改 → 在 [`manage/users.md`](./manage/users.md)（不在 settings）
+
+---
+
+## 命名与刮削中的 115 图床治理字段
+
+`NamingScrapeSettings` 需要额外包含：
+
+```json
+{
+  "imghost_governance": {
+    "enabled": true,
+    "scopes": ["poster", "backdrop", "thumb", "banner", "logo", "person_avatar"],
+    "retain_local_copy": true
+  },
+  "imghost_auto_upload": true
+}
+```
+
+约束：
+- `imghost_governance` 是主字段，前端必须以它驱动 UI
+- `imghost_auto_upload` 仅用于兼容老配置和老接口消费者
+- `scopes` 只能来自固定枚举，皮肤不应提供自由文本输入
 
 ---
 

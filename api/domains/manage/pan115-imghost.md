@@ -2,12 +2,12 @@
 
 > Feature gate：
 >
-> - 站点 / 产品层：`features.pan115_imghost`
-> - 当前 classic WebUI 构建层常量：`PAN115_IMGHOST_ENABLED = true`
+> - 站点 / 产品层：`bootstrap.features.pan115_imghost_enabled`
+> - 构建层 env 只允许本地开发强制打开，不得覆盖后端能力门禁
 >
-> 皮肤实现仍应以产品配置为最终展示门禁，不要只依赖构建层常量。
+> 该域的产品定位是“刮削产物镜像系统”。手工上传接口保留，但只作为诊断能力，不再是主运营入口。
 
-把任意小图（海报/截图）上传到 115 图床，返回 `sha1` + `host_url`（115 永久直链）。刮削管线可联动自动镜像（见 [tasks.md naming-scrape `imghost_auto_upload`]）。
+把刮削产生的海报、背景图、缩略图、Logo、人物头像镜像到 115 图床，返回 `sha1` + `host_url`（115 永久入口 URL）。新刮削资产、历史回补、失败重试统一进入任务中心执行。
 
 ## 端点
 
@@ -29,6 +29,26 @@
 | GET    | `/api/manage/pan115/imghost/assets` | 列表 `?page&page_size&q` |
 | GET    | `/api/manage/pan115/imghost/raw/{sha1}` | 取图：本地有则直读，无则 302 到 host_url |
 
+### 治理执行模型
+
+- 设置入口：`/api/settings/... naming-scrape`
+- 结构化字段：
+  - `imghost_governance.enabled`
+  - `imghost_governance.scopes`
+  - `imghost_governance.retain_local_copy`
+- 兼容旧布尔：
+  - `imghost_auto_upload`
+
+> scope 合法值：`poster` / `backdrop` / `thumb` / `banner` / `logo` / `person_avatar`
+
+### 任务中心联动
+
+- 新增类别：`Imghost`
+- 列表 / 详情来源：`pan115_imghost_mirror_tasks`
+- 支持动作：
+  - `Retry`
+  - `Cancel`
+
 ### 调试
 
 | Method | Path | 说明 |
@@ -48,29 +68,57 @@
   "width": 600,
   "height": 900,
   "uploaded_at": "...",
-  "mirror_status": "ok|pending|referer_blocked|quota_exceeded|failed",
+  "mirror_status": "Uploading|Ok|Failed|Unreachable|Disabled",
   "local_cache_path": "string?"
 }
 ```
 
-> 权威：`crates/fmby-api/src/manage/dto/pan115_imghost.rs`、`crates/pan115-imghost-service/src/lib.rs`。
+`NamingScrapeSettings.imghost_governance`：
+```jsonc
+{
+  "enabled": true,
+  "scopes": ["poster", "backdrop", "thumb", "banner", "logo", "person_avatar"],
+  "retain_local_copy": true
+}
+```
+
+`ImghostTask`（任务中心原始载荷）：
+```jsonc
+{
+  "id": "uuid",
+  "target_type": "SidecarAsset|ProviderPerson",
+  "target_id": "asset-or-person-id",
+  "media_item_id": "item-id-or-null",
+  "scope": "poster|backdrop|thumb|banner|logo|person_avatar",
+  "status": "Queued|Running|RetryWaiting|Succeeded|Failed|Paused|Cancelled",
+  "attempt_count": 1,
+  "max_attempts": 8,
+  "retain_local_copy": true,
+  "request_reason": "ScrapeSuccess|SettingsBackfill|ManualRetry|..."
+}
+```
 
 ## 关键流程
 
 ```
-multipart upload
+scrape success / settings backfill / manual retry
     |
     v
-service.commit_upload
-    ├─ sha1 dedup（已存在直接返回旧 host_url）
-    ├─ 落本地 (.tmp -> rename)
-    └─ spawn fire-and-forget: 推 115 -> 写 host_url
+enqueue pan115_imghost_mirror_tasks
     |
     v
-{ sha1, host_url, mirror_status: ok|pending }
+governance worker claim task
+    ├─ 优先使用本地缓存
+    ├─ 无本地缓存时回退下载上游 source_url
+    ├─ 上传到 115 图床
+    ├─ 成功后回写 sidecar_assets / provider_people 的 imghost_* 字段
+    └─ retain_local_copy=false 时仅清理新任务本地副本
+    |
+    v
+task center -> Imghost category
 ```
 
-刮削自动镜像见 [tasks.md naming-scrape] 的 `imghost_auto_upload` 开关。
+图床失败不得打回刮削成功态；失败只会在任务中心和日志体系中体现。
 
 ## 错误
 
@@ -82,9 +130,7 @@ service.commit_upload
 
 ## 皮肤实现建议
 
-- 工具页 `/manage/tools/pan115-imghost`：拖拽上传 + 资产网格 + 复制 host_url 按钮（HTTP 走 fallback）
-- 凭据卡片：扫码 + cookie_app `<select>`（与 [pan115.md] 同款）
-- mirror_status 徽标：ok(绿) / pending(蓝转动) / referer_blocked(黄) / quota_exceeded(红) / failed(红)
-- referer_blocked 时引导用户："此图床受防盗链限制，已使用本地兜底"
-- `/raw/{sha1}` 是稳定外链；皮肤可放心嵌 `<img src>`，后端会决定 302 还是直读
-- feature flag 关闭时整个二级菜单 + 设置页开关都不渲染
+- `/manage/tools/pan115-imghost` 应是治理/观测页，不再主打手工上传
+- 设置页必须把 `imghost_governance` 作为结构化表单渲染，scope 用固定多选，不允许自由文本
+- `/raw/{sha1}` 是稳定图片入口；实际读取顺序由后端决定：`115 直链 -> 本地缓存 -> 上游图片 URL`
+- feature flag 关闭时整个二级菜单与治理页入口都不渲染
