@@ -8,14 +8,17 @@
 
 ## UI
 
-**顶部数字卡**：running / queued / failed_24h / completed_24h  
-**任务流**：分类徽标 + 进度条 + 时间 + ref 链接 + 操作按钮  
-**筛选**：category / status / since  
+**顶部数字卡**：按类别展示 KPI，至少覆盖 `Identify / Scrape / Imghost / AiAssist / Scan / Review / Tombstone`
+**任务流**：分类徽标 + 状态 + 时间 + ref 链接 + 操作按钮
+**筛选**：category / status / from / to
 **详情面板**：完整 ref + 错误堆栈 + actions
 
 ## 操作
-- 按 `available_actions` 动态渲染按钮（cancel / retry / pause / resume）
-- 批量重试失败：列表多选 + 顶部"重试选中"
+- 当前统一动作：`Retry / Cancel / Skip / Resolve`
+- `Imghost` 类别至少支持：
+  - `Retry`
+  - `Cancel`
+- Review 类别在任务中心只给跳转提示，不直接在这里处理审核领取/释放
 
 ## 皮肤建议
 - 进度条配色：running 蓝 / failed 红 / paused 灰 / completed 绿
