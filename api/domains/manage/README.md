@@ -19,8 +19,8 @@
 | [task-center.md](./manage/task-center.md) | 任务中心聚合视图 | `GET /api/manage/task-center/overview`、`POST /api/manage/task-center/items/{cat}/{id}/actions` |
 | [source-availability.md](./manage/source-availability.md) | 数据源可用性恢复 | `POST /api/manage/source-availability/{id}/recover` |
 | [logs.md](./manage/logs.md) | 审计日志 / 运行日志 | `GET /api/manage/audit-logs`、`GET /api/manage/runtime-logs` |
-| [pan115.md](./manage/pan115.md) | 115 网盘账号绑定 / 浏览 | `POST /api/manage/pan115/qr-login`、`POST /api/manage/pan115/accounts/{id}/browse` |
-| [pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床（feature flag） | `POST /api/manage/pan115/imghost/upload`、`GET /api/manage/pan115/imghost/raw/{sha1}` |
+| [pan115.md](./manage/pan115.md) | 115 网盘 / 115 分享账号绑定与浏览 | `POST /api/manage/pan115/qr-login`、`POST /api/manage/pan115/share-mounts/{id}/activate` |
+| [pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床治理 / 观测 | `POST /api/manage/pan115/imghost/upload`、`GET /api/manage/pan115/imghost/raw/{sha1}` |
 
 ## 通用约定
 
@@ -28,4 +28,4 @@
 - 列表端点支持 `?page=&page_size=` 与领域内的 `?status=&q=` 等过滤；具体见各子文档。
 - 写操作（POST/PATCH/PUT/DELETE）写入 `audit_logs`；皮肤端可通过 `logs.md` 反查谁在何时改了什么。
 - 长任务（扫描、批量刮削、回填）走 task-center；皮肤需要自己做"提交后跳到任务中心"的引导。
-- 皮肤可探测 `GET /api/site/info` 中 `features.pan115_imghost`，决定是否渲染图床入口。
+- 皮肤可探测 bootstrap / `GET /api/site/info` 中的 `features.pan115_imghost_enabled` 展示图床服务可用性，但不应把图床治理页直接隐藏或改成 404；后端未启用时页面内展示配置引导。

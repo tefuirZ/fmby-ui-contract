@@ -33,7 +33,7 @@
 | `alist` / `openlist` | 支持 | 支持 | 根路径与媒体库子路径都应优先通过目录浏览器选择，不建议手填。 |
 | `microsoft-global` / `microsoft-china` | 支持 | 支持 | 依赖已导入 token + 已选择 drive/site。 |
 | `pan115` | 走专用 API | 走专用 API | 根路径保存目录 `cid`；不要把 `browse-directories` 当成普通 115 浏览真相。 |
-| `pan115-share` | 支持 | 支持 | 根路径保存“分享内子目录根”，不是 share cid。 |
+| `pan115-share` | 支持 | 支持 | 根路径固定为虚拟根 `/`；分享项在 `config_json.shares[]` 内维护，`alias` 是一级虚拟目录。 |
 
 ## DTO
 
@@ -56,11 +56,27 @@
     }
   },
   "provider_type": "Pan115Share",
-  "root_path": "/电影合集",
+  "root_path": "/",
   "config_json": {
-    "share_code": "abc123",
-    "receive_code": "qwer",
     "client_type": "chrome",
+    "shares": [
+      {
+        "id": "share_item_a",
+        "alias": "电影合集",
+        "share_code": "abc123",
+        "receive_code": "qwer",
+        "sort_order": 0,
+        "enabled": true
+      },
+      {
+        "id": "share_item_b",
+        "alias": "纪录片",
+        "share_code": "https://115.com/s/xxxx",
+        "receive_code": "",
+        "sort_order": 1,
+        "enabled": true
+      }
+    ],
     "request_policy": {
       "request_timeout_ms": 30000,
       "min_request_interval_ms": 500
@@ -113,17 +129,27 @@
 {
   "provider_type": "Pan115Share",
   "config_json": {
-    "share_code": "abc123",
-    "receive_code": "qwer"
+    "client_type": "chrome",
+    "shares": [
+      {
+        "id": "share_item_a",
+        "alias": "电影合集",
+        "share_code": "abc123",
+        "receive_code": "qwer",
+        "sort_order": 0,
+        "enabled": true
+      }
+    ]
   },
-  "root_path": "/电影合集",
-  "path": "/4K"
+  "root_path": "/",
+  "path": "/电影合集/4K"
 }
 ```
 
 说明：
 
-- 必须传 `root_path`
+- 必须传该 mount 的 `root_path`
+- `pan115-share` 的 `root_path` 固定为 `/`，`path` 进入 `/alias/子目录`
 - 后端在该 mount 根内继续浏览相对子目录
 - 适用于“把已存在挂载的某个子目录绑定到媒体库”
 
@@ -131,11 +157,11 @@
 
 ```jsonc
 {
-  "current_path": "/4K",
-  "parent_path": "/",
+  "current_path": "/电影合集/4K",
+  "parent_path": "/电影合集",
   "directories": [
-    { "name": "动作片", "path": "/4K/动作片" },
-    { "name": "纪录片", "path": "/4K/纪录片" }
+    { "name": "动作片", "path": "/电影合集/4K/动作片" },
+    { "name": "纪录片", "path": "/电影合集/4K/纪录片" }
   ]
 }
 ```
@@ -164,16 +190,17 @@
 - AList / OpenList：已消费 `request_timeout_ms`、`min_request_interval_ms`
 - Microsoft：已消费 `request_timeout_ms`、`min_request_interval_ms`
 - Pan115：runtime 注入时已消费 `request_timeout_ms`、`min_request_interval_ms`
-- Pan115Share：分享目录与下载链路已消费 `request_timeout_ms`、`min_request_interval_ms`
+- Pan115Share：分享目录浏览、播放和下载链路已消费 `request_timeout_ms`、`min_request_interval_ms`
 
 更细的 retries / cooldown / concurrency 仍属于后续扩展字段，但皮肤和外部主题包应继续沿用这份 schema，不要自行发明第二套治理键名。
 
 ## 关键实现要求
 
 1. 管理后台不能鼓励管理员手填远端路径。能浏览的来源必须优先给目录浏览器。
-2. `pan115-share` 的 `root_path` 不是分享链接本身，也不是 share cid，而是分享内的目录路径。
+2. `pan115-share` 的 `root_path` 固定为虚拟根 `/`；分享链接、提取码、别名、排序和启停状态都在 `config_json.shares[]` 内维护。
 3. 媒体库绑定的 `sub_path` 永远相对于 mount 根生效，不允许皮肤把它误解成 provider 全局根路径。
 4. 第三方主题包如果接入 `browse-directories`，必须保留“创建挂载浏览”和“媒体库绑定浏览”这两种模式。
+5. `pan115-share` 目录导入不需要 Cookie；播放、技术探测、sidecar 和资源读取才需要当前 mount 的分享 Cookie。
 
 ## 皮肤实现建议
 
@@ -182,5 +209,5 @@
   - AList/OpenList：服务地址、认证方式、目录浏览器、远端治理
   - Microsoft：token / drive 选择、目录浏览器、远端治理
   - Pan115：专用凭据区、专用根目录选择器、远端治理
-  - Pan115Share：分享链接 / 提取码 / 下载通道、目录浏览器、远端治理
+  - Pan115Share：多分享项 CRUD、别名、排序、分享 Cookie 绑定、目录浏览器、远端治理
 - 永远不要在前端 DOM 直接渲染 token / password / cookie 等敏感值。

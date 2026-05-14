@@ -1,11 +1,12 @@
 # Features · Manage · Pan115 Imghost
 
-> Feature gate：
+> 运行时可用性：
 >
 > - 产品契约层：`bootstrap.features.pan115_imghost_enabled`
-> - 经典 WebUI 仅允许把 `VITE_FEATURE_PAN115_IMGHOST=1` 当作开发期强制开关
+> - 路由和导航入口保持可达；后端未启用时页面内展示 warning / 配置引导
+> - 经典 WebUI 仅允许把 `VITE_FEATURE_PAN115_IMGHOST=1` 当作开发期强制展示开关
 >
-> 新皮肤必须以后端 bootstrap 为唯一真相；构建期开关只能用于本地联调，不能绕过后端能力门禁。
+> 新皮肤必须以后端 bootstrap 和 API 返回为可用性真相；构建期开关不能绕过后端能力门禁。
 
 ## 路由
 - `/manage/tools/pan115-imghost`
@@ -24,6 +25,8 @@
 - 关闭本地副本只影响新任务，不删除历史文件
 
 **凭据卡**：扫码弹窗 + cookie_app `<select>` + 状态徽标 + 解绑按钮
+
+后端未启用 `pan115-imghost` 服务或缺少 `FMBY_PAN115_KEK` 时，凭据卡必须展示配置指引，不应让整个页面 404 或空白。
 
 **任务中心入口**：必须能从该页跳到 `/manage/task-center?category=Imghost`
 

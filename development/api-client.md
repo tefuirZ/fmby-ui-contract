@@ -64,17 +64,28 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 用 self-rescheduling setTimeout，**不要** setInterval：
 
 ```ts
-function poll() {
-  request('/manage/pan115/qr-status?uid=...').then(r => {
-    if (r.data.status === 'confirmed') { /* activate */ return; }
-    if (r.data.status === 'expired') { /* show retry */ return; }
-    setTimeout(poll, 2000);
+const terminalStatuses = new Set(['signed', 'expired', 'canceled', 'aborted']);
+
+function pollPan115QrStatus(sessionId: string) {
+  request(`/manage/pan115/qr-status?session_id=${encodeURIComponent(sessionId)}`).then(r => {
+    if (r.data.status === 'signed') { /* create preview or activate */ return; }
+    if (terminalStatuses.has(r.data.status)) { /* show retry */ return; }
+    setTimeout(() => pollPan115QrStatus(sessionId), 2000);
   }).catch(e => {
-    if (e.code === 'request_timeout') setTimeout(poll, 1000); // 容错
+    if (e.code === 'request_timeout') setTimeout(() => pollPan115QrStatus(sessionId), 1000); // 容错
     else { /* show error */ }
   });
 }
 ```
+
+同一个轮询组件可复用到三条 115 扫码线，但 endpoint 必须按场景切换：
+
+| 场景 | 状态端点 | 成功后动作 |
+|---|---|---|
+| 我的 115 网盘创建态 | `/manage/pan115/qr-status?session_id=` | `POST /manage/pan115/previews`，再 browse 选目录 `cid` |
+| 115 分享创建态 Cookie 预览 | `/manage/pan115/share-download-preview/qr-status?session_id=` | `POST /manage/pan115/share-download-preview/create`，创建 mount 后 activate |
+| 已有 115 分享数据源绑定 Cookie | `/manage/pan115/share-mounts/{mountId}/qr-status?session_id=` | `POST /manage/pan115/share-mounts/{mountId}/activate` |
+| 115 图床凭据 | `/manage/pan115/imghost/qr-status?session_id=` | `POST /manage/pan115/imghost/activate` |
 
 ## 文件上传
 

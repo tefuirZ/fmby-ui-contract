@@ -30,8 +30,8 @@
 
 ## 业务
 
-- **Pan115QrModal**：扫码 + cookie_app 选择 + 倒计时 + 长轮询
-- **MountBrowser**：浏览目录（树/列表/面包屑皮肤选）
+- **Pan115QrModal**：扫码 + cookie_app 选择 + 倒计时 + 长轮询；必须支持 `qr_image` data URI 优先、`qr_url` fallback、`session_id` 轮询、`signed` 成功态，以及普通 115 / 115 分享 Cookie / 115 图床三类 endpoint 注入
+- **MountBrowser**：浏览目录（树/列表/面包屑皮肤选）；`pan115-share` 顶层目录来自分享项 `alias`，媒体库绑定保存 `/alias/子目录`
 - **TaskProgress**：进度条 + 状态徽标 + 操作按钮
 - **DiffViewer**：审计日志 before/after 对比
 - **VideoPlayer**：见 [features/browse/play.md](../features/browse/play.md)

@@ -1,6 +1,6 @@
 # Manage · Libraries
 
-媒体库（library）= 一组 mount 下的扫描根。每个 library 配 1..N 个 source（数据源根目录）。
+媒体库（library）= 一组 mount 下的扫描根。每个 library 配 1..N 个 source binding（数据源子路径）。
 
 ## 端点
 
@@ -14,42 +14,68 @@
 
 ## DTO
 
-`Library`：
+`ManagedLibraryDetailResponse` 关键字段：
 ```jsonc
 {
-  "id": "uuid",
-  "name": "电影",
-  "library_type": "movies|tv|music|mixed",
-  "sources": [
+  "library": {
+    "id": "uuid",
+    "name": "电影",
+    "kind": "movies|tv|music|mixed",
+    "type_label": "电影",
+    "item_count": 1234,
+    "total_items": 1234,
+    "status": "ok|missing|degraded",
+    "last_scan_at": "..."
+  },
+  "source_bindings": [
     {
       "id": "uuid",
       "mount_id": "uuid",
-      "root_path": "/电影/合集",
-      "status": "ok|missing|degraded",
-      "last_scan_at": "...",
-      "item_count": 1234
+      "mount_name": "115 分享 - 电影合集",
+      "mount_type": "Pan115Share",
+      "type_label": "115 分享",
+      "sub_path": "/电影合集/4K",
+      "path_label": "/电影合集/4K",
+      "scan_priority": 10,
+      "availability_status": "ok|missing|degraded",
+      "availability_message": null
     }
-  ],
-  "scrape_profile": "default|chinese|...",
-  "created_at": "...",
-  "updated_at": "..."
+  ]
 }
 ```
 
-`CreateReq`：`{ name, library_type, scrape_profile?, sources: [{ mount_id, root_path }] }`
+`CreateManagedLibraryRequest`：
+
+```jsonc
+{
+  "name": "电影",
+  "library_type": "movies",
+  "description": "",
+  "source_bindings": [
+    {
+      "mount_id": "mount_pan115_share_movies",
+      "sub_path": "/电影合集/4K",
+      "scan_priority": 10
+    }
+  ],
+  "grant_user_ids": []
+}
+```
 
 > 权威：`crates/fmby-api/src/manage/dto/libraries.rs`、`media_libraries.rs`。
 
 ## 关键流程
 
-1. **新建库**：先用 [mounts.md](./mounts.md) 的 `browse-directories` 选根目录 → POST 创建 → 自动入扫描队列
+1. **新建库**：先用 [mounts.md](./mounts.md) 的 `browse-directories` 选择 mount 内子路径 → POST 创建 → 自动入扫描队列
 2. **触发扫描**：scan 是 idempotent，已在跑则返回 `task_id`，不再排队
 3. **purge**：场景是「这个源的内容彻底失联，索引也清掉」，但磁盘文件留给 mount 自己处理
+
+`sub_path` 永远相对于已选 mount 的 `root_path` 生效。对 `pan115-share`，可选子路径从虚拟根 `/` 下的 `/alias/子目录` 开始；主题不能把分享链接、share cid 或 provider 全局路径写进 `sub_path`。
 
 ## 错误
 
 - `409 conflict`：库名重复 / source 已关联其它库（多对一限制）
-- `422 validation`：mount 不存在 / root_path 不可达
+- `422 validation`：mount 不存在 / sub_path 不可达
 - `423 locked`：扫描进行中不能 purge
 
 ## 皮肤实现建议
