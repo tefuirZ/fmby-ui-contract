@@ -20,8 +20,8 @@
 - [ ] `/manage/overview` 6 张卡 + 下钻
 - [ ] `/manage/site/advanced` runtime + workers + errors
 - [ ] `/manage/media/items` 列表 + 筛选 + 详情 + 识别 + 刮削 + artwork + 字幕 + 元数据手改
-- [ ] `/manage/media/libraries` 列表 + 抽屉 + 数据源选根 + 扫描
-- [ ] `/manage/media/mounts` 列表 + 抽屉 + pan115 扫码 + 浏览目录
+- [ ] `/manage/media/libraries` 列表 + 抽屉 + 数据源子路径选择 + 扫描
+- [ ] `/manage/media/mounts` 列表 + 抽屉 + pan115 扫码 + pan115-share 多分享项 + 挂载级分享 Cookie + 浏览目录
 - [ ] `/manage/media/probe-tasks` 列表 + 立即排队
 - [ ] `/manage/media/naming-scrape` 设置 + imghost 开关 + 批量重刮
 - [ ] `/manage/site/users/accounts` 列表 + 详情 + 批量 + 重置密码
@@ -32,7 +32,7 @@
 - [ ] `/manage/site/security/runtime-logs` 列表 + 复制 trace_id
 - [ ] `/manage/site/settings` general / security / session-policy 全字段
 - [ ] `/manage/task-center` 顶部卡 + 任务流 + actions
-- [ ] `/manage/tools/pan115-imghost`（feature flag 开启）凭据 + 上传 + 资产 + mirror_status
+- [ ] `/manage/tools/pan115-imghost` 凭据 + 上传 + 资产 + mirror_status；后端未启用时页面内展示配置引导而不是 404
 
 ## 状态
 

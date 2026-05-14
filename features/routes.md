@@ -40,7 +40,8 @@
 | `/manage/site/security/runtime-logs` | 运行日志 | `GET /api/manage/runtime-logs` |
 | `/manage/site/settings` | 站点设置 | `GET /api/site/settings` |
 | `/manage/site/advanced` | 高级设置 | `GET /api/manage/advanced` |
-| `/manage/tools/pan115-imghost` | 图床工具（feature flag） | `GET /api/manage/pan115/imghost/*` |
+| `/manage/tools/pan115-share-download` | 旧分享 Cookie 工具兼容跳转 | 重定向到 `/manage/media/mounts` |
+| `/manage/tools/pan115-imghost` | 115 图床治理 / 观测 | `GET /api/manage/pan115/imghost/*` |
 
 ## 历史路径重定向
 
@@ -66,4 +67,4 @@
 - 已登录访问 `/login` → 重定向 `/`
 - 未登录访问 `/manage/*` → 重定向 `/login?next=...`
 - 非 admin 访问 `/manage/*` → 渲染 403 页面（不要静默 404）
-- 未启用 imghost feature → `/manage/tools/pan115-imghost` 返回 404
+- 未启用 imghost 后端服务 → `/manage/tools/pan115-imghost` 仍渲染页面，并在凭据 / 资产区展示配置引导

@@ -1,9 +1,10 @@
 # Manage · Pan115 Imghost (115 图床子系统)
 
-> Feature gate：
+> 运行时可用性：
 >
-> - 站点 / 产品层：`bootstrap.features.pan115_imghost_enabled`
-> - 构建层 env 只允许本地开发强制打开，不得覆盖后端能力门禁
+> - `bootstrap.features.pan115_imghost_enabled` 表示后端图床服务是否已经启用。
+> - 管理页路由和导航入口应保持可达；后端未启用时在页面内展示配置引导和不可用提示。
+> - 构建层 env 只允许本地开发强制展示入口，不得覆盖后端能力门禁。
 >
 > 该域的产品定位是“刮削产物镜像系统”。手工上传接口保留，但只作为诊断能力，不再是主运营入口。
 
@@ -16,7 +17,7 @@
 | Method | Path | 说明 |
 |--------|------|------|
 | POST   | `/api/manage/pan115/imghost/qr-login` | 申请图床凭据扫码（独立账号也行，可与 mount 不同号） |
-| GET    | `/api/manage/pan115/imghost/qr-status` | 长轮询扫码 |
+| GET    | `/api/manage/pan115/imghost/qr-status?session_id=` | 长轮询扫码 |
 | POST   | `/api/manage/pan115/imghost/activate` | 激活 |
 | GET    | `/api/manage/pan115/imghost/credentials` | 当前凭据状态 |
 | DELETE | `/api/manage/pan115/imghost/credentials` | 解绑 |
@@ -131,6 +132,7 @@ task center -> Imghost category
 ## 皮肤实现建议
 
 - `/manage/tools/pan115-imghost` 应是治理/观测页，不再主打手工上传
+- 页面应始终能渲染基础说明；如果 API 返回“模块未启用 / 未配置密钥”类错误，展示配置引导，不要跳 404
 - 设置页必须把 `imghost_governance` 作为结构化表单渲染，scope 用固定多选，不允许自由文本
 - `/raw/{sha1}` 是稳定图片入口；实际读取顺序由后端决定：`115 直链 -> 本地缓存 -> 上游图片 URL`
-- feature flag 关闭时整个二级菜单与治理页入口都不渲染
+- `bootstrap.features.pan115_imghost_enabled=false` 只代表后端图床数据面不可用，不代表主题可以删除治理入口或把路由变成 404
