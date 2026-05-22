@@ -7,20 +7,21 @@
 
 | 文档 | 范围 | 关键端点示例 |
 |------|------|---------------|
-| [dashboard.md](./manage/dashboard.md) | 站点概览 / 高级状态 | `GET /api/manage/overview`、`GET /api/manage/advanced` |
-| [users.md](./manage/users.md) | 用户、角色模板、批量操作 | `GET /api/manage/users`、`POST /api/manage/users/batch/disable` |
-| [registration-codes.md](./manage/registration-codes.md) | 注册码与批次 | `POST /api/manage/registration-codes`、`PATCH /api/manage/registration-codes/{id}` |
-| [sessions.md](./manage/sessions.md) | 在线会话 / 强制下线 | `GET /api/manage/sessions`、`DELETE /api/manage/sessions/{id}` |
-| [libraries.md](./manage/libraries.md) | 媒体库定义 / 扫描触发 | `POST /api/manage/libraries`、`POST /api/manage/libraries/{id}/scan` |
-| [mounts.md](./manage/mounts.md) | 数据源挂载 / 浏览 / 校验 | `POST /api/manage/mounts/browse-directories`、`POST /api/manage/mounts/{id}/validate` |
-| [media-items.md](./manage/media-items.md) | 媒体条目细管 / 刮削 / artwork / subtitle | `GET /api/manage/media-items`、`POST /api/manage/media-items/{id}/scrape` |
-| [media-reviews.md](./manage/media-reviews.md) | 元数据审核工单 | `GET /api/manage/media-reviews`、`POST /api/manage/media-reviews/{id}/resolve` |
-| [tasks.md](./manage/tasks.md) | 扫描 / 探针 / 命名刮削 / 命名清理 | `GET /api/manage/scans`、`PUT /api/manage/naming-scrape` |
-| [task-center.md](./manage/task-center.md) | 任务中心聚合视图 | `GET /api/manage/task-center/overview`、`POST /api/manage/task-center/items/{cat}/{id}/actions` |
-| [source-availability.md](./manage/source-availability.md) | 数据源可用性恢复 | `POST /api/manage/source-availability/{id}/recover` |
-| [logs.md](./manage/logs.md) | 审计日志 / 运行日志 | `GET /api/manage/audit-logs`、`GET /api/manage/runtime-logs` |
-| [pan115.md](./manage/pan115.md) | 115 网盘 / 115 分享账号绑定与浏览 | `POST /api/manage/pan115/qr-login`、`POST /api/manage/pan115/share-mounts/{id}/activate` |
-| [pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床治理 / 观测 | `POST /api/manage/pan115/imghost/upload`、`GET /api/manage/pan115/imghost/raw/{sha1}` |
+| [dashboard.md](./dashboard.md) | 站点概览 / 高级状态 | `GET /api/manage/overview`、`GET /api/manage/advanced` |
+| [users.md](./users.md) | 用户、角色模板、批量操作 | `GET /api/manage/users`、`POST /api/manage/users/batch/disable` |
+| [registration-codes.md](./registration-codes.md) | 注册码与批次 | `POST /api/manage/registration-codes`、`PATCH /api/manage/registration-codes/{id}` |
+| [sessions.md](./sessions.md) | 在线会话 / 强制下线 | `GET /api/manage/sessions`、`DELETE /api/manage/sessions/{id}` |
+| [libraries.md](./libraries.md) | 媒体库定义 / 扫描触发 | `POST /api/manage/libraries`、`POST /api/manage/libraries/{id}/scan` |
+| [mounts.md](./mounts.md) | 数据源挂载 / 浏览 / 校验 | `POST /api/manage/mounts/browse-directories`、`POST /api/manage/mounts/{id}/validate` |
+| [media-items.md](./media-items.md) | 媒体条目细管 / 刮削 / artwork / subtitle | `GET /api/manage/media-items`、`POST /api/manage/media-items/{id}/scrape` |
+| [media-reviews.md](./media-reviews.md) | 元数据审核工单 | `GET /api/manage/media-reviews`、`POST /api/manage/media-reviews/{id}/resolve` |
+| [tasks.md](./tasks.md) | 扫描 / 探针 / 命名刮削 / 命名清理 | `GET /api/manage/scans`、`PUT /api/manage/naming-scrape` |
+| [task-center.md](./task-center.md) | 任务中心聚合视图 | `GET /api/manage/task-center/overview`、`POST /api/manage/task-center/items/{cat}/{id}/actions` |
+| [source-availability.md](./source-availability.md) | 数据源可用性恢复 | `POST /api/manage/source-availability/{id}/recover` |
+| [logs.md](./logs.md) | 审计日志 / 运行日志 | `GET /api/manage/audit-logs`、`GET /api/manage/runtime-logs` |
+| [developer-api.md](./developer-api.md) | 开放 API 目录、API Token、Explorer | `GET /api/manage/developer/endpoints`、`POST /api/manage/developer/api-tokens` |
+| [pan115.md](./pan115.md) | 115 网盘 / 115 分享账号绑定与浏览 | `POST /api/manage/pan115/qr-login`、`POST /api/manage/pan115/share-mounts/{id}/activate` |
+| [pan115-imghost.md](./pan115-imghost.md) | 115 图床治理 / 观测 | `POST /api/manage/pan115/imghost/upload`、`GET /api/manage/pan115/imghost/raw/{sha1}` |
 
 ## 通用约定
 

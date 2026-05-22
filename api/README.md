@@ -10,6 +10,7 @@
 |---|---|
 | [`conventions.md`](./conventions.md) | 通用约定：URL、JSON、日期、分页、ID、幂等、CSRF、cookies |
 | [`auth.md`](./auth.md) | 鉴权流程详解：登录、注册、CSRF、session、setup |
+| [`open-v1.md`](./open-v1.md) | 第三方开放 API：`/api/open/v1/*`、API Token、scope、endpoint catalog |
 | [`errors.md`](./errors.md) | 错误响应结构、错误码表、重试策略 |
 | [`domains/README.md`](./domains/README.md) | 按业务域分类的端点详解索引 |
 | [`domains/*`](./domains/) | 每个业务域一个文件：browse / items / playback / assets / settings / manage/* |
@@ -44,7 +45,8 @@ skin 作者推荐工作流：
 | **assets** | 4 | 海报 / 头像 / 字幕 / 原始流（HEAD/GET） |
 | **settings** | 6 | 用户三套（profile/playback/appearance）+ 服务器三套 |
 | **manage** | ~70 | 后台管理：用户、库、挂载、media-items、reviews、tasks、task-center、pan115、imghost、logs、sessions、registration-codes、source-availability |
-| **emby/jellyfin compat** | (大量) | **不属于一方契约**，skin 不应依赖 |
+| **open-api v1** | 20+ | 第三方 Bearer API：browse / items / assets / playback / manage 包装接口 |
+| **emby/jellyfin compat** | (大量) | **不属于一方 skin 契约**，skin 不应依赖 |
 
 ---
 
@@ -61,6 +63,16 @@ skin 作者推荐工作流：
 - ✅ 错误响应统一 envelope（见 [`errors.md`](./errors.md)）
 
 详见 [`conventions.md`](./conventions.md)。
+
+## 三条 API 边界
+
+| 边界 | 路径 | 凭证 | 消费方 |
+|---|---|---|---|
+| 内置 Web API | `/api/*` | Cookie session + CSRF | 内置 skin / 受信前端 |
+| 开放 API | `/api/open/v1/*` | `Authorization: Bearer <api_token>` | 第三方开发者 / 自动化脚本 |
+| Compat API | `/emby/*`、`/jellyfin/*` | compat token / `api_key` / Emby header | Emby / Jellyfin 兼容客户端 |
+
+skin 页面默认只调用内部 `/api/*`。开放 API 只在开发者 API Explorer 的 Bearer 模式里测试，不能作为普通页面数据源。
 
 ---
 

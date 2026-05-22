@@ -8,9 +8,11 @@
 
 ## Token
 
-- [ ] access_token 不放 URL
-- [ ] localStorage 存 token 标准；不放 cookie 除非启用 SameSite=Strict + HttpOnly（皮肤无能力，看后端）
-- [ ] 登出彻底清 localStorage + sessionStorage + 内存
+- [ ] 站内登录使用 Cookie session + CSRF，不把 session token 放 URL
+- [ ] API Token 明文只在创建成功时展示一次，不写入 localStorage / sessionStorage / IndexedDB / query cache
+- [ ] Bearer API Token 只在开发者 API Explorer 的 `/api/open/v1/*` 测试流里使用，且 `credentials: omit`
+- [ ] 不在 console、错误上报、审计展示或 URL 中输出 Authorization / Cookie / API Token
+- [ ] 登出彻底清前端内存状态，不伪造或自行生成 CSRF token
 
 ## 跳转
 

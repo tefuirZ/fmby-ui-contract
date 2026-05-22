@@ -38,6 +38,7 @@
 | `/manage/site/security/sessions` | 会话 | `GET /api/manage/sessions` |
 | `/manage/site/security/audit-logs` | 审计日志 | `GET /api/manage/audit-logs` |
 | `/manage/site/security/runtime-logs` | 运行日志 | `GET /api/manage/runtime-logs` |
+| `/manage/site/developer-api` | 开发者 API / API Token / Explorer | `GET /api/manage/developer/endpoints`、`GET /api/manage/developer/api-tokens` |
 | `/manage/site/settings` | 站点设置 | `GET /api/site/settings` |
 | `/manage/site/advanced` | 高级设置 | `GET /api/manage/advanced` |
 | `/manage/tools/pan115-share-download` | 旧分享 Cookie 工具兼容跳转 | 重定向到 `/manage/media/mounts` |

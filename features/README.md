@@ -46,6 +46,7 @@
 | [manage/tasks.md](./manage/tasks.md) | 扫描 / 探针 / 命名刮削 / 命名清理 |
 | [manage/task-center.md](./manage/task-center.md) | 任务中心 |
 | [manage/logs.md](./manage/logs.md) | 审计 / 运行日志 |
+| [manage/developer-api.md](./manage/developer-api.md) | 开放 API Token / endpoint catalog / API Explorer |
 | [manage/pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床治理 / 观测 |
 
 ### 个人 / 站点设置
