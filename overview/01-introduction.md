@@ -121,4 +121,4 @@ skin 由 fmby 后端在**启动时扫描注册**，运行时由管理员通过 `
 
 - 如果你想了解 **整体架构**：[`02-architecture.md`](./02-architecture.md)
 - 如果你想了解 **skin 是怎么被加载和切换的**：[`03-runtime-model.md`](./03-runtime-model.md)
-- 如果你想 **直接动手做一个 skin**：[`../development/quickstart.md`](../development/quickstart.md)
+- 如果你想 **直接动手做一个 skin**：[`../development/getting-started.md`](../development/getting-started.md)

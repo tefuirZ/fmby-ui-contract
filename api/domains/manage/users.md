@@ -6,11 +6,17 @@
 
 | Method | Path | 说明 |
 |--------|------|------|
-| GET    | `/api/manage/users` | 列表，支持 `?page&page_size&q&status&role` |
+| GET    | `/api/manage/users` | 列表，支持 `?page&page_size&search&status&account_kind` |
 | POST   | `/api/manage/users` | 创建用户（直接落库，绕过注册码） |
 | GET    | `/api/manage/users/{userId}` | 详情（含角色模板、上次登录、设备列表） |
+| PATCH  | `/api/manage/users/{userId}` | 局部更新用户 |
+| PUT    | `/api/manage/users/{userId}` | 全量更新用户 |
+| DELETE | `/api/manage/users/{userId}` | 软删除 / 停用用户 |
 | PATCH  | `/api/manage/users/{userId}/status` | 启停用户（active / disabled） |
-| POST   | `/api/manage/users/{userId}/reset-password` | 重置密码（生成临时密码或发邮件，看 SiteSettings） |
+| POST   | `/api/manage/users/{userId}/reset-password` | 管理员提交新密码并可强制下次修改 |
+| POST   | `/api/manage/users/{userId}/mfa/totp/reset` | 重置该用户 TOTP |
+| POST   | `/api/manage/users/{userId}/approve-registration` | 通过待审核注册 |
+| POST   | `/api/manage/users/{userId}/reject-registration` | 拒绝待审核注册 |
 | POST   | `/api/manage/users/batch/disable` | 批量禁用 |
 | POST   | `/api/manage/users/batch/update` | 批量更新角色 / 配额 |
 | POST   | `/api/manage/users/batch/delete` | 批量删除（默认软删） |
@@ -21,18 +27,38 @@
 
 ## 关键 DTO
 
-`UserListItem`：`id / username / display_name / status / roles[] / last_login_at / created_at`  
-`UserDetail`：在 list 基础上 + `email / role_template_id / library_grants[] / device_sessions[] / quota_bytes`  
-`RoleTemplate`：`id / name / permissions[]`，permissions 见 [auth.md 权限矩阵](../../auth.md#权限位)  
-`BatchUpdateReq`：`{ user_ids: [...], patch: { role_template_id?, status?, library_grants? } }`
+`ManagedUserDto`：
 
-> 字段权威：`crates/fmby-api/src/manage/dto/users.rs`、`role_templates.rs`。
+```json
+{
+  "id": "u_001",
+  "username": "alice",
+  "display_name": "Alice",
+  "email": "alice@example.com",
+  "status": "active",
+  "account_kind": "human",
+  "roles": ["User"],
+  "source_grants": [],
+  "max_sessions": 4,
+  "max_concurrent_playbacks": 2,
+  "valid_until": null,
+  "must_change_password": false,
+  "created_at": "2026-05-27T10:00:00Z",
+  "updated_at": "2026-05-27T10:00:00Z",
+  "last_activity_at": null,
+  "recent_client_info": null
+}
+```
+
+`RoleTemplateDto`：`id / code / name / description / capabilities[] / default_library_ids[] / source_grants[] / default_max_sessions / default_max_concurrent_playbacks / default_valid_days / is_system / status / created_at / updated_at`。
+
+列表响应是通用 `ListResponse<T>`：`{ "items": [...], "total": 123 }`，不包 `{ data }`。
 
 ## 关键流程
 
-1. **新建用户**：选 role_template → POST /users，response 返回临时密码（一次性）；皮肤需提示管理员立即转告
+1. **新建用户**：选 role_template → POST /users，管理员在请求里提交初始密码；响应不回显密码。
 2. **批量禁用**：典型 UI 是表格多选 → 顶部"批量禁用"按钮；后端单事务，部分失败也整体回滚
-3. **删除模板**：模板被引用时返回 `409 conflict { used_by_user_count: N }`，皮肤需先引导改派
+3. **删除模板**：需要按站点敏感操作策略提交 `current_password` 或 `session_confirmation`。
 
 ## 错误
 
@@ -43,6 +69,6 @@
 ## 皮肤实现建议
 
 - 状态徽标：active(绿) / disabled(灰) / locked(红)
-- 权限位渲染：`auth.md` 文档化的位 → checkbox 矩阵
+- 权限位渲染使用 `capabilities`；角色名只做展示
 - 批量操作必须二次确认 + 显示影响人数
-- 重置密码后必须用 modal + "复制临时密码"按钮（HTTPS 才支持 navigator.clipboard，HTTP 走 fallback）
+- 重置密码表单由管理员输入 `new_password`，可选 `force_change`

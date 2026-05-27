@@ -48,6 +48,8 @@ SKIN_BASE=/_assets/my-skin/ pnpm build
 
 如果 base 是 `/`，浏览器请求 `/assets/index-abc123.js` 会被 fmby fallback 路由命中，返回 `index.html`——你会看到 "Unexpected token <" 这种诡异报错。
 
+**注意**：Vite `base` 只影响静态资源路径。SPA router 的 basename 仍然是 `/`，页面路径是 `/manage`、`/item/:itemId`、`/settings/profile`，不是 `/_assets/{skin}/manage`。
+
 ### 2. `dist/index.html` 必须有 `</head>`
 
 fmby 后端会在 `</head>` 之前插入 bootstrap `<script>`。如果你把整个 HTML 极简到只有 body，会校验失败。
@@ -106,7 +108,7 @@ export default defineConfig(({ mode }) => {
 VITE_FMBY_BACKEND=http://192.168.100.58:18098
 ```
 
-这样开发期 `pnpm dev` 起 5180 端口的 vite，前端请求 `/api/*` 会被代理到 fmby 后端。
+这样开发期 `pnpm dev` 起 5180 端口的 vite，前端请求 `/api/*` 会被代理到 fmby 后端。若 `/api/*` 返回 `text/html`，说明代理没有命中后端，应先修 dev server / 后端进程，不要在业务代码里吞掉该错误。
 
 ---
 

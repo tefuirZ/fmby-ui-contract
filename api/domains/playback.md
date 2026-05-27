@@ -28,12 +28,12 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
    │
    ▼
 2. GET /api/playback/items/{itemId}?source_id=src_001
-   响应: { stream_url, subtitles, audio_tracks, recommended_seek_seconds }
+   响应: { item_id, source_id, play_method, stream_url, position_ticks, subtitles }
    │
    ▼
 3. POST /api/playback/sessions
-   body: { item_id, source_id, client: { name, version, capabilities } }
-   响应: { session_id }
+   body: { item_id, source_id, client_info, position_ticks }
+   响应: { session_id, stream_url, active_source, audio_tracks, subtitle_tracks }
    │
    ▼
 4. <video src={stream_url} /> 开播
@@ -51,9 +51,9 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 
 | 操作 | 触发 | body |
 |---|---|---|
-| heartbeat | 每 ~30s 定时 | `{ position_seconds }` |
-| progress | seek、pause、resume、buffer event | `{ position_seconds, paused, playback_rate }` |
-| stop | 关闭播放器 / unmount | `{ position_seconds, completed: bool }` |
+| heartbeat | 每 ~30s 定时 / 暂停态变化 | `{ position_ticks, paused }` |
+| progress | seek、pause、resume、buffer event | `{ position_ticks, duration_ticks, is_completed }` |
+| stop | 关闭播放器 / unmount | `{ position_ticks, duration_ticks, is_completed }` |
 
 > **重要**：用户关闭浏览器 tab 时务必用 `navigator.sendBeacon('/api/playback/sessions/{id}/stop', ...)`，否则会有"幽灵会话"。fmby 后端有兜底（heartbeat 超时自动判死，默认 90s），但 sendBeacon 更准确。
 
@@ -65,44 +65,29 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 
 | Query | 说明 |
 |---|---|
-| `source_id` | 选定哪个源（如不指定，后端选 best） |
-| `audio_track_id` | 可选 |
-| `subtitle_track_id` | 可选 |
-| `client_capabilities` | 客户端能力声明（codec 列表，可影响 transcode 决策） |
+| `sourceId` / `source_id` | 选定哪个源（如不指定，后端选 best） |
 
 响应：
 
 ```json
 {
-  "decision": "direct_play",            // direct_play / direct_stream / transcode / redirect
+  "item_id": "item_abc",
+  "source_id": "src_001",
+  "play_method": "DirectPlay",
   "stream_url": "/api/assets/streams/src_001",
-  "stream_kind": "mp4",                  // mp4 / hls / dash / direct
-  "headers": {                           // 客户端发流请求时要带的额外 header（如 Range）
-    "Range": "bytes=0-"
-  },
-  "audio_tracks": [
-    { "id": "a1", "language": "eng", "codec": "ac3", "channels": 6, "default": true }
-  ],
-  "subtitle_tracks": [
-    { "id": "s1", "language": "chi", "format": "vtt", "url": "/api/assets/subtitles/sub_xxx" }
-  ],
-  "video": { "width": 1920, "height": 1080, "duration_seconds": 8160 },
-  "recommended_seek_seconds": 1820,      // 上次中断位置（resume）
-  "session_hint": {                       // POST /sessions 时复用
-    "item_id": "item_abc",
-    "source_id": "src_001"
-  }
+  "direct_url": null,
+  "direct_url_kind": null,
+  "stream_origin_kind": null,
+  "requires_range_support": true,
+  "duration_ticks": 81600000000,
+  "position_ticks": 18200000000,
+  "subtitles": [
+    { "id": "subtitle_001", "language": "zh", "url": "/api/assets/subtitles/subtitle_001" }
+  ]
 }
 ```
 
-**decision 字段语义**：
-
-| 值 | 含义 |
-|---|---|
-| `direct_play` | 客户端直接 fetch `stream_url`（最快，无 transcode） |
-| `direct_stream` | 同上但需 remux |
-| `transcode` | 后端 transcode（当前 fmby 不强制提供 transcode，可能不出现） |
-| `redirect` | `stream_url` 是 302 跳到 CDN（如 115 直链）—— 客户端应支持自动 follow |
+`play_method` 是后端当前播放决策的字符串值；skin 不应枚举兜底成错误含义。浏览器播放优先使用 `stream_url`，外部播放器可在存在时使用 `direct_url`。
 
 ### `POST /api/playback/sessions`
 
@@ -110,12 +95,9 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 {
   "item_id": "item_abc",
   "source_id": "src_001",
-  "client": {
-    "name": "MySkin Web",
-    "version": "1.2.3",
-    "device_kind": "browser",
-    "user_agent": "..."
-  }
+  "session_id": null,
+  "client_info": "MySkin Web 1.2.3",
+  "position_ticks": 18200000000
 }
 ```
 
@@ -124,28 +106,57 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 ```json
 {
   "session_id": "psess_xyz",
+  "item_id": "item_abc",
+  "source_id": "src_001",
+  "item": {},
+  "title": "示例电影",
+  "subtitle": null,
+  "status": "Playing",
+  "play_method": "DirectPlay",
+  "stream_url": "/api/assets/streams/src_001",
+  "external_stream_url": null,
+  "external_stream_expires_at": null,
+  "direct_url": null,
+  "mime_type": "video/mp4",
+  "active_source": {
+    "id": "src_001",
+    "container": "mp4",
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "duration_ticks": 81600000000,
+    "width": 1920,
+    "height": 1080
+  },
+  "audio_tracks": [],
+  "subtitle_tracks": [],
+  "duration_ticks": 81600000000,
+  "position_ticks": 18200000000,
   "started_at": "2026-01-15T10:30:00Z",
-  "heartbeat_interval_seconds": 30
+  "last_heartbeat_at": "2026-01-15T10:30:00Z"
 }
 ```
 
 ### `POST /api/playback/sessions/{id}/heartbeat`
 
 ```json
-{ "position_seconds": 145 }
+{ "position_ticks": 1450000000, "paused": false }
 ```
 
-响应：`204 No Content`。如果 session 不存在 → `404 session_not_found`，skin 应停止上报。
+响应：
+
+```json
+{ "ok": true }
+```
+
+如果 session 不存在 → `404` + `ApiErrorResponse`，skin 应停止上报。
 
 ### `POST /api/playback/sessions/{id}/progress`
 
 ```json
 {
-  "position_seconds": 1820,
-  "paused": false,
-  "playback_rate": 1.5,
-  "audio_track_id": "a1",
-  "subtitle_track_id": "s1"
+  "position_ticks": 18200000000,
+  "duration_ticks": 81600000000,
+  "is_completed": false
 }
 ```
 
@@ -155,8 +166,9 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 
 ```json
 {
-  "position_seconds": 7200,
-  "completed": true                       // true = 看完了（如 >= 90% 时长）
+  "position_ticks": 72000000000,
+  "duration_ticks": 81600000000,
+  "is_completed": true
 }
 ```
 
@@ -172,16 +184,21 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 
 ```json
 {
-  "sessions": [
+  "items": [
     {
-      "id": "psess_xyz",
-      "item": { /* MediaItemSummary */ },
-      "started_at": "...",
-      "last_heartbeat_at": "...",
-      "position_seconds": 1820,
-      "client": { /* ... */ }
+      "session_id": "psess_xyz",
+      "item_id": "item_abc",
+      "source_id": "src_001",
+      "item_title": "示例电影",
+      "status": "Playing",
+      "play_method": "DirectPlay",
+      "client_info": "MySkin Web 1.2.3",
+      "started_at": "2026-01-15T10:30:00Z",
+      "last_heartbeat_at": "2026-01-15T10:31:00Z",
+      "stopped_at": null
     }
-  ]
+  ],
+  "total": 1
 }
 ```
 
@@ -212,7 +229,7 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 
 ## skin 实现建议
 
-- 用 hls.js / dash.js / native `<video>` 三选一，依据 `decision` + `stream_kind`
+- 用 hls.js / dash.js / native `<video>` 三选一，依据 `play_method`、`mime_type`、`active_source.container` 和实际 URL 类型判断。
 - heartbeat 用 `setInterval` + 页面 `visibilitychange` 监听（隐藏时降频）
 - progress 用 throttle / debounce，每 5-10 秒上报一次足矣
 - 移动端：监听 `pagehide` 事件 + `sendBeacon` 上报 stop

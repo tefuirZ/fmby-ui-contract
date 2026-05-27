@@ -55,14 +55,15 @@ fmby-server 收到一个 HTTP 请求时，按下面顺序匹配：
 | 2 | `/api/openapi.json` | utoipa 自动生成的 OpenAPI 3.1 spec |
 | 3 | `/api/*` | API handler（auth / browse / items / playback / assets / settings / manage） |
 | 4 | `/emby/*`, `/jellyfin/*` | 兼容层（**skin 不应触碰**） |
-| 5 | `/_assets/{skin}/*` | 主题静态资源——`tower_http::services::ServeDir` 指向 `themes/{skin}/dist/`（不含 index.html）|
-| 6 | `/__manifest/{skin}` | 返回该 skin 的 `manifest.json`（前端可用于 active skin 信息查询） |
-| 7 | `/` 或 `/login` 或其它非 API 路径 | **fallback**：返回 active skin 的 `dist/index.html`（已注入 `window.__FMBY_BOOTSTRAP__`） |
+| 5 | `/_assets/{skin}/*` | 主题静态资源，路径相对该 skin 的 `dist/` |
+| 6 | `/` 或 `/login`、`/manage/*`、`/settings/*` 等非 API 路径 | **fallback**：返回 active skin 的 `dist/index.html`（已注入 `window.__FMBY_BOOTSTRAP__`） |
 
 **重要约定**：
 
 - `/_assets/{skin}/` 前缀里的 `{skin}` 必须和 manifest 里的 `name` 一致
 - vite build 时必须设置 `base: '/_assets/{skin-name}/'`，否则 `index.html` 引用 `/assets/...` 会被 fallback 到自己（无限循环）
+- React Router / Vue Router 的 basename 是 `/`，不要设成 `/_assets/{skin-name}/`
+- `/api` 与 `/api/*` 永远不走 SPA fallback；未命中时返回 JSON 404
 - 详见 [`../skin-package/build-output.md`](../skin-package/build-output.md)
 
 ---
@@ -91,15 +92,22 @@ fmby-server 收到一个 HTTP 请求时，按下面顺序匹配：
         "csrf_header_name": "X-CSRF-Token",
         "logged_in": true,
         "user_id": "u_xxx",
-        "username": "admin"
+        "username": "admin",
+        "display_name": "管理员",
+        "roles": ["SuperAdmin"],
+        "capabilities": ["manage:access"]
       },
       "api": {
-        "base_url": "/api",
-        "compat_base_url": "/emby"
+        "base_url": "/api"
       },
       "features": {
         "pan115_imghost_enabled": true,
+        "pan115_provider_enabled": true,
         "registration_enabled": true
+      },
+      "install": {
+        "required": false,
+        "installed": true
       }
     };
   </script>
@@ -116,10 +124,12 @@ fmby-server 收到一个 HTTP 请求时，按下面顺序匹配：
 | `site.*` | 站点级文案，从 `ServerGeneralSettings` 读 |
 | `auth.csrf_cookie_name` 等 | cookie 和 header 名字（避免 skin 写死） |
 | `auth.logged_in` | 当前请求**是否已登录**——未登录时 `user_id` 为 null，skin 应跳到 `/login` |
-| `auth.user_id`, `username` | 登录用户的 id 和用户名（更详细的信息走 `/api/auth/session`） |
+| `auth.user_id`, `username`, `display_name` | 登录用户的基本信息（更详细的信息走 `/api/session`） |
+| `auth.roles` | 展示用角色 |
+| `auth.capabilities` | UI 权限判断用 |
 | `api.base_url` | API 基址，永远是 `/api`（同源） |
-| `api.compat_base_url` | 兼容层基址（skin 通常用不到） |
 | `features.*` | 功能开关——某些功能要求后端有对应配置才显示（如 pan115 imghost） |
+| `install.*` | 首次安装 / 恢复模式状态 |
 
 skin 拿这份 bootstrap 的方式：
 
@@ -146,7 +156,7 @@ if (!bootstrap) {
 2. **不重启**：下次有人请求 `/`，路由 fallback 时会读最新的 `active_ui_skin`，即时生效
 3. 已经在浏览器里跑着旧 skin 的用户，刷新页面才会换
 
-> **注**：active_ui_skin 字段会作为 `ServerGeneralSettings` 的一部分（stage12U 实施中），具体 PUT 端点和 payload 详见 [`../api/domains/settings.md`](../api/domains/settings.md)。
+> **注**：active_ui_skin 字段是 `ServerGeneralSettings` 的一部分，具体 PUT 端点和 payload 详见 [`../api/domains/settings.md`](../api/domains/settings.md)。
 
 **切换不会做的事**：
 
@@ -169,17 +179,13 @@ if (!bootstrap) {
 unzip my-skin.zip -d /tmp/my-skin
 docker cp /tmp/my-skin fmby:/app/data/themes/my-skin
 
-# 让 fmby 重新扫描（两种方式选一种）
-# 1) 重启容器（最稳）
+# 让 fmby 重新扫描
 docker restart fmby
-
-# 2) 调管理 API（暂未实现，stage12U 后期支持）
-curl -X POST https://fmby.example.com/api/manage/skins/rescan
 ```
 
-**方式 B：管理后台上传 zip**（计划中，stage12U 后期）
+**方式 B：管理后台上传 zip**（计划中）
 
-`/api/manage/skins/upload` 接受 multipart/form-data，自动解压、校验 manifest、注册。
+skin 管理上传与运行时重扫 API 尚未进入当前一方契约；不要在第三方 skin 里依赖。
 
 ### 卸载 skin
 
@@ -198,10 +204,9 @@ fmby-server serve 静态资源时会发以下 header：
 
 | 资源 | Cache-Control | 说明 |
 |---|---|---|
-| `/_assets/{skin}/index.html` | `no-cache, must-revalidate` | 不能缓存（要保证 bootstrap 注入是最新的） |
-| `/_assets/{skin}/assets/*` | `public, max-age=31536000, immutable` | vite 会给这些文件加 hash 后缀，永久缓存 |
-| `/_assets/{skin}/manifest.json` | `no-cache` | 字段会变 |
-| `/__manifest/{skin}` | `no-cache` | 同上 |
+| SPA HTML（`/`、`/manage/*` 等 fallback） | `no-store` | 不能缓存（要保证 bootstrap 注入是最新的） |
+| `/_assets/{skin}/assets/*` 中带 hash 的文件 | `public, max-age=31536000, immutable` | vite 会给这些文件加 hash 后缀，永久缓存 |
+| `/_assets/{skin}/*` 其它文件 | `public, max-age=300` | favicon / manifest 等非 hashed 文件短缓存 |
 | `/api/*` | `no-store` | API 永不缓存（除非 handler 显式声明） |
 
 skin 作者**不需要**为缓存做任何特殊处理，vite 默认配置已经生成 hashed assets。

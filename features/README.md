@@ -7,14 +7,15 @@
 ```
 /login                             登录页
 /register                          注册页（开放注册时显示）
-/                                  首页 / Discover（按 site_settings 默认）
-/discover                          推荐 / 热门 / 最近添加
-/library/:libraryId                单库浏览
-/library/:libraryId/items/:itemId  详情
+/install                           首次安装 / 恢复模式
+/                                  首页
+/history                           播放历史
+/libraries                         媒体库列表
+/libraries/:libraryId              单库浏览
+/item/:itemId                      详情
 /play/:itemId                      播放页
-/profile                           个人资料
 /settings/*                        个人设置
-/manage/*                          管理面（admin 限定）
+/manage/*                          管理面（manage:access 限定）
 ```
 
 详见 [routes.md](./routes.md)、[states.md](./states.md)。
@@ -32,21 +33,25 @@
 | [browse/login.md](./browse/login.md) | 登录 + 注册 + 注册码 |
 | [browse/profile.md](./browse/profile.md) | 个人资料 / 头像 |
 
-### 管理侧（admin）
+### 管理侧（manage:access）
 
 | 文档 | 范围 |
 |------|------|
-| [manage/dashboard.md](./manage/dashboard.md) | 概览 + 高级状态 |
+| [manage/operations-dashboard.md](./manage/operations-dashboard.md) | 管理首页运营看板 |
+| [manage/dashboard.md](./manage/dashboard.md) | 旧概览 + 高级状态 |
 | [manage/users.md](./manage/users.md) | 用户 + 角色模板 + 注册码 |
 | [manage/sessions.md](./manage/sessions.md) | 会话管理 |
 | [manage/libraries.md](./manage/libraries.md) | 媒体库 + 数据源 |
 | [manage/mounts.md](./manage/mounts.md) | 挂载（含 pan115 扫码） |
+| [manage/upstreams.md](./manage/upstreams.md) | 上游源 / AppleCMS / Emby 导入 |
 | [manage/media-items.md](./manage/media-items.md) | 资源管理 + 单条详情 |
 | [manage/media-reviews.md](./manage/media-reviews.md) | 审核工单 |
 | [manage/tasks.md](./manage/tasks.md) | 扫描 / 探针 / 命名刮削 / 命名清理 |
 | [manage/task-center.md](./manage/task-center.md) | 任务中心 |
 | [manage/logs.md](./manage/logs.md) | 审计 / 运行日志 |
 | [manage/developer-api.md](./manage/developer-api.md) | 开放 API Token / endpoint catalog / API Explorer |
+| [manage/license.md](./manage/license.md) | 授权与订阅 |
+| [manage/microsoft.md](./manage/microsoft.md) | Microsoft Graph 授权 |
 | [manage/pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床治理 / 观测 |
 
 ### 个人 / 站点设置

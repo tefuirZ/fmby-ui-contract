@@ -11,7 +11,8 @@
     "site",
     "auth",
     "api",
-    "features"
+    "features",
+    "install"
   ],
   "additionalProperties": false,
   "properties": {
@@ -36,9 +37,9 @@
       "additionalProperties": false,
       "properties": {
         "site_name": { "type": "string" },
-        "homepage_message": { "type": "string" },
-        "maintenance_banner": { "type": "string" },
-        "support_contact": { "type": "string" }
+        "homepage_message": { "type": ["string", "null"] },
+        "maintenance_banner": { "type": ["string", "null"] },
+        "support_contact": { "type": ["string", "null"] }
       }
     },
     "auth": {
@@ -56,7 +57,18 @@
         "csrf_header_name": { "type": "string", "default": "X-CSRF-Token" },
         "logged_in": { "type": "boolean" },
         "user_id": { "type": ["string", "null"] },
-        "username": { "type": ["string", "null"] }
+        "username": { "type": ["string", "null"] },
+        "display_name": { "type": ["string", "null"] },
+        "roles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
       }
     },
     "api": {
@@ -68,10 +80,6 @@
           "type": "string",
           "description": "Always '/api' for same-origin deployments.",
           "default": "/api"
-        },
-        "compat_base_url": {
-          "type": "string",
-          "description": "Emby/Jellyfin compat base; skin should NOT depend on it."
         }
       }
     },
@@ -83,6 +91,21 @@
         "pan115_imghost_enabled": { "type": "boolean" },
         "pan115_provider_enabled": { "type": "boolean" },
         "registration_enabled": { "type": "boolean" }
+      }
+    },
+    "install": {
+      "type": "object",
+      "required": ["required", "installed"],
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "True when first install or recovery flow must be shown."
+        },
+        "installed": {
+          "type": "boolean",
+          "description": "True when an install lock exists or recovery mode is active."
+        }
       }
     }
   }

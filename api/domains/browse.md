@@ -117,7 +117,7 @@ inputDebounce("foo")
 | `kind` | — | `movie` / `series` / `episode` 等 |
 | `page` / `page_size` | 1 / 20 | 分页 |
 
-响应：标准分页 envelope。
+响应：列表 / 分页 DTO。字段精确形状以后端 OpenAPI 和当前 classic skin mapping 为准，不包 `{ data }`。
 
 ### `GET /api/browse/resume`
 

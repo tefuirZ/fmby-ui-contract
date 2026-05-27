@@ -1,28 +1,40 @@
 # Manage · Dashboard
 
-站点首页与高级状态聚合，面向管理员落地页。
+旧站点概览与高级状态聚合。当前 `/manage` 首屏已经改为运营看板，见 [`operations.md`](./operations.md)；`GET /api/manage/overview` 仍用于首次配置引导、健康提醒和兼容页面。
 
 ## 端点
 
 | Method | Path | Handler | 用途 |
 |--------|------|---------|------|
-| GET | `/api/manage/overview` | `dashboard::get_overview` | 卡片视图：用户数、库数、源数、近 24h 任务、当前在线 |
+| GET | `/api/manage/overview` | `dashboard::get_overview` | 配置 / 健康概览：媒体库、媒体、挂载、来源异常、最近审计 |
 | GET | `/api/manage/advanced` | `dashboard::get_advanced` | 进程级运行指标：tokio 任务、DB 池、缓存命中、最近错误 |
 
 ## 响应概要
 
-### `GET /api/manage/overview` → `ManageOverviewResp`
+### `GET /api/manage/overview`
 
 ```jsonc
 {
-  "data": {
-    "users":        { "total": 12, "active_24h": 5 },
-    "libraries":    { "total": 4, "scanning": 1 },
-    "media_items":  { "total": 8120, "review_pending": 6 },
-    "tasks":        { "running": 2, "queued": 17, "failed_24h": 1 },
-    "sessions":     { "online": 3 },
-    "storage":      { "used_bytes": 12345678901, "free_bytes": 4500000000 }
-  }
+  "environment_status": "healthy",
+  "refreshed_at": "2026-05-27T10:00:00Z",
+  "kpis": {
+    "total_libraries": 2,
+    "total_media_items": 8120,
+    "movie_count": 1200,
+    "series_count": 80,
+    "episode_count": 6840,
+    "total_mounts": 3,
+    "remote_mounts": 2,
+    "healthy_remote_mounts": 2
+  },
+  "alerts": {
+    "empty_libraries": 0,
+    "unreachable_mounts": 0,
+    "disabled_mounts": 0,
+    "unavailable_library_sources": 0,
+    "unavailable_source_summaries": []
+  },
+  "recent_audit_logs": []
 }
 ```
 
@@ -30,20 +42,15 @@
 
 ```jsonc
 {
-  "data": {
-    "runtime": {
-      "uptime_secs": 86400,
-      "tokio_tasks": 124,
-      "db_pool":  { "size": 32, "idle": 28, "wait": 0 },
-      "redis":    { "ok": true, "latency_ms": 1.2 }
-    },
-    "scrape_workers": [
-      { "name": "naming-scrape", "running": true, "tick_lag_ms": 30 }
-    ],
-    "errors_recent": [
-      { "ts": "2026-05-10T08:00:00+08:00", "module": "pan115", "msg": "qr poll timeout" }
-    ]
-  }
+  "generated_at": "2026-05-27T10:00:00Z",
+  "license": {},
+  "runtime": {},
+  "database": {},
+  "storage": {},
+  "cache": {},
+  "settings": {},
+  "services": {},
+  "recent_errors": []
 }
 ```
 
@@ -52,11 +59,11 @@
 ## 错误
 
 - `401 unauthorized`：未登录
-- `403 forbidden`：非 admin
+- `403`：缺少管理权限
 - `503 service_unavailable`：DB / Redis 异常时返回；皮肤应渲染降级态而非弹错
 
 ## 皮肤实现建议
 
-- overview 卡片支持点击下钻到对应详情页（users / libraries / media-items / task-center）
+- `/manage` 首屏优先用运营看板；overview 适合折叠成健康提示或首次配置引导
 - advanced 适合放在「关于本站」/「系统状态」二级页，并提供刷新按钮（不要做强制 polling 默认 ≥30s）
 - `errors_recent` 是只读快照；点击条目跳到 `logs.md` 描述的运行日志详情

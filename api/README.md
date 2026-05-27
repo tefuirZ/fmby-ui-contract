@@ -13,7 +13,7 @@
 | [`open-v1.md`](./open-v1.md) | 第三方开放 API：`/api/open/v1/*`、API Token、scope、endpoint catalog |
 | [`errors.md`](./errors.md) | 错误响应结构、错误码表、重试策略 |
 | [`domains/README.md`](./domains/README.md) | 按业务域分类的端点详解索引 |
-| [`domains/*`](./domains/) | 每个业务域一个文件：browse / items / playback / assets / settings / manage/* |
+| [`domains/*`](./domains/) | 每个业务域一个文件：site / install / browse / items / playback / assets / settings / manage/* |
 
 ---
 
@@ -27,10 +27,10 @@
 skin 作者推荐工作流：
 
 1. 看本仓库 markdown 了解某个 API 是干什么的、什么时候调
-2. 用 `npx openapi-typescript /openapi.json -o src/api-types.ts` 自动生成 TypeScript 类型
+2. 用 `npx openapi-typescript /api/openapi.json -o src/api-types.ts` 自动生成 TypeScript 类型
 3. 看 markdown 里的"流程图 / 示例 / 错误"补足 spec 不能表达的部分
 
-> ⚠️ stage12U 完成前 fmby 后端尚未集成 utoipa，OpenAPI spec 暂未上线。期间 skin 作者请直接看本仓库 markdown + 现有 classic skin 的 `apps/web/src/api/` 类型定义。
+当前后端已暴露 `/api/openapi.json`。如果 Markdown 与 OpenAPI 字段发生冲突，以当前 fmby 后端 DTO / OpenAPI 为准，并在本仓库补文档。
 
 ---
 
@@ -38,13 +38,15 @@ skin 作者推荐工作流：
 
 | 域 | 端点数 | 主要用途 |
 |---|---|---|
-| **auth** | 8 | 登录 / 注册 / 注销 / 会话查询 / setup 检查 |
+| **site** | 2 | bootstrap / 可用 skin 列表 |
+| **install** | 6 | 首次安装 / 恢复模式 |
+| **auth** | 12 | 登录 / 注册 / 注销 / 会话查询 / setup / TOTP |
 | **browse** | 8 | 首页 / 历史 / 媒体库 / 推荐 / 搜索 |
 | **items** | 5 | 媒体详情 / 子项 / 后代 / 源 / 刷新 |
 | **playback** | 5 | 播放决策 / 会话 / 心跳 / 进度 / 停止 |
 | **assets** | 4 | 海报 / 头像 / 字幕 / 原始流（HEAD/GET） |
 | **settings** | 6 | 用户三套（profile/playback/appearance）+ 服务器三套 |
-| **manage** | ~70 | 后台管理：用户、库、挂载、media-items、reviews、tasks、task-center、pan115、imghost、logs、sessions、registration-codes、source-availability |
+| **manage** | 100+ | 后台管理：运营看板、用户、库、挂载、上游源、media-items、reviews、tasks、task-center、license、microsoft、pan115、imghost、logs、sessions、registration-codes、source-availability |
 | **open-api v1** | 20+ | 第三方 Bearer API：browse / items / assets / playback / manage 包装接口 |
 | **emby/jellyfin compat** | (大量) | **不属于一方 skin 契约**，skin 不应依赖 |
 
@@ -60,7 +62,9 @@ skin 作者推荐工作流：
 - ✅ 写操作（POST / PUT / PATCH / DELETE）必须带 `X-CSRF-Token` header（值 = `fmby_csrf` cookie）
 - ✅ 请求 / 响应 body 都是 JSON（少数 streaming 端点除外，如 `/api/assets/streams/*`）
 - ✅ 时间字段都是 ISO 8601 UTC 字符串（如 `2026-01-15T10:30:00Z`）
-- ✅ 错误响应统一 envelope（见 [`errors.md`](./errors.md)）
+- ✅ 成功响应直接返回 DTO，不包 `{ data }`
+- ✅ 错误响应统一 `ApiErrorResponse` 扁平结构（见 [`errors.md`](./errors.md)）
+- ✅ `/api/*` 未命中必须返回 JSON 404，不允许落到 SPA `index.html`
 
 详见 [`conventions.md`](./conventions.md)。
 

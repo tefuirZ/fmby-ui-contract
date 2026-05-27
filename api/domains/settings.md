@@ -6,229 +6,179 @@
 
 ## 端点速查
 
-### 用户设置（self）
+### 用户设置
 
 | 路径 | 方法 | 用途 |
 |---|---|---|
-| `/api/settings/user/profile` | GET, PUT | 用户基本信息（display_name、avatar、email） |
-| `/api/settings/user/playback` | GET, PUT | 播放偏好（默认音轨语言、字幕语言、音量、播放速度） |
-| `/api/settings/user/appearance` | GET, PUT | 外观偏好（暗色 / 亮色 / 跟随系统、主色调等） |
+| `/api/settings/user/profile` | GET, PUT | 当前用户资料 |
+| `/api/settings/user/playback` | GET, PUT | 当前用户播放偏好 |
+| `/api/settings/user/appearance` | GET, PUT | 当前用户外观偏好 |
 
-任何登录用户都能改自己的。**注意**：`appearance` 字段是**主题模式**（dark/light），不是 skin 名字！skin 名字（active_ui_skin）在 `server/general` 设置里。
+### 服务器设置
 
-### 服务器设置（owner / manager）
-
-| 路径 | 方法 | 用途 | Capability |
+| 路径 | 方法 | 权限 | 用途 |
 |---|---|---|---|
-| `/api/settings/server/general` | GET, PUT | 站点名 / 首页文案 / 维护横幅 / **active_ui_skin** | `manage:settings:server` |
-| `/api/settings/server/security` | GET, PUT | 密码策略 / 注册开关 / CSRF 设置 | `manage:settings:server` |
-| `/api/settings/server/session-policy` | GET, PUT | session TTL / max active sessions per user / 设备策略 | `manage:settings:server` |
+| `/api/settings/server/general` | GET, PUT | `manage:access` | 站点名、注册开关、active skin、功能开关 |
+| `/api/settings/server/security` | GET, PUT | `manage:access` | 登录限流、锁定、敏感操作确认 |
+| `/api/settings/server/session-policy` | GET, PUT | `manage:access` | session TTL、记住我、兼容 fallback |
 
 ---
 
-## DTO 概览
+## 用户资料
 
-### `GET /api/settings/user/profile`
+`GET /api/settings/user/profile`
+
+```json
+{
+  "user_id": "u_001",
+  "username": "alice",
+  "display_name": "Alice",
+  "avatar_url": null,
+  "default_library_id": null,
+  "email": "alice@example.com",
+  "bio": null,
+  "current_password_required": true
+}
+```
+
+`PUT` 请求：
 
 ```json
 {
   "display_name": "Alice",
-  "email": "alice@example.com",
   "avatar_url": null,
-  "locale": "zh-CN"
-}
-```
-
-### `PUT /api/settings/user/profile`
-
-整体替换：
-
-```json
-{
-  "display_name": "Alice",
+  "default_library_id": null,
   "email": "alice@example.com",
-  "avatar_url": null,
-  "locale": "zh-CN"
-}
-```
-
-未传字段视为不改（实际取决于后端实现，建议总是传完整 payload）。
-
-### `GET /api/settings/user/playback`
-
-```json
-{
-  "default_audio_language": "chi",
-  "default_subtitle_language": "chi",
-  "default_subtitle_enabled": true,
-  "default_volume": 0.8,
-  "default_playback_rate": 1.0,
-  "skip_intro_seconds": 0,
-  "skip_credits_seconds": 0
-}
-```
-
-### `GET /api/settings/user/appearance`
-
-```json
-{
-  "theme_mode": "auto",                 // light / dark / auto
-  "primary_color": "#5b9bff",
-  "compact_mode": false
-}
-```
-
-> **重要**：theme_mode 是该 skin 内部的"亮色 / 暗色"切换，**不是切换 skin 本身**。同一 skin 通常实现 light / dark 两套配色，由 theme_mode 切换。
-
-### `GET /api/settings/server/general`
-
-```json
-{
-  "site_name": "我的小媒体库",
-  "homepage_message": "欢迎",
-  "maintenance_banner": "",
-  "support_contact": "mailto:admin@example.com",
-  "active_ui_skin": "classic",          // ← 当前激活的 skin 名
-  "available_ui_skins": [               // ← 后端扫描出的 skin 列表（read-only）
-    { "name": "classic", "display_name": "Classic", "version": "1.0.0" },
-    { "name": "modern", "display_name": "Modern", "version": "1.2.3" }
-  ]
-}
-```
-
-### `PUT /api/settings/server/general`
-
-```json
-{
-  "site_name": "我的小媒体库",
-  "homepage_message": "欢迎",
-  "maintenance_banner": "",
-  "support_contact": "mailto:admin@example.com",
-  "active_ui_skin": "modern"            // ← 改这个就切换 skin
-}
-```
-
-> `available_ui_skins` 是 read-only，PUT 时不能改。
-
-### `GET /api/settings/server/security`
-
-```json
-{
-  "registration_enabled": false,
-  "registration_requires_code": true,
-  "password_min_length": 8,
-  "password_require_mixed_case": true,
-  "password_require_digits": true,
-  "password_require_symbols": false,
-  "csrf_strict_origin_check": true
-}
-```
-
-### `GET /api/settings/server/session-policy`
-
-```json
-{
-  "session_ttl_seconds": 2592000,         // 30 day
-  "session_idle_timeout_seconds": 604800, // 7 day
-  "max_active_sessions_per_user": 5,
-  "kick_oldest_on_overflow": true,
-  "remember_me_default": true
+  "bio": null,
+  "current_password": "required when backend asks"
 }
 ```
 
 ---
 
-## 关键流程
+## 播放偏好
 
-### 用户改外观偏好
-
-```
-useQuery("/api/settings/user/appearance")
-  → 当前: { theme_mode: "auto" }
-
-用户切到 "dark" → mutation
-  PUT /api/settings/user/appearance
-  body: { theme_mode: "dark", primary_color: "#5b9bff", compact_mode: false }
-  → 200 + 新值
-
-skin 立刻重新 apply theme（不需重启 / 刷新）
+```json
+{
+  "default_subtitle_language": "zh",
+  "default_audio_language": "zh",
+  "auto_resume": true,
+  "autoplay_next_episode": true,
+  "prefer_external_player": false
+}
 ```
 
-### 管理员切换 active skin
-
-```
-manageSettingsPage:
-  GET /api/settings/server/general
-    → { active_ui_skin: "classic", available_ui_skins: [...] }
-
-下拉选 "modern" → 点保存
-  PUT /api/settings/server/general
-    body: { ..., active_ui_skin: "modern" }
-  → 200
-
-下次任何用户刷新页面 → fmby fallback 路由读最新值 → 加载 modern skin
-```
+`GET` 与 `PUT` 同形，`PUT` 是整体替换。
 
 ---
 
-## 错误
+## 外观偏好
 
-| code | 场景 |
+```json
+{
+  "theme": "system",
+  "poster_density": "comfortable",
+  "reduced_motion": false,
+  "home_sections": ["resume", "recently_added"]
+}
+```
+
+字段含义：
+
+| 字段 | 说明 |
 |---|---|
-| `forbidden` | 用户无 `manage:settings:server`（改服务器设置） |
-| `invalid_value` | 字段值不合法（如 `theme_mode: "purple"`） |
-| `skin_not_found` | active_ui_skin 改成不存在的 skin |
-| `weak_password_policy` | 改 security 时密码策略太弱被拒 |
+| `theme` | skin 内部亮暗模式，通常为 `light` / `dark` / `system` |
+| `poster_density` | 海报密度 |
+| `reduced_motion` | 减少动效 |
+| `home_sections` | 首页 section 顺序 / 开关 |
+
+注意：`theme` 不是 skin 名。切换 active skin 在 server general。
+
+---
+
+## Server General
+
+```json
+{
+  "site_name": "FMBY",
+  "registration_enabled": true,
+  "homepage_message": "",
+  "maintenance_banner": "",
+  "support_contact": "",
+  "active_ui_skin": "classic",
+  "pan115_imghost_enabled": false,
+  "pan115_provider_enabled": true
+}
+```
+
+`PUT` 同形。`active_ui_skin` 修改后，下次刷新 / fallback 才会加载新 skin；当前已运行页面不会被服务端主动替换。
+
+可用 skin 列表来自 [`site.md`](./site.md) 的 `GET /api/site/skins`，不在 `server/general` 响应里。
+
+---
+
+## Server Security
+
+```json
+{
+  "login_mode": "password",
+  "login_rate_limit_enabled": true,
+  "login_rate_limit_max_attempts": 5,
+  "login_rate_limit_window_seconds": 300,
+  "failed_login_lockout_enabled": true,
+  "failed_login_lockout_threshold": 10,
+  "failed_login_lockout_seconds": 1800,
+  "sensitive_action_confirmation": "password",
+  "require_current_password_for_profile_change": true
+}
+```
+
+---
+
+## Server Session Policy
+
+```json
+{
+  "user_session_ttl_seconds": 2592000,
+  "admin_session_ttl_seconds": 86400,
+  "token_rotation_enabled": true,
+  "remember_me_ttl_days": 30,
+  "token_rotation_policy": "sliding",
+  "single_session_for_admins": false,
+  "compat_legacy_session_fallback_enabled": false
+}
+```
+
+虽然字段名里保留 `token_rotation`，Web UI 仍使用 Cookie session，不使用前端 access / refresh token。
 
 ---
 
 ## 与其它域的关系
 
-- `bootstrap.site.*` 字段来自 `server/general`
-- `bootstrap.features.registration_enabled` 来自 `server/security`
-- `naming-scrape.imghost_governance` 是 `115 图床` 治理入口的唯一结构化真相；历史 `imghost_auto_upload` 只保留兼容语义
-- 用户登录页面"是否显示注册按钮" → 看 bootstrap 或读 security
-- 用户角色 / capability 的修改 → 在 [`manage/users.md`](./manage/users.md)（不在 settings）
+- `bootstrap.site.*` 来自 server general。
+- `bootstrap.features.registration_enabled` 来自 server general。
+- 登录页是否显示注册入口：优先看 `/api/auth/entry/status`，也可看 bootstrap。
+- `GET /api/site/skins` 提供 skin 列表。
+- 用户角色 / capability 修改在 [`manage/users.md`](./manage/users.md)。
 
 ---
 
-## 命名与刮削中的 115 图床治理字段
+## 错误
 
-`NamingScrapeSettings` 需要额外包含：
+错误体见 [`../errors.md`](../errors.md)。常见：
 
-```json
-{
-  "imghost_governance": {
-    "enabled": true,
-    "scopes": ["poster", "backdrop", "thumb", "banner", "logo", "person_avatar"],
-    "retain_local_copy": true
-  },
-  "imghost_auto_upload": true
-}
-```
-
-约束：
-- `imghost_governance` 是主字段，前端必须以它驱动 UI
-- `imghost_auto_upload` 仅用于兼容老配置和老接口消费者
-- `scopes` 只能来自固定枚举，皮肤不应提供自由文本输入
+| code | 场景 |
+|---|---|
+| `AUTH_REQUIRED` | 未登录 |
+| `PERM_DENIED` | 缺少管理权限或 CSRF 失败 |
+| `VALID_FIELD_INVALID` | 字段值不合法 |
+| `VALID_ENTITY_NOT_FOUND` | active_ui_skin 等引用不存在 |
 
 ---
 
 ## skin 实现建议
 
-- 用户设置页：左侧 tab + 右侧表单，每 tab 一个端点
-- 服务器设置页：仅 manager 可见（用 CapabilityGuard）
-- skin 切换 dropdown：从 `available_ui_skins` 渲染，当前 = `active_ui_skin`
-- theme_mode = auto 时：用 `prefers-color-scheme` media query
-- 表单提交后乐观更新 + revalidate
-
----
-
-## 给 skin 作者的特别提示
-
-active_ui_skin 修改后**不会立刻**让当前 skin 切换——只有刷新页面（或下次 fallback）才会生效。skin 应：
-
-- 提示用户 "已保存，刷新页面后生效"
-- 或自动 `window.location.reload()`（更激进）
-
-如果你的 skin 想"内嵌"切换其它 skin 的预览（不实际持久化），那是 skin 自己的功能，与 fmby 后端无关。
+- 用户设置页按 profile / playback / appearance 拆 tab。
+- 服务器设置只给 `manage:access` 用户展示。
+- active skin 切换保存后提示刷新，或直接 `window.location.reload()`。
+- 所有用户可见时间按 `Asia/Shanghai` 展示。

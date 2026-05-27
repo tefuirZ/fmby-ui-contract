@@ -6,10 +6,14 @@
 
 | Method | Path | 说明 |
 |--------|------|------|
-| GET    | `/api/manage/libraries` | 列表 `?include_sources=1` |
+| GET    | `/api/manage/libraries` | 列表 |
 | POST   | `/api/manage/libraries` | 新建库 + 关联 sources |
 | GET    | `/api/manage/libraries/{libraryId}` | 详情（含所有 source 的健康/扫描状态） |
+| PATCH  | `/api/manage/libraries/{libraryId}` | 更新库、绑定和授权用户 |
+| DELETE | `/api/manage/libraries/{libraryId}` | 删除库 |
 | POST   | `/api/manage/libraries/{libraryId}/scan` | 触发全库扫描（异步） |
+| GET    | `/api/manage/libraries/{libraryId}/cleanup-preview` | 预览清理空壳 / 孤儿数据影响 |
+| POST   | `/api/manage/libraries/{libraryId}/cleanup` | 执行清理，要求危险操作确认 |
 | POST   | `/api/manage/libraries/{libraryId}/sources/{sourceId}/purge` | 清空某 source 在该库下的索引（保留文件） |
 
 ## DTO
@@ -20,11 +24,22 @@
   "library": {
     "id": "uuid",
     "name": "电影",
+    "description": "",
     "kind": "movies|tv|music|mixed",
     "type_label": "电影",
+    "scan_policy": {
+      "preset": "movie",
+      "allowed_extensions": ["mkv", "mp4"],
+      "include_paths": [],
+      "exclude_paths": []
+    },
     "item_count": 1234,
     "total_items": 1234,
     "status": "ok|missing|degraded",
+    "visibility_label": null,
+    "updated_at": "...",
+    "sources": ["NAS"],
+    "actual_sources": ["NAS"],
     "last_scan_at": "..."
   },
   "source_bindings": [
@@ -37,10 +52,18 @@
       "sub_path": "/电影合集/4K",
       "path_label": "/电影合集/4K",
       "scan_priority": 10,
+      "include_paths": [],
+      "exclude_paths": [],
+      "enable_detail_prefetch": false,
+      "scan_warnings": [],
+      "capabilities": ["list", "read"],
       "availability_status": "ok|missing|degraded",
-      "availability_message": null
+      "availability_message": null,
+      "last_scan_task_status": null
     }
-  ]
+  ],
+  "access_grants": [],
+  "recent_scan_tasks": []
 }
 ```
 
@@ -51,11 +74,20 @@
   "name": "电影",
   "library_type": "movies",
   "description": "",
+  "scan_policy": {
+    "preset": "movie",
+    "allowed_extensions": ["mkv", "mp4", "avi"],
+    "include_paths": [],
+    "exclude_paths": []
+  },
   "source_bindings": [
     {
       "mount_id": "mount_pan115_share_movies",
       "sub_path": "/电影合集/4K",
-      "scan_priority": 10
+      "scan_priority": 10,
+      "include_paths": [],
+      "exclude_paths": [],
+      "enable_detail_prefetch": false
     }
   ],
   "grant_user_ids": []
@@ -67,7 +99,7 @@
 ## 关键流程
 
 1. **新建库**：先用 [mounts.md](./mounts.md) 的 `browse-directories` 选择 mount 内子路径 → POST 创建 → 自动入扫描队列
-2. **触发扫描**：scan 是 idempotent，已在跑则返回 `task_id`，不再排队
+2. **触发扫描**：body 为 `{ "task_type": "manual" }` 或空对象，返回 `{ library_id, task_type, tasks, skipped_source_ids }`
 3. **purge**：场景是「这个源的内容彻底失联，索引也清掉」，但磁盘文件留给 mount 自己处理
 
 `sub_path` 永远相对于已选 mount 的 `root_path` 生效。对 `pan115-share`，可选子路径从虚拟根 `/` 下的 `/alias/子目录` 开始；主题不能把分享链接、share cid 或 provider 全局路径写进 `sub_path`。

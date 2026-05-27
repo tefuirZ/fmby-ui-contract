@@ -6,10 +6,12 @@
 
 ## 公开侧（普通用户）
 
-skin 实现"用户端"功能至少要支持下面 5 个域：
+skin 实现"用户端"功能至少要支持下面这些域：
 
 | 文档 | 域 | 端点数 | 用途 |
 |---|---|---|---|
+| [`site.md`](./site.md) | site | 2 | bootstrap / 可用 skin 列表 |
+| [`install.md`](./install.md) | install | 6 | 首次安装 / 恢复模式 |
 | [`browse.md`](./browse.md) | browse | 8 | 首页 / 媒体库 / 历史 / 搜索 / 推荐 |
 | [`items.md`](./items.md) | items | 5 | 媒体详情 / 子项 / 源 |
 | [`playback.md`](./playback.md) | playback | 5 | 播放决策 / 会话 / 心跳 |
@@ -24,18 +26,22 @@ skin 实现"后台管理"还需要以下域。**可分模块逐步实现**——
 
 | 文档 | 域 | 端点数 | 用途 |
 |---|---|---|---|
-| [`manage/dashboard.md`](./manage/dashboard.md) | dashboard | 2 | 后台首页概览 / 高级 |
+| [`manage/dashboard.md`](./manage/dashboard.md) | dashboard | 2 | 旧站点概览 / 高级状态 |
+| [`manage/operations.md`](./manage/operations.md) | operations | 1 | 管理首页运营看板 |
 | [`manage/users.md`](./manage/users.md) | users | 9 | 用户 + 角色模板 + 批量操作 |
 | [`manage/registration-codes.md`](./manage/registration-codes.md) | registration-codes | 4 | 邀请码 / 批次管理 |
 | [`manage/sessions.md`](./manage/sessions.md) | sessions | 2 | 在线会话查询 / 注销 |
 | [`manage/libraries.md`](./manage/libraries.md) | libraries | 4 | 媒体库 + 扫描 + 源清理 |
 | [`manage/mounts.md`](./manage/mounts.md) | mounts | 5 | 挂载点 + 浏览目录 + 校验 |
+| [`manage/upstreams.md`](./manage/upstreams.md) | upstreams | 19 | AppleCMS / Emby 上游源与导入 |
 | [`manage/media-items.md`](./manage/media-items.md) | media-items | 15 | 单条媒体管理（识别 / 刮削 / 元数据 / 美工 / 字幕） |
 | [`manage/media-reviews.md`](./manage/media-reviews.md) | media-reviews | 5 | 待审媒体队列 |
 | [`manage/tasks.md`](./manage/tasks.md) | tasks | 10 | 扫描 / 探测 / 命名刮削 / 命名清理 |
 | [`manage/task-center.md`](./manage/task-center.md) | task-center | 4 | 统一任务中心 |
 | [`manage/source-availability.md`](./manage/source-availability.md) | source-availability | 1 | 单源恢复 |
 | [`manage/logs.md`](./manage/logs.md) | logs | 2 | 审计 / 运行日志 |
+| [`manage/license.md`](./manage/license.md) | license | 5 | 授权状态 / 设备码 / 激活 token |
+| [`manage/microsoft.md`](./manage/microsoft.md) | microsoft | 24 | Microsoft Graph 授权、账号、drive/site 操作 |
 | [`manage/pan115.md`](./manage/pan115.md) | pan115 | 8 | 115 网盘账号 / 扫码 / 浏览 |
 | [`manage/pan115-imghost.md`](./manage/pan115-imghost.md) | pan115-imghost | 9 | 图床凭据 / 上传 / 资源 / 调试 |
 
@@ -67,8 +73,8 @@ skin 实现"后台管理"还需要以下域。**可分模块逐步实现**——
 
 约定：
 
-- DTO 字段精确定义请看 OpenAPI spec（stage12U 后期上线）
-- 当前 stage 期间，markdown 给出**关键字段** + 链接到现有 classic skin 的 type 定义作为参考
+- DTO 字段精确定义请看后端 `/api/openapi.json`
+- Markdown 给出**语义、边界、关键字段**，字段大小写以当前后端 JSON 为准
 - 错误码引用 [`../errors.md`](../errors.md) 总表，不重复列举
 
 ---

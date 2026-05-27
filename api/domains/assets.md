@@ -40,27 +40,19 @@
 | `banner` | 横长条 | 旧风格 banner |
 | `thumb` | 单集缩略图 | episode 卡片 |
 
-可选 query：
-
-| 参数 | 说明 |
-|---|---|
-| `width` | 期望宽度（后端会按比例缩放） |
-| `height` | 期望高度 |
-| `quality` | 1-100（默认 85） |
-| `format` | `webp` / `jpeg` / `png`（默认 webp） |
+当前一方契约没有图片裁剪 / 转码 query。`width`、`height`、`quality`、`format` 这类参数不要作为稳定能力依赖。
 
 响应：
 
-- `200 OK` + `Content-Type: image/webp` 或对应类型
-- `Cache-Control: public, max-age=86400`（rather long，以减压上游）
-- 可能 `302` 重定向到 imghost host_url（pan115 imghost 已镜像时）
+- `200 OK` + 实际图片 `Content-Type`
+- 可能 `302` 重定向到远端资源；302 响应按当前实现带 `private, no-store, max-age=0`
 - `404` if no image
 
 skin 用法：
 
 ```html
 <img
-  src={`/api/assets/items/${item.id}/images/primary?width=300&format=webp`}
+  src={`/api/assets/items/${item.id}/images/primary`}
   loading="lazy"
   alt={item.title}
 />
@@ -117,18 +109,12 @@ skin 用法（最简单）：
 
 | 端点 | 缓存策略 |
 |---|---|
-| `/api/assets/items/.../images/*` | 长缓存（1 day），元数据更新时 URL 不变（后端可能 ETag） |
+| `/api/assets/items/.../images/*` | 可能返回本地字节或远端 302；不要假定可公开长期缓存 |
 | `/api/assets/people/.../primary` | 同上 |
-| `/api/assets/subtitles/{id}` | 中等缓存（30 min） |
-| `/api/assets/streams/{id}` | 不缓存（每次都需要 Range 协商） |
+| `/api/assets/subtitles/{id}` | 可能返回本地字节或远端字节；不要假定长期缓存 |
+| `/api/assets/streams/{id}` | 流 / 302 都不应被前端长期缓存 |
 
-如果用户在后台修改了某个海报（[`manage/media-items.md`](./manage/media-items.md) 的 artwork override），URL 不变但内容变了：
-
-- 浏览器可能仍展示老缓存（Cache-Control 有效期内）
-- 后端建议加 query 参数 `?v=${updated_at}` 来 bust cache
-- 或后端回 `Cache-Control: no-cache, must-revalidate`（取决于实现，未定）
-
-skin 简单粗暴方案：在拼 URL 时加 `item.updated_at` 作为版本：
+如果用户在后台修改了某个海报（[`manage/media-items.md`](./manage/media-items.md) 的 artwork override），URL 不变但内容可能变。skin 可在拼 URL 时加 `item.updated_at` 作为版本：
 
 ```ts
 const imgUrl = `/api/assets/items/${item.id}/images/primary?v=${item.updated_at}`;

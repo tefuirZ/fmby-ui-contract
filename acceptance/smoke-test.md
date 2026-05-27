@@ -11,7 +11,7 @@ test('full smoke', async ({ page }) => {
   await page.fill('[name=username]', 'admin');
   await page.fill('[name=password]', 'admin-pass');
   await page.click('button[type=submit]');
-  await expect(page).toHaveURL(/\/(discover|library)/);
+  await expect(page).toHaveURL(/\/$/);
 
   // 浏览
   await page.click('text=媒体库');
@@ -37,8 +37,8 @@ test('full smoke', async ({ page }) => {
 test('admin manage smoke', async ({ page, login }) => {
   await login('admin');
 
-  await page.goto('/manage/overview');
-  await expect(page.locator('text=用户')).toBeVisible();
+  await page.goto('/manage');
+  await expect(page.locator('text=热播')).toBeVisible();
 
   await page.goto('/manage/site/users/accounts');
   await expect(page.locator('table')).toBeVisible();

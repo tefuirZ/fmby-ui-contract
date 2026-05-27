@@ -81,6 +81,11 @@ slug 格式正则：`^[a-z][a-z0-9-]{1,63}$`
 | `assets` | 海报 / 字幕 / sidecar 资源 |
 | `settings` | 用户和服务器设置 |
 | `manage` | 后台管理（用户、库、挂载、任务等） |
+| `install` | 首次安装 / 恢复模式向导 |
+| `operations` | 管理首页运营看板 |
+| `upstreams` | 上游源网关（AppleCMS / Emby） |
+| `license` | 授权与订阅管理 |
+| `microsoft_auth` | Microsoft Graph 授权账号与站点 / drive 选择 |
 | `pan115_imghost` | 115 图床治理 / 观测页（前端有专门页面） |
 | `pan115_provider` | 115 网盘 provider 管理 / 扫码绑定 |
 | `task_center` | 任务中心 |

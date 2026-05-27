@@ -6,8 +6,8 @@
 dev 必须用 vite proxy。生产单端口部署不会有 CORS。
 
 ### 401 频繁
-- token 未存 / 未发；检查 Authorization header
-- refresh 失败 → 看是否 refresh_token 过期
+- Cookie 未发；检查 `credentials: "same-origin"` 和浏览器 Cookie 策略
+- 401 → Cookie session 过期或缺失，跳 `/login?next=...`；Web UI 不使用 refresh token。
 
 ### 403
 - 用户角色不够；切换 admin 测试

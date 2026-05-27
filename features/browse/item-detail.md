@@ -3,12 +3,13 @@
 条目详情页（电影 / 单集 / 整剧通用）。
 
 ## 路由
-- `/library/:libraryId/items/:itemId`
+- `/item/:itemId`
 
 ## 数据
 - `GET /api/items/{id}`：基本信息 + sources + artwork
-- `GET /api/items/{id}/recommendations`：相关推荐（可选）
-- `GET /api/items/{id}/seasons`（剧集）/ `GET /api/items/{id}/episodes`
+- `GET /api/items/{id}/children`：季 / 集直接子项
+- `GET /api/items/{id}/descendants`：剧集后代
+- `GET /api/items/{id}/sources`：播放源
 
 ## 必备 UI
 

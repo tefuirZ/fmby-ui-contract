@@ -6,22 +6,20 @@
 - `/settings/playback`
 
 ## 数据
-- `PATCH /api/me/preferences`
+- `GET /api/settings/user/playback`
+- `PUT /api/settings/user/playback`
 
 ## 字段
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| max_streaming_bitrate | number | 上限码率（kbps） |
-| preferred_audio_lang | string | 默认音轨 |
-| preferred_subtitle_lang | string | 默认字幕 |
-| subtitle_offset | number | 字幕偏移（秒） |
-| auto_play_next | bool | 自动下一集 |
-| skip_intro | bool | 跳片头 |
-| skip_credits | bool | 跳片尾 |
-| external_player | string | iina / vlc / mxplayer / 关 |
+| default_audio_language | string \| null | 默认音轨语言 |
+| default_subtitle_language | string \| null | 默认字幕语言 |
+| auto_resume | bool | 自动从上次位置继续 |
+| autoplay_next_episode | bool | 自动下一集 |
+| prefer_external_player | bool | 优先外部播放器 |
 
 ## 皮肤建议
-- 字幕偏移用 ±0.5s 步进按钮 + 数字输入
-- 外部播放器在不支持平台禁用 + 说明
-- 设置即时生效（mutation 成功后失效相关查询）
+- `PUT` 是整体替换，保存前必须带全量字段。
+- 外部播放器在不支持平台禁用。
+- 设置即时生效（mutation 成功后失效相关查询）。

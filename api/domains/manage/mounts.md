@@ -2,15 +2,15 @@
 
 挂载 = 一个已命名的 `StorageProvider` 实例。当前主线面向 WebUI 的企业级闭环 provider 为：
 
-- `local`
-- `alist`
-- `openlist`
-- `microsoft-global`
-- `microsoft-china`
-- `pan115`
-- `pan115-share`
+- `Local`
+- `AList`
+- `OpenList`
+- `MicrosoftGlobal`
+- `MicrosoftChina`
+- `Pan115`
+- `Pan115Share`
 
-历史类型 `webdav` / `s3-compatible` 只保留只读历史展示，不允许在当前主线继续新建。
+后端 `ProviderType::from_str` 兼容部分小写写法，但合同示例统一使用上面的 canonical 值。历史类型 `webdav` / `s3-compatible` 只保留只读历史展示，不允许在当前主线继续新建。
 
 ## 端点
 
@@ -29,11 +29,11 @@
 
 | provider_type | 创建态目录浏览 | 详情态目录浏览 | 说明 |
 |---|---|---|---|
-| `local` | 支持 | 支持 | 创建时浏览宿主机绝对路径；媒体库绑定时浏览 mount 根内的相对子目录。 |
-| `alist` / `openlist` | 支持 | 支持 | 根路径与媒体库子路径都应优先通过目录浏览器选择，不建议手填。 |
-| `microsoft-global` / `microsoft-china` | 支持 | 支持 | 依赖已导入 token + 已选择 drive/site。 |
-| `pan115` | 走专用 API | 走专用 API | 根路径保存目录 `cid`；不要把 `browse-directories` 当成普通 115 浏览真相。 |
-| `pan115-share` | 支持 | 支持 | 根路径固定为虚拟根 `/`；分享项在 `config_json.shares[]` 内维护，`alias` 是一级虚拟目录。 |
+| `Local` | 支持 | 支持 | 创建时浏览宿主机绝对路径；媒体库绑定时浏览 mount 根内的相对子目录。 |
+| `AList` / `OpenList` | 支持 | 支持 | 根路径与媒体库子路径都应优先通过目录浏览器选择，不建议手填。 |
+| `MicrosoftGlobal` / `MicrosoftChina` | 支持 | 支持 | 依赖已导入 token + 已选择 drive/site。 |
+| `Pan115` | 走专用 API | 走专用 API | 根路径保存目录 `cid`；不要把 `browse-directories` 当成普通 115 浏览真相。 |
+| `Pan115Share` | 支持 | 支持 | 根路径固定为虚拟根 `/`；分享项在 `config_json.shares[]` 内维护，`alias` 是一级虚拟目录。 |
 
 ## DTO
 
@@ -88,7 +88,10 @@
     "can_read_sidecar": true,
     "can_generate_play_target": true,
     "can_refresh_credentials": false
-  }
+  },
+  "path_policies": [],
+  "linked_sources": [],
+  "recent_scan_tasks": []
 }
 ```
 

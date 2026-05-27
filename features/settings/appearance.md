@@ -7,8 +7,8 @@
 
 ## 数据
 - `GET /api/site/skins`：可选皮肤列表
-- `PATCH /api/me/preferences`：用户级覆盖
-- `GET /api/site/info` → `active_ui_skin`：站点默认
+- `GET/PUT /api/settings/user/appearance`：用户外观偏好
+- `GET /api/site/bootstrap` → `active_skin`：站点当前默认
 
 ## UI
 

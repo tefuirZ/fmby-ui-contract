@@ -26,10 +26,10 @@
 | 角色 | 应该看哪里 |
 |---|---|
 | 第一次了解项目的人 | `overview/01-introduction.md` |
-| UI 设计师 | `overview/` → `design/` → `features/inventory.md` |
-| 前端开发者 | `development/quickstart.md` → `api/` → `features/` |
+| UI 设计师 | `overview/` → `design/` → `features/routes.md` |
+| 前端开发者 | `development/getting-started.md` → `development/api-client.md` → `api/` → `features/` |
 | 运维 / 管理员 | `overview/02-architecture.md` → `skin-package/lifecycle.md` |
-| 评审 / 验收方 | `acceptance/checklist.md` |
+| 评审 / 验收方 | `acceptance/functional.md`、`acceptance/security.md`、`acceptance/smoke-test.md` |
 
 ---
 
@@ -53,36 +53,37 @@ fmby-ui-contract/
 │   ├── conventions.md           # 基址、JSON、分页、时间、ID
 │   ├── auth.md                  # 登录 / cookie / CSRF 完整流程
 │   ├── errors.md                # 错误模型 + 错误码索引
-│   ├── openapi.json             # 自动生成（由 fmby 后端 utoipa 输出）
 │   └── domains/
-│       ├── auth.md              # /api/auth/*
+│       ├── site.md              # /api/site/*
+│       ├── install.md           # /api/install/*
 │       ├── browse.md            # /api/browse/*
 │       ├── items.md             # /api/items/*
 │       ├── playback.md          # /api/playback/*
 │       ├── assets.md            # /api/assets/*
 │       ├── settings.md          # /api/settings/*
-│       └── manage-*.md          # /api/manage/* 13 份
+│       └── manage/*.md          # /api/manage/* 子域
 ├── features/                    # ★ 不漏功能的核心武器
 │   ├── README.md
-│   ├── inventory.md             # 全部页面 × 功能 × 必选/可选 三维矩阵
 │   ├── routes.md                # 路由表 + 权限矩阵
 │   ├── states.md                # 通用状态：loading / empty / error / forbidden / maintenance
-│   └── pages/                   # 每个现役页面一份契约文档
+│   └── manage/ browse/ settings/ # 每个现役页面一份契约文档
 ├── design/                      # 设计参考（非强制；classic 主题为参考实现）
 │   ├── tokens-reference.md
 │   ├── responsive.md
 │   ├── accessibility.md
 │   └── i18n.md
 ├── development/                 # 出主题的工程流程
-│   ├── quickstart.md
-│   ├── local-setup.md
-│   ├── template.md
-│   ├── testing.md
-│   └── publishing.md
+│   ├── getting-started.md
+│   ├── api-client.md
+│   ├── debugging.md
+│   ├── skin-bundling.md
+│   └── release.md
 ├── acceptance/                  # 验收门
-│   ├── checklist.md
-│   └── benchmarks.md
-├── templates/                   # 起手模板工程（待填充）
+│   ├── functional.md
+│   ├── security.md
+│   ├── performance.md
+│   ├── a11y.md
+│   └── smoke-test.md
 └── schemas/                     # JSON Schema
     ├── manifest.schema.json
     └── bootstrap.schema.json
@@ -97,9 +98,9 @@ fmby-ui-contract/
 1. **5 分钟搞清楚这是什么** → [`overview/01-introduction.md`](./overview/01-introduction.md)
 2. **20 分钟搞清楚架构** → [`overview/02-architecture.md`](./overview/02-architecture.md) + [`overview/03-runtime-model.md`](./overview/03-runtime-model.md)
 3. **30 分钟搞清楚 API 边界** → [`api/README.md`](./api/README.md) + [`api/conventions.md`](./api/conventions.md) + [`api/auth.md`](./api/auth.md)
-4. **看清楚要做哪些功能** → [`features/inventory.md`](./features/inventory.md) + [`features/routes.md`](./features/routes.md)
-5. **抄起来开干** → [`development/quickstart.md`](./development/quickstart.md)
-6. **提交前自检** → [`acceptance/checklist.md`](./acceptance/checklist.md)
+4. **看清楚要做哪些功能** → [`features/routes.md`](./features/routes.md) + [`features/README.md`](./features/README.md)
+5. **抄起来开干** → [`development/getting-started.md`](./development/getting-started.md)
+6. **提交前自检** → [`acceptance/functional.md`](./acceptance/functional.md) + [`acceptance/security.md`](./acceptance/security.md)
 
 ---
 
@@ -123,16 +124,16 @@ fmby-ui-contract/
 
 - **Contract Version**: `0.1.0-draft`（早期，字段和 schema 可能调整）
 - **对应 fmby Version**: `>= 0.2.0`
-- **状态**: 🚧 **文档阶段**——多主题加载器后端尚在落地中，本仓库内容随后端同步更新；大版本变更会在 [CHANGELOG](#)（待建）记录
+- **状态**: 当前文档按主仓现有 Web API / classic skin 同步；字段仍可能随 `0.x` 版本调整，破坏性变更会通过 contract 版本推进。
 
 ---
 
 ## 贡献流程
 
-1. 读 [`development/publishing.md`](./development/publishing.md)
-2. fork 本仓库或直接基于 `templates/skin-vite-react/` 起手
-3. 按 [`features/inventory.md`](./features/inventory.md) 实现功能（或声明 `capabilities` 留空缺）
-4. 按 [`acceptance/checklist.md`](./acceptance/checklist.md) 自检
+1. 读 [`development/release.md`](./development/release.md)
+2. fork 本仓库或按 [`development/getting-started.md`](./development/getting-started.md) 创建 skin 工程
+3. 按 [`features/routes.md`](./features/routes.md) 实现功能（或在 `manifest.capabilities` 明确声明范围）
+4. 按 [`acceptance/`](./acceptance/) 自检
 5. 提交方式二选一：
    - **PR 进 fmby 主仓** `themes/{your-skin}/`（成为内置 skin）
    - **打包上传** 到生产环境的 `data/themes/{your-skin}/`（运行时 skin，不入主仓）

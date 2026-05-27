@@ -2,65 +2,100 @@
 
 ## 环境
 
-- Node ≥ 20
-- 包管理器：pnpm 推荐（也支持 npm / yarn）
-- fmby 后端实例（本地 dev 或远端 staging）
+- Node >= 20
+- 包管理器：pnpm 推荐
+- fmby 后端实例（本地 dev 或 staging）
 
-## 步骤
+## 1. 创建 skin 工程
 
-### 1. 克隆模板（如有）
+当前合同仓不强制某个模板。最小工程建议：
 
-```bash
-git clone https://github.com/tefuirZ/fmby-ui-contract.git
-cd fmby-ui-contract/templates/<framework-template>
+```text
+my-skin/
+├── manifest.json
+├── package.json
+├── vite.config.ts
+├── index.html
+└── src/
 ```
 
-### 2. 配置 API 端点
+## 2. 配置 dev proxy
 
-`.env.local`：
+`.env.development`：
 
-```
-VITE_FMBY_API_BASE=https://staging.fmby.example.com
-VITE_FMBY_SKIN_ID=my-awesome-skin
-```
-
-### 3. 启动 dev
-
-```bash
-pnpm install
-pnpm dev
+```env
+VITE_FMBY_BACKEND=http://127.0.0.1:18125
 ```
 
-dev 会拦截 `/api/*` proxy 到 `VITE_FMBY_API_BASE`。
+`vite.config.ts`：
 
-### 4. 写 manifest
-
-参考 [../schemas/manifest.schema.json](../schemas/manifest.schema.json) 写 `skin/manifest.json`：
-
-```json
-{
-  "schema_version": "1.0",
-  "id": "my-awesome-skin",
-  "name": "My Awesome Skin",
-  "version": "0.1.0",
-  "compat": { "fmby_min": "0.10.0", "fmby_max": "0.x" },
-  "entry": { "html": "index.html", "bootstrap": "bootstrap.json" }
+```ts
+server: {
+  proxy: {
+    "/api": {
+      target: process.env.VITE_FMBY_BACKEND ?? "http://127.0.0.1:18125",
+      changeOrigin: true,
+    },
+  },
 }
 ```
 
-### 5. 构建 + 本地预览
+前端代码始终请求 `/api/...`，不要请求跨域绝对地址。
 
-```bash
-pnpm build      # 产物在 dist/
-pnpm preview    # 本地启动 dist
+## 3. 提供 dev bootstrap
+
+Vite dev server 不会注入 `window.__FMBY_BOOTSTRAP__`。开发期可先请求 `/api/site/bootstrap`，失败时使用 mock：
+
+```ts
+const bootstrap =
+  window.__FMBY_BOOTSTRAP__ ??
+  (await fetch("/api/site/bootstrap", { credentials: "same-origin" }).then((r) => r.json()));
 ```
 
-### 6. 部署到 fmby
+## 4. 写 manifest
 
-把 `dist/` 上传到 fmby 的 `themes/` 目录（管理员配置见 [overview/02-architecture.md](../overview/02-architecture.md)），或打包为 zip 通过管理面"上传皮肤"（如已实现）。
+参考 [`../schemas/manifest.schema.json`](../schemas/manifest.schema.json)：
+
+```json
+{
+  "contract_version": "0.1.0",
+  "name": "my-skin",
+  "display_name": "My Skin",
+  "version": "0.1.0",
+  "description": "A custom FMBY skin.",
+  "author": { "name": "Your Team" },
+  "license": "MIT",
+  "entry": "dist/index.html",
+  "capabilities": ["auth", "browse", "playback", "assets", "settings", "manage"],
+  "localStorage_keys": ["my-skin:"],
+  "min_fmby_version": "0.2.0"
+}
+```
+
+## 5. 构建
+
+生产构建必须满足：
+
+- Vite `base` = `/_assets/{manifest.name}/`
+- Router basename = `/`
+- 入口文件 = `dist/index.html`
+- `dist/index.html` 包含 `</head>`
+
+详见 [`../skin-package/build-output.md`](../skin-package/build-output.md)。
+
+## 6. 本地验证
+
+最小 smoke：
+
+1. `/api/site/bootstrap` 返回 JSON。
+2. `/api/does-not-exist` 返回 JSON 404，不返回 HTML。
+3. `/login` 能登录并设置 `fmby_session` / `fmby_csrf`。
+4. 一个写操作带 `X-CSRF-Token` 后成功。
+5. 深链刷新 `/manage`、`/item/{id}` 返回 SPA HTML。
 
 ## 常见坑
 
-- CORS：dev 必须用 vite proxy，不要直接 fetch 跨域
-- 401：token 过期，调 `/api/auth/refresh`，统一在 api-client 做
-- 静态资源相对路径：所有皮肤资产用相对路径，便于挂在子目录
+- `Unexpected token '<'`：`/api/*` 被代理到了前端 HTML，修 dev proxy 或重启后端。
+- 401：Cookie session 失效，跳 `/login?next=...`，不要调 refresh token。
+- CSRF 403：先调 `/api/session` 刷新 csrf cookie；仍失败则让用户刷新页面。
+- 静态资源 404：检查 Vite `base`，不是 router basename。

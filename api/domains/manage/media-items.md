@@ -20,24 +20,31 @@
 | DELETE | `/api/manage/media-items/{itemId}/artwork/{overrideId}` | 删除覆盖（恢复刮削图） |
 | POST   | `/api/manage/media-items/{itemId}/subtitles` | 上传字幕 |
 | GET    | `/api/manage/media-items/{itemId}/subtitles/{overrideId}` | 取字幕 |
+| PATCH  | `/api/manage/media-items/{itemId}/subtitles/{overrideId}` | 更新字幕语言、默认态、排序等 |
+| DELETE | `/api/manage/media-items/{itemId}/subtitles/{overrideId}` | 删除字幕覆盖 |
 | POST   | `/api/manage/media-items/{itemId}/refresh-metadata` | 仅元数据刷新（不动 artwork） |
 | POST   | `/api/manage/media-items/{itemId}/scan` | 仅扫描该条目（重新派发文件→条目） |
 
 ## DTO 概览
 
-`MediaItemListItem`：`id / title / year / library_id / source_count / poster_url? / status`  
-`MediaItemDetail` 增加：`overview / runtime / genres / cast[] / external_ids / sources[] / artwork_overrides[] / subtitle_overrides[] / pipeline_status`  
-`IdentifyReq`：`{ provider: "tmdb|tvdb|douban", external_id: "12345" }`  
-`MetadataPatchReq`：`{ title?, original_title?, year?, overview?, genres?, cast?, ... }`
+`ManagedMediaItemListDto`：`id / library_id / library_name / parent_id / title / original_title / media_type / type_label / year / season_number / episode_number / series_id / series_title / poster_url / source_status / mount_status / metadata_status / has_local_* / has_poster / has_subtitle / updated_at / last_scan_at`。
+
+`ManagedMediaItemDetailResponse`：`item / base_metadata / effective_metadata / remote_metadata / scraped_metadata / scraped_artworks / local_metadata_override / metadata_status / sources / remote_assets / artwork_overrides / subtitle_overrides / latest_metadata_raw_content`。
+
+`IdentifyReq` 当前为入队请求，不直接指定外部 ID：`{ "reason": "manual", "force": true }`。
+
+`ScrapeReq`：`{ "reason": "manual", "force": false }`。
+
+`MetadataPatchReq`：`{ title?, original_title?, sort_title?, year?, overview?, community_rating?, genres?, directors?, actors?, studios?, premiered? }`。
 
 > 权威：`crates/fmby-api/src/manage/dto/media_items.rs`（最大文件，注意拆分）。
 
 ## 关键流程
 
-1. **识别错了**：详情页 → identify 输入正确 TMDB id → 后端拉新刮削结果覆盖
+1. **重新识别**：详情页 → identify 入队；当前接口不接收 TMDB/TVDB/Douban ID，具体候选与绑定以后端识别管线为准
 2. **手改简介**：PATCH metadata → 标记 `manual_override=true`，下次 scrape 默认不覆盖
-3. **artwork 覆盖**：POST artwork（multipart） → 返回 override_id；GET 该 id 走本地或 [pan115-imghost.md](./pan115-imghost.md) 直链
-4. **流水线追踪**：pipeline 端点返回 `{ scan_task_id?, identify_task_id?, scrape_task_id?, last_error? }`，皮肤可链接到 task-center
+3. **artwork 覆盖**：POST artwork（multipart） → 返回更新后的 `ManagedMediaItemDetailResponse`
+4. **流水线追踪**：pipeline 端点返回 `item_id / identify_task / identity_binding / scrape_task / current_metadata_source / review_status`，皮肤可链接到 task-center
 
 ## 错误
 

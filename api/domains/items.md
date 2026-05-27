@@ -18,50 +18,73 @@
 
 ---
 
-## 字段（MediaItemDetail 关键字段）
+## 响应形状（ItemDetailResponse）
 
 ```json
 {
-  "id": "item_abc",
-  "kind": "movie",                       // movie / series / season / episode / collection
-  "title": "黑客帝国",
-  "original_title": "The Matrix",
-  "year": 1999,
-  "release_date": "1999-03-31",
-  "overview": "...",
-  "runtime_minutes": 136,
-  "rating": { "imdb": 8.7, "tmdb": 8.2 },
-  "genres": ["科幻", "动作"],
-  "tags": ["cyberpunk"],
-  "library": { "id": "lib_001", "name": "电影" },
-  "parent": null,                        // episode 的 parent 是 season
-  "primary_image_url": "/api/assets/items/item_abc/images/primary",
-  "backdrop_image_url": "/api/assets/items/item_abc/images/backdrop",
-  "logo_image_url": "/api/assets/items/item_abc/images/logo",
-  "people": [
-    { "id": "p_xxx", "name": "Keanu Reeves", "role": "Neo", "kind": "actor" }
-  ],
-  "user_data": {
-    "watched": false,
-    "favorite": false,
-    "playback_position_seconds": 0,
-    "played_count": 0
+  "item": {
+    "id": "item_abc",
+    "library_id": "lib_001",
+    "library_name": "电影",
+    "parent_id": null,
+    "playback_target_id": "item_abc",
+    "availability_notice": null,
+    "title": "黑客帝国",
+    "subtitle": null,
+    "original_title": "The Matrix",
+    "sort_title": "Matrix",
+    "media_type": "Movie",
+    "year": 1999,
+    "overview": "...",
+    "community_rating": 8.7,
+    "created_at": "2026-01-15T10:30:00Z",
+    "updated_at": "2026-01-15T10:30:00Z",
+    "source_count": 1,
+    "has_playable_source": true,
+    "primary_source_id": "src_001",
+    "duration_ticks": 81600000000,
+    "width": 1920,
+    "height": 1080,
+    "dynamic_range_label": "HDR10",
+    "poster_url": "/api/assets/items/item_abc/images/poster",
+    "backdrop_url": "/api/assets/items/item_abc/images/backdrop",
+    "thumb_url": null,
+    "progress": {
+      "position_ticks": 0,
+      "duration_ticks": 81600000000,
+      "last_played_at": "2026-01-15T10:30:00Z",
+      "is_completed": false
+    }
   },
-  "external_ids": { "tmdb": "603", "imdb": "tt0133093" },
-  "scrape_status": "success",            // pending / running / success / failed
-  "created_at": "...", "updated_at": "..."
+  "children": [],
+  "children_total": 0,
+  "related_items": [],
+  "sources": [],
+  "assets": [],
+  "playback_progress": null,
+  "metadata_extras": {
+    "genres": ["科幻", "动作"],
+    "directors": ["Lana Wachowski"],
+    "actors": [
+      { "name": "Keanu Reeves", "role": "Neo" }
+    ],
+    "studios": [],
+    "external_ids": [
+      { "provider": "tmdb", "id": "603" }
+    ]
+  }
 }
 ```
 
-**类型枚举 `kind`**：
+**媒体类型来自 `item.media_type`，前端可自行映射成展示用 kind。常见值：**
 
-| kind | 含义 |
+| media_type | 含义 |
 |---|---|
-| `movie` | 电影 |
-| `series` | 剧集 |
-| `season` | 季 |
-| `episode` | 单集 |
-| `collection` | 合集 / 系列 |
+| `Movie` | 电影 |
+| `Series` | 剧集 |
+| `Season` | 季 |
+| `Episode` | 单集 |
+| `Collection` | 合集 / 系列 |
 
 ---
 
@@ -86,8 +109,8 @@ useQuery(`/api/items/${itemId}/sources`)     // 拿可播放源
 
 ```
 button "重新刮削" → POST /api/items/{id}/refresh-metadata
-  → 202 Accepted（异步），返回 { task_id }
-  → skin 可以选择跳到 task-center 或继续轮询 GET /api/items/{id} 看 scrape_status
+  → 返回刷新后的 ItemDetailResponse
+  → 当前路由不接收 JSON body，不返回 task_id
 ```
 
 ---
@@ -104,9 +127,8 @@ button "重新刮削" → POST /api/items/{id}/refresh-metadata
 
 | Query | 说明 |
 |---|---|
-| `order_by` | 默认按 episode_number / season_number |
-| `order` | asc / desc |
-| `page` / `page_size` | 分页 |
+| `page` | 页码，默认 1 |
+| `pageSize` / `page_size` | 每页数量，默认 20，后端 clamp 到 1-100 |
 
 适用：
 
@@ -120,8 +142,8 @@ button "重新刮削" → POST /api/items/{id}/refresh-metadata
 
 | Query | 说明 |
 |---|---|
-| `kind` | 仅返回某类型（如 `episode`） |
-| `page` / `page_size` | 分页（建议大型 series 加上） |
+| `page` | 页码，默认 1 |
+| `pageSize` / `page_size` | 每页数量，默认 20，后端 clamp 到 1-100 |
 
 ### `GET /api/items/{itemId}/sources`
 
@@ -129,50 +151,48 @@ button "重新刮削" → POST /api/items/{id}/refresh-metadata
 
 ```json
 {
-  "sources": [
+  "items": [
     {
       "id": "src_001",
-      "provider_kind": "local",
+      "media_item_id": "item_abc",
       "mount_id": "mnt_a",
-      "path": "/movies/Matrix.1999.mkv",
+      "mount_name": "本地电影",
+      "provider_type": "Local",
+      "mount_status": "Active",
+      "file_path": "/movies/Matrix.1999.mkv",
+      "source_status": "Playable",
+      "container": "mkv",
       "size_bytes": 15728640,
-      "video": { "codec": "h264", "width": 1920, "height": 1080, "duration_seconds": 8160 },
-      "audio_tracks": [ { "codec": "ac3", "language": "eng", "channels": 6 } ],
-      "subtitle_tracks": [ { "language": "chi", "format": "srt" } ],
-      "available": true,
-      "last_seen_at": "..."
-    },
-    {
-      "id": "src_002",
-      "provider_kind": "pan115",
-      "mount_id": "mnt_b",
-      "available": true
+      "duration_ticks": 81600000000,
+      "bitrate": 18000000,
+      "width": 1920,
+      "height": 1080,
+      "video_codec": "h264",
+      "audio_codec": "ac3",
+      "audio_track_count": 2,
+      "subtitle_count": 1,
+      "video_streams": [],
+      "audio_streams": [],
+      "subtitle_streams": [],
+      "stream_url": "/api/assets/streams/src_001",
+      "created_at": "2026-01-15T10:30:00Z",
+      "updated_at": "2026-01-15T10:30:00Z"
     }
-  ]
+  ],
+  "total": 1
 }
 ```
 
-注意 `available: false` 的源（挂载点掉线 / 凭据失效）skin 应灰显或隐藏。
+注意 `mount_status` / `source_status` 非可播的源（挂载点掉线 / 凭据失效）skin 应灰显或隐藏。
 
 ### `POST /api/items/{itemId}/refresh-metadata`
 
 ```http
-POST /api/items/item_abc/refresh-metadata
+POST /api/items/{itemId}/refresh-metadata
 X-CSRF-Token: ...
-
-{
-  "force": false                  // true = 全量重抓；false = 增量补全
-}
 ```
 
-响应（202 Accepted）：
-
-```json
-{
-  "task_id": "task_xyz",
-  "queued_at": "..."
-}
-```
+响应是刷新后的 `ItemDetailResponse`。
 
 错误：`task_already_running` / `forbidden`。
 
@@ -192,5 +212,5 @@ X-CSRF-Token: ...
 - series 详情页可考虑 collapsed seasons + 默认展开第一季
 - episode 详情页要有"上一集 / 下一集"快捷跳转
 - sources 多个时给用户选择 UI（不要默认隐藏）
-- 按 `available` 排序，不可用源沉底
-- `user_data` 字段用乐观更新（点击"已看"立刻更新 UI，再调 API）
+- 按 `mount_status` / `source_status` 排序，不可用源沉底
+- 进度字段使用 ticks；展示秒数时由前端显式转换

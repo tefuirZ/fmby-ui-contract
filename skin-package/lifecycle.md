@@ -11,21 +11,14 @@ skin 进入 fmby 视野的方式：
 | 方式 | 触发时机 | 说明 |
 |---|---|---|
 | 内置（built-in） | 容器启动 | `COPY` 到 `/app/themes/`，启动时扫描 |
-| 运行时拷贝 | 重启 / 重扫 | scp、docker cp、`unzip` 到 `/app/data/themes/` |
-| 管理后台上传 | 上传完成 | （计划中）`POST /api/manage/skins/upload` |
+| 运行时拷贝 | 重启后生效 | scp、docker cp、`unzip` 到运行时 themes 目录 |
+| 管理后台上传 | 未实现 | 当前一方契约没有 skin 上传 API |
 
 **注册 = 通过 manifest 校验 + 加入 ThemeRegistry**。失败的 skin 不会出现在管理后台下拉菜单。
 
 ### 重扫（rescan）
 
-不重启 fmby 让新 skin 生效（计划中）：
-
-```bash
-curl -X POST -H "X-CSRF-Token: $CSRF" \
-  https://fmby.example.com/api/manage/skins/rescan
-```
-
-返回新的 ThemeRegistry 状态。
+当前一方契约没有 skin 运行时重扫 API。生产环境新增或删除运行时 skin 后，以重启 fmby 作为稳定生效路径；第三方 skin 不要依赖计划中的重扫/上传 API。
 
 ---
 
@@ -54,7 +47,7 @@ X-CSRF-Token: ...
 
 - 只有 `manage:settings:server` 权限（即管理员）可改
 - 只能选 ThemeRegistry 里存在且校验通过的 skin
-- 改成不存在的 skin → 400 + `error_code: skin_not_found`
+- 改成不存在的 skin → 4xx + `ApiErrorResponse.code`
 
 ---
 
@@ -101,11 +94,10 @@ mv /app/data/themes/modern.bak /app/data/themes/modern
 
 ```bash
 rm -rf /app/data/themes/modern
-docker exec fmby curl -X POST localhost:18098/api/manage/skins/rescan \
-  -H "X-CSRF-Token: ..."
+docker restart fmby
 ```
 
-或重启容器让 ThemeRegistry 重建。
+重启会让 ThemeRegistry 重建。
 
 ### 卸载 active skin
 

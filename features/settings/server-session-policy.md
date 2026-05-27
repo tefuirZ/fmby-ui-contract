@@ -1,23 +1,26 @@
 # Features · Settings · Server Session Policy
 
-会话策略（admin）。
+会话策略（`manage:access`）。
 
 ## 路由
 - `/manage/site/settings` 中的"会话"分组
 
 ## 数据
-- `PUT /api/site/settings` 子集
+- `GET /api/settings/server/session-policy`
+- `PUT /api/settings/server/session-policy`
 
 ## 字段
 
 | 字段 | 说明 |
 |------|------|
-| access_token_ttl_secs | access_token 时长（默认 15min） |
-| refresh_token_ttl_secs | refresh_token 时长（默认 7d） |
-| remember_me_ttl_secs | "记住我"时长（默认 30d） |
-| max_sessions_per_user | 单用户最大并发会话数（0=不限） |
-| force_logout_on_password_change | 改密后是否强踢全部会话 |
+| user_session_ttl_seconds | 普通用户 session TTL |
+| admin_session_ttl_seconds | 管理用户 session TTL |
+| token_rotation_enabled | 是否启用 token rotation |
+| remember_me_ttl_days | 记住我天数 |
+| token_rotation_policy | token rotation 策略 |
+| single_session_for_admins | 管理用户是否单端登录 |
+| compat_legacy_session_fallback_enabled | 兼容层 legacy session fallback |
 
 ## 皮肤建议
-- 调整 ttl 后提示影响：「下次登录生效，已发出的 token 不变」
-- max_sessions 减小后超出部分按 last_seen 排序自动踢
+- 调整 TTL 后提示影响：「现有 session 可能在下一次校验 / 续期时体现」
+- 单端策略变化后提示用户重新登录验证
