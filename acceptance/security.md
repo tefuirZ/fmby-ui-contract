@@ -14,6 +14,16 @@
 - [ ] 不在 console、错误上报、审计展示或 URL 中输出 Authorization / Cookie / API Token
 - [ ] 登出彻底清前端内存状态，不伪造或自行生成 CSRF token
 
+## WebSocket
+
+- [ ] 第一方 `/api/playback/realtime/ws` 只使用 Cookie session + Origin 校验，不把 session、token、api key 或 Bearer 放入 query/header
+- [ ] `scope=admin` 只作为订阅范围处理，不作为认证材料处理
+- [ ] WS URL 从 `window.location.origin` 派生，不接受外部绝对地址或协议相对 URL
+- [ ] 管理端 WS payload 不展示、不缓存播放直链、stream token、Cookie、Authorization、PG / Redis URL、provider 凭据或授权材料
+- [ ] realtime envelope、session id、用户 id、client info、token、api key、URL 不写入 localStorage / sessionStorage / IndexedDB
+- [ ] WS 断线、解析失败或被后端拒绝时进入 degraded / disabled，并保留 HTTP fallback
+- [ ] `/embywebsocket` / `/jellyfinwebsocket` 的 compat `api_key` 不复用到第一方 `/api/playback/realtime/ws`
+
 ## 跳转
 
 - [ ] `next` 参数白名单（同源），防开放重定向

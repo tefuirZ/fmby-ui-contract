@@ -16,6 +16,8 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 | `/api/playback/sessions/{sessionId}/heartbeat` | POST | 心跳（保持会话活跃） |
 | `/api/playback/sessions/{sessionId}/progress` | POST | 上报观看进度 |
 | `/api/playback/sessions/{sessionId}/stop` | POST | 主动结束会话 |
+| `/api/playback/realtime/ws` | GET | 当前用户播放实时事件 WebSocket |
+| `/api/playback/realtime/ws?scope=admin` | GET | 管理端全局播放实时事件 WebSocket |
 
 ---
 
@@ -203,6 +205,67 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 ```
 
 可用于"在其它设备播放中"提示。
+
+---
+
+## 第一方播放实时 WebSocket
+
+第一方 WebSocket 是 `/api/*` Cookie session 合同的一部分，不是 Open API，也不是 Emby/Jellyfin compat API。
+
+端点：
+
+| 路径 | 权限 | 范围 |
+|---|---|---|
+| `/api/playback/realtime/ws` | 已登录用户 | 只接收当前用户自己的 session 事件和会话限制提示 |
+| `/api/playback/realtime/ws?scope=admin` | SuperAdmin + `manage:access` | 接收全局 snapshot、session 事件和会话限制提示 |
+
+`scope=admin` 只表示订阅范围，不是 token。第一方 skin 不得用 query token、query `api_key`、Bearer 或 compat header 连接该通道。
+
+事件 envelope：
+
+```json
+{
+  "type": "playback.active_snapshot",
+  "server_time": "2026-05-30T02:30:00Z",
+  "payload": {
+    "kind": "active_snapshot",
+    "data": {
+      "limit": 200,
+      "generated_at": "2026-05-30T02:30:00Z",
+      "sessions": []
+    }
+  }
+}
+```
+
+`payload` 使用 `{ "kind": "...", "data": ... }` 结构。skin 必须忽略未知 `type` / `kind`，不能因新增事件让页面崩溃。
+
+事件类型：
+
+| `type` | `payload.kind` | 普通用户 | 管理端 |
+|---|---|---|---|
+| `playback.realtime.hello` | `hello` | 可见 | 可见 |
+| `playback.session.started` | `session` | 仅本人 | 全局 |
+| `playback.session.progress` | `session` | 仅本人 | 全局 |
+| `playback.session.paused` | `session` | 仅本人 | 全局 |
+| `playback.session.stopped` | `session` | 仅本人 | 全局 |
+| `playback.active_snapshot` | `active_snapshot` | 不可见 | 可见 |
+| `playback.source_load_snapshot` | `source_load_snapshot` | 不可见 | 可见 |
+| `playback.limit.warning` | `limit_warning` | 仅本人 | 全局 |
+
+安全约束：
+
+- WebSocket URL 必须从 `window.location.origin` 派生，不接受外部绝对地址。
+- 第一方 skin 不得把 session、token、api key、用户 id、client info、播放 URL 或 realtime envelope 写入 localStorage / sessionStorage / IndexedDB。
+- payload 只允许展示脱敏信息：用户摘要、客户端摘要、媒体标题、状态、进度、来源摘要和负载计数。
+- payload 禁止包含 `stream_url`、`direct_url`、外部签名 URL、`playback_token`、Cookie、Authorization、PG / Redis URL、provider 凭据或授权材料。
+- 管理端全局视图必须以 HTTP 初始快照和 `active_snapshot` / `source_load_snapshot` 为真相；逐条 session event 只能触发轻量 refetch 或等待下一次 snapshot。
+- 断线或解析失败时进入 `degraded`，保留 HTTP fallback，不清空现有播放状态。
+
+兼容说明：
+
+- `/embywebsocket` 和 `/jellyfinwebsocket` 可继续使用 Emby 风格 `api_key` / header token。
+- compat 凭证不得进入第一方 realtime payload、Redis、Pub/Sub、日志或 Web Storage。
 
 ---
 

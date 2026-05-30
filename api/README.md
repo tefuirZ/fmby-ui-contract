@@ -43,7 +43,7 @@ skin 作者推荐工作流：
 | **auth** | 12 | 登录 / 注册 / 注销 / 会话查询 / setup / TOTP |
 | **browse** | 8 | 首页 / 历史 / 媒体库 / 推荐 / 搜索 |
 | **items** | 5 | 媒体详情 / 子项 / 后代 / 源 / 刷新 |
-| **playback** | 5 | 播放决策 / 会话 / 心跳 / 进度 / 停止 |
+| **playback** | 6 | 播放决策 / 会话 / 心跳 / 进度 / 停止 / 第一方实时 WebSocket |
 | **assets** | 4 | 海报 / 头像 / 字幕 / 原始流（HEAD/GET） |
 | **settings** | 6 | 用户三套（profile/playback/appearance）+ 服务器三套 |
 | **manage** | 100+ | 后台管理：运营看板、用户、库、挂载、上游源、media-items、reviews、tasks、task-center、license、microsoft、pan115、imghost、logs、sessions、registration-codes、source-availability |

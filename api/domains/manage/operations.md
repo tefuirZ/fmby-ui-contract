@@ -8,9 +8,14 @@
 
 | Method | Path | 权限 | 用途 |
 |---|---|---|---|
-| GET | `/api/manage/operations/overview?days=7|30|90` | `manage:access` | 运营总览、热播榜、活跃用户、趋势 |
+| GET | `/api/manage/operations/overview?days=7|30|90` | SuperAdmin + `manage:access` | 运营总览、热播榜、活跃用户、趋势 |
+| GET | `/api/manage/operations/runtime` | SuperAdmin + `manage:access` | 进程 / 主机 / PG pool / Redis / 起播延迟 / worker health |
+| GET | `/api/manage/operations/playback/active?limit=200` | SuperAdmin + `manage:access` | 当前活跃播放会话快照 |
+| GET | `/api/manage/operations/data-sources/load` | SuperAdmin + `manage:access` | 来源维度当前播放负载 |
 
 `days` 允许 `7`、`30`、`90`，缺失或非法时后端回退 `30`。
+
+`active` 的 `limit` 缺省为 `200`，允许范围 `1..=500`。
 
 ---
 
@@ -103,9 +108,251 @@ classic skin 将 raw DTO 映射为 camelCase：
 
 ---
 
+## 运行观测
+
+`GET /api/manage/operations/runtime` 返回运行时只读观测快照。
+
+响应重点字段：
+
+```json
+{
+  "sampled_at": "2026-05-30T02:30:00Z",
+  "process_host_cache_status": "hit",
+  "redis_cache_status": "miss",
+  "startup_latency_cache_status": "hit",
+  "worker_health_cache_status": "hit",
+  "process": {
+    "pid": 12345,
+    "uptime_seconds": 3600,
+    "rss_bytes": 268435456,
+    "virtual_memory_bytes": 1073741824,
+    "cpu_percent": 4.2,
+    "status": "ok",
+    "advice": null
+  },
+  "host": {
+    "cpu_count": 8,
+    "cpu_percent": 33.4,
+    "memory_total_bytes": 17179869184,
+    "memory_used_bytes": 6442450944,
+    "memory_percent": 37.5,
+    "status": "ok",
+    "advice": null
+  },
+  "pg_pool": {
+    "max_connections_configured": 20,
+    "min_connections_configured": 0,
+    "size": 8,
+    "idle": 5,
+    "in_use": 3,
+    "utilization_percent": 37.5,
+    "status": "ok",
+    "advice": null
+  },
+  "redis": {
+    "configured": true,
+    "connected": true,
+    "used_memory_bytes": 10485760,
+    "maxmemory_bytes": null,
+    "memory_percent": null,
+    "connected_clients": 4,
+    "db_keys": 128,
+    "ops_per_sec": 42,
+    "hit_rate_percent": 96.5,
+    "status": "ok",
+    "advice": null
+  },
+  "startup_latency": [
+    { "window": "5m", "average_ms": 820, "p95_ms": 1400, "sample_count": 20, "failed_count": 1 }
+  ],
+  "worker_health": {
+    "status": "ok",
+    "total_registered": 12,
+    "long_running_count": 10,
+    "one_shot_count": 2,
+    "disabled_count": 0,
+    "running_count": 10,
+    "starting_count": 0,
+    "stopping_count": 0,
+    "stopped_count": 2,
+    "failed_count": 0,
+    "restarted_count": 0,
+    "unhealthy_workers": [],
+    "advice": null
+  }
+}
+```
+
+`RuntimeMetricStatus` 取值：
+
+- `ok`
+- `warning`
+- `critical`
+- `degraded`
+- `unconfigured`
+- `unsupported`
+- `warming`
+
+`cache_status` 取值：
+
+- `hit`
+- `miss`
+- `bypass`
+
+运行观测响应不得包含 PostgreSQL URL、Redis URL、Cookie、Authorization、播放直链、stream token、provider 凭据或授权材料。
+
+---
+
+## 活跃播放快照
+
+`GET /api/manage/operations/playback/active?limit=200`
+
+响应：
+
+```json
+{
+  "sampled_at": "2026-05-30T02:30:00Z",
+  "cache_status": "miss",
+  "limit": 200,
+  "total_returned": 1,
+  "sessions": [
+    {
+      "session_id": "psess_001",
+      "user": {
+        "user_id": "u_001",
+        "username": "alice",
+        "display_name": "Alice"
+      },
+      "item": {
+        "item_id": "item_001",
+        "title": "示例电影",
+        "media_type": "Movie",
+        "series_title": null,
+        "season_number": null,
+        "episode_number": null
+      },
+      "source": {
+        "media_source_id": "src_001",
+        "source_name": "NAS",
+        "provider_type": "local",
+        "mount_id": "mount_001"
+      },
+      "status": "Playing",
+      "play_method": "DirectPlay",
+      "client_info": "Chrome / Windows",
+      "position_ticks": 18200000000,
+      "duration_ticks": 81600000000,
+      "progress_percent": 22.3,
+      "started_at": "2026-05-30T02:20:00Z",
+      "last_heartbeat_at": "2026-05-30T02:29:55Z"
+    }
+  ]
+}
+```
+
+约束：
+
+- `client_info` 仅是脱敏预览；后端会去控制字符并拒绝 URL、直链和 token 形态。
+- 响应不得包含 `stream_url`、`direct_url`、`playback_token`、Cookie、Authorization 或上游凭据。
+- skin 只把该接口作为初始快照和降级刷新来源；不要用高频轮询替代 WebSocket。
+
+建议 query key：`['manage', 'operations', 'playback', 'active', limit]`。
+
+---
+
+## 来源负载快照
+
+`GET /api/manage/operations/data-sources/load`
+
+响应：
+
+```json
+{
+  "sampled_at": "2026-05-30T02:30:00Z",
+  "cache_status": "miss",
+  "items": [
+    {
+      "source_id": "src_001",
+      "source_name": "NAS",
+      "provider_type": "local",
+      "mount_id": "mount_001",
+      "active_session_count": 3,
+      "playing_count": 2,
+      "paused_count": 1,
+      "media_source_count": 2480,
+      "last_heartbeat_at": "2026-05-30T02:29:55Z",
+      "load_level": "ok",
+      "advice": null
+    }
+  ]
+}
+```
+
+约束：
+
+- `active_session_count` 是来源维度的当前活跃会话数量。
+- `load_level` 使用 `RuntimeMetricStatus`。
+- `advice` 是面向管理员的操作建议，不应当作为机器状态机输入。
+
+建议 query key：`['manage', 'operations', 'data-sources', 'load']`。
+
+---
+
+## 管理端实时通道
+
+管理端运营看板必须先读取 HTTP 初始快照，再打开：
+
+```text
+GET /api/playback/realtime/ws?scope=admin
+```
+
+`scope=admin` 只表示订阅全局管理视图，不是 token。认证仍依赖同源 Cookie session、Origin 校验、SuperAdmin 和 `manage:access`。
+
+事件 envelope：
+
+```json
+{
+  "type": "playback.active_snapshot",
+  "server_time": "2026-05-30T02:30:00Z",
+  "payload": {
+    "kind": "active_snapshot",
+    "data": {
+      "limit": 200,
+      "generated_at": "2026-05-30T02:30:00Z",
+      "sessions": []
+    }
+  }
+}
+```
+
+管理端必须处理：
+
+| `type` | `payload.kind` | 处理 |
+|---|---|---|
+| `playback.realtime.hello` | `hello` | 标记连接成功 |
+| `playback.active_snapshot` | `active_snapshot` | 覆盖 / 合并活跃播放快照 |
+| `playback.source_load_snapshot` | `source_load_snapshot` | 覆盖 / 合并来源负载快照 |
+| `playback.session.started` | `session` | 触发轻量 refetch 或等待 snapshot |
+| `playback.session.progress` | `session` | 触发轻量 refetch 或等待 snapshot |
+| `playback.session.paused` | `session` | 触发轻量 refetch 或等待 snapshot |
+| `playback.session.stopped` | `session` | 触发轻量 refetch 或等待 snapshot |
+| `playback.limit.warning` | `limit_warning` | 展示会话限制提示 |
+
+安全约束：
+
+- 第一方 WebSocket 不使用 query token、query `api_key`、Bearer 或 compat header。
+- skin 不得把 envelope、session id、用户 id、client info、api key、token 或 URL 写入 localStorage / sessionStorage / IndexedDB。
+- WS 断开、浏览器不支持或消息解析失败时，UI 必须进入 `degraded` / `disabled`，保留 HTTP 刷新路径。
+- 管理端全局列表以 snapshot 为真相，不靠逐条 session event 自行维护全局状态。
+
+---
+
 ## UI 验收
 
 - `/manage` 在已完成首次配置且站点有基础数据时展示运营看板。
 - 未完成首次配置时仍展示 setup / 引导，不强行展示空运营面板。
 - 7 / 30 / 90 天切换后五个面板一起刷新。
 - 无播放记录时显示空态，不隐藏媒体趋势 / 用户趋势。
+- 实时播放和来源负载必须展示 `connecting / connected / degraded / disabled`。
+- WS degraded 时必须保留 HTTP 初始快照和手动刷新。
+- 页面不得展示播放直链、stream token、Cookie、Authorization、PG/Redis URL 或 provider 凭据。
