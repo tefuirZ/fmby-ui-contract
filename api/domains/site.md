@@ -36,7 +36,7 @@
     "user_id": "u_xxx",
     "username": "admin",
     "display_name": "管理员",
-    "roles": ["SuperAdmin"],
+    "roles": ["Admin"],
     "capabilities": ["manage:access"]
   },
   "api": {
@@ -64,6 +64,8 @@
 | `auth.capabilities` | UI 权限判断用 |
 | `install.required` | true 时应展示 `/install` 流程 |
 | `features.*` | 控制功能可用性，但页面不应直接隐藏成 404 |
+
+历史兼容：如果旧 bootstrap 返回 `SuperAdmin` / `superadmin`，skin 只能当作 Admin 兼容别名展示，不能跳过 capability guard 或 license entitlement。
 
 响应头：`Cache-Control: no-store`。
 

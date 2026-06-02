@@ -1,7 +1,8 @@
 # Manage Domain — Admin Surface
 
 `/api/manage/**` 是站点管理面，所有端点要求登录态。进入管理 UI 的最低权限是 `auth.capabilities` 包含 `manage:access`。
-部分高危端点还会要求更细 capability（如 `manage:mounts`、`system:security`）或超级管理员身份；普通用户访问会得到 `403`。
+部分高危端点还会要求更细 capability（如 `manage:mounts`、`system:security`）、Admin 管理员身份或 license entitlement；普通用户访问会得到 `403`。
+历史 `SuperAdmin` / `superadmin` 角色名只作为 Admin 兼容别名展示，权限边界以后端 capability guard 和 entitlement 为准。
 
 ## 子文档
 

@@ -64,7 +64,7 @@
 
 - `409 conflict`：用户名重复 / 模板被引用
 - `422 validation`：密码强度不够 / 非法 email
-- `403 forbidden`：操作 superadmin 时只有 superadmin 能改
+- `403 forbidden`：缺少 Admin 身份、目标 capability、敏感操作确认或后端 entitlement
 
 ## 皮肤实现建议
 
@@ -72,3 +72,4 @@
 - 权限位渲染使用 `capabilities`；角色名只做展示
 - 批量操作必须二次确认 + 显示影响人数
 - 重置密码表单由管理员输入 `new_password`，可选 `force_change`
+- Admin 账号保护由后端 capability guard 与敏感操作确认决定；前端不得用历史角色名硬编码谁能修改谁。

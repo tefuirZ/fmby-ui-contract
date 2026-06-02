@@ -23,7 +23,7 @@
 ## 状态
 
 - 无 license entitlement：显示授权引导，不伪装成空列表。
-- 非超级管理员：显示 403。
+- 非 Admin 或缺少后端要求的 capability / entitlement：显示 403。
 - 上游不可达：保留源记录并在行内展示错误，不让整页失败。
 - 密钥更新：编辑时如果不重填密钥，必须传 `retainSecret: true`。
 

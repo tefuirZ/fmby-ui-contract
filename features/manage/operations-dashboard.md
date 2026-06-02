@@ -56,7 +56,7 @@
 
 ## 安全与布局
 
-- 只有 SuperAdmin 且具备 `manage:access` 才能进入运营看板实时能力；前端隐藏入口不是权限边界。
+- 只有 Admin 且具备 `manage:access` 才能进入运营看板实时能力；前端隐藏入口不是权限边界。
 - `scope=admin` 只是订阅范围，不是 token；不要把 session、api key、Bearer 或一次性票据放入 URL。
 - WebSocket URL 必须从 `window.location.origin` 派生，并转换为同源 `ws:` / `wss:`，不接受配置中的外部绝对地址。
 - 不得把 realtime envelope、session id、用户 id、client info、api key、token、播放 URL、Cookie、Authorization 或连接串写入 localStorage / sessionStorage / IndexedDB。

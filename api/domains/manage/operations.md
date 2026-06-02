@@ -8,10 +8,10 @@
 
 | Method | Path | 权限 | 用途 |
 |---|---|---|---|
-| GET | `/api/manage/operations/overview?days=7|30|90` | SuperAdmin + `manage:access` | 运营总览、热播榜、活跃用户、趋势 |
-| GET | `/api/manage/operations/runtime` | SuperAdmin + `manage:access` | 进程 / 主机 / PG pool / Redis / 起播延迟 / worker health |
-| GET | `/api/manage/operations/playback/active?limit=200` | SuperAdmin + `manage:access` | 当前活跃播放会话快照 |
-| GET | `/api/manage/operations/data-sources/load` | SuperAdmin + `manage:access` | 来源维度当前播放负载 |
+| GET | `/api/manage/operations/overview?days=7|30|90` | Admin + `manage:access` | 运营总览、热播榜、活跃用户、趋势 |
+| GET | `/api/manage/operations/runtime` | Admin + `manage:access` | 进程 / 主机 / PG pool / Redis / 起播延迟 / worker health |
+| GET | `/api/manage/operations/playback/active?limit=200` | Admin + `manage:access` | 当前活跃播放会话快照 |
+| GET | `/api/manage/operations/data-sources/load` | Admin + `manage:access` | 来源维度当前播放负载 |
 
 `days` 允许 `7`、`30`、`90`，缺失或非法时后端回退 `30`。
 
@@ -306,7 +306,7 @@ classic skin 将 raw DTO 映射为 camelCase：
 GET /api/playback/realtime/ws?scope=admin
 ```
 
-`scope=admin` 只表示订阅全局管理视图，不是 token。认证仍依赖同源 Cookie session、Origin 校验、SuperAdmin 和 `manage:access`。
+`scope=admin` 只表示订阅全局管理视图，不是 token。认证仍依赖同源 Cookie session、Origin 校验、Admin 身份和 `manage:access`。
 
 事件 envelope：
 

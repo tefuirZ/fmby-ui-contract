@@ -10,7 +10,7 @@
 
 - 登录态
 - `manage:mounts`
-- 超级管理员身份
+- Admin 管理员身份
 - 相关 license entitlement
 
 ---
@@ -44,6 +44,8 @@
 | POST | `/api/manage/microsoft/auth/accounts/{account_id}/delta` | delta 增量 |
 
 当前 classic skin 主要使用配置状态、profiles、OAuth/token 辅助授权与导入。写文件类端点供挂载能力和后续 UI 使用。
+
+Microsoft 数据源创建必须把 token 辅助授权、drive/site 选择、持久账号导入、目录浏览和挂载创建串成一个连续向导；UI 不得只暴露孤立的“导入持久账号”按钮。
 
 ---
 
@@ -153,18 +155,90 @@
 
 ## Token 辅助流程
 
-用于在页面内拿到临时 token 后枚举 drive/site，再导入账号。不要把 token 持久化到前端存储。
+用于在页面内拿到临时 token 后枚举 drive/site，再导入账号并继续创建 Microsoft 数据源。不要把 token 持久化到前端存储。
+
+### 创建 Microsoft 数据源闭环
+
+1. 选择 `providerType`: `microsoft-global` 或 `microsoft-china`。
+2. 选择 `serviceKind`: `onedrive` 或 `sharepoint`。
+3. `POST /api/manage/microsoft/auth/token/start` 生成 `authorize_url`。
+4. 前端展示授权地址，支持打开新窗口和复制授权地址。
+5. 管理员粘贴完整 callback URL。
+6. `POST /api/manage/microsoft/auth/token/complete` 换取 access token、refresh token 和 tenant 信息。
+7. 前端把 access token、refresh token、tenant 信息写入内存表单态。
+8. OneDrive 调 `/token/drives` 加载 drives。
+9. SharePoint 先调 `/token/sites` 搜 site，再带 `siteId` 调 `/token/drives` 加载 drives。
+10. 调 `/token/import` 导入持久账号。
+11. 用导入后的账号继续走 `POST /api/manage/mounts/browse-directories` 选择 root path。
+12. 调 `POST /api/manage/mounts` 创建 `MicrosoftGlobal` / `MicrosoftChina` 来源。
+
+### token/start
+
+请求：
+
+```json
+{
+  "providerType": "microsoft-global",
+  "serviceKind": "onedrive",
+  "tenantId": "common",
+  "authProfileId": null
+}
+```
+
+响应：
+
+```json
+{
+  "authorization_id": "auth_001",
+  "provider_type": "microsoft-global",
+  "service_kind": "onedrive",
+  "tenant_id": "common",
+  "redirect_uri": "https://fmby.example.com/oauth/microsoft/callback",
+  "authorize_url": "https://login.microsoftonline.com/..."
+}
+```
+
+### token/complete
+
+请求必须提交完整 callback URL：
+
+```json
+{
+  "authorizationId": "auth_001",
+  "callbackUrl": "https://fmby.example.com/oauth/microsoft/callback?code=..."
+}
+```
+
+响应：
 
 ```json
 {
   "providerType": "microsoft-global",
   "accessToken": "...",
   "refreshToken": "...",
+  "tenantId": "common",
   "siteId": "optional"
 }
 ```
 
-drives 响应：
+### token/drives
+
+OneDrive 直接使用 token 枚举 drives；SharePoint 必须带已选择的 `siteId`。
+
+请求：
+
+```json
+{
+  "providerType": "microsoft-global",
+  "serviceKind": "onedrive",
+  "accessToken": "...",
+  "refreshToken": "...",
+  "tenantId": "common",
+  "siteId": null
+}
+```
+
+响应：
 
 ```json
 {
@@ -186,6 +260,37 @@ drives 响应：
 }
 ```
 
+### token/sites
+
+SharePoint 需要先搜索 site，再枚举 site drives。
+
+```json
+{
+  "providerType": "microsoft-global",
+  "accessToken": "...",
+  "refreshToken": "...",
+  "tenantId": "common",
+  "q": "marketing"
+}
+```
+
+响应：
+
+```json
+{
+  "items": [
+    {
+      "id": "site_001",
+      "name": "Marketing",
+      "display_name": "Marketing",
+      "web_url": "https://..."
+    }
+  ]
+}
+```
+
+### token/import
+
 导入：
 
 ```json
@@ -200,6 +305,15 @@ drives 响应：
   "siteId": null
 }
 ```
+
+响应返回持久授权账号基础信息。导入完成后，前端必须继续目录浏览和挂载创建，不能把流程停在账号列表。
+
+### 安全要求
+
+- `authorize_url`、完整 callback URL、access token、refresh token、tenant 信息和未导入的中间授权态只允许保存在页面内存。
+- 禁止写入 localStorage、sessionStorage、IndexedDB、URL query、日志、错误追踪或持久表单草稿。
+- 只有 `/token/import` 成功后，服务端才可以保存持久授权账号；前端仍不得保存 token 明文。
+- callback URL 只作为换 token 输入，不得在 UI 历史记录、toast、调试面板或审计展示中长期保留。
 
 ---
 

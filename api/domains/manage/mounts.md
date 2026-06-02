@@ -31,7 +31,7 @@
 |---|---|---|---|
 | `Local` | 支持 | 支持 | 创建时浏览宿主机绝对路径；媒体库绑定时浏览 mount 根内的相对子目录。 |
 | `AList` / `OpenList` | 支持 | 支持 | 根路径与媒体库子路径都应优先通过目录浏览器选择，不建议手填。 |
-| `MicrosoftGlobal` / `MicrosoftChina` | 支持 | 支持 | 依赖已导入 token + 已选择 drive/site。 |
+| `MicrosoftGlobal` / `MicrosoftChina` | 支持 | 支持 | 创建时必须走 Microsoft 数据源创建向导，完成 token 授权、drive/site、持久账号导入和 root path 选择。 |
 | `Pan115` | 走专用 API | 走专用 API | 根路径保存目录 `cid`；不要把 `browse-directories` 当成普通 115 浏览真相。 |
 | `Pan115Share` | 支持 | 支持 | 根路径固定为虚拟根 `/`；分享项在 `config_json.shares[]` 内维护，`alias` 是一级虚拟目录。 |
 
@@ -204,13 +204,16 @@
 3. 媒体库绑定的 `sub_path` 永远相对于 mount 根生效，不允许皮肤把它误解成 provider 全局根路径。
 4. 第三方主题包如果接入 `browse-directories`，必须保留“创建挂载浏览”和“媒体库绑定浏览”这两种模式。
 5. `pan115-share` 目录导入不需要 Cookie；播放、技术探测、sidecar 和资源读取才需要当前 mount 的分享 Cookie。
+6. Microsoft 数据源创建向导必须连续完成 provider 选择、OneDrive/SharePoint 选择、授权地址展示/打开/复制、完整 callback URL 换 token、内存 token 选择 drive/site、`/token/import` 导入持久账号、目录浏览、root path 选择和 `POST /api/manage/mounts` 创建来源。
+7. Microsoft 向导不得只提供孤立“导入持久账号”按钮；导入账号只是创建来源闭环中的中间步骤。
+8. Microsoft 授权 URL、callback URL、access token、refresh token、tenant 信息和中间授权态只能存在页面内存，不得进入 Web Storage、日志或持久表单草稿。
 
 ## 皮肤实现建议
 
 - 列表页展示：名称、provider 类型、健康状态、关联媒体库数量、不可用绑定数。
 - 新建/编辑抽屉按 provider 分区展示：
   - AList/OpenList：服务地址、认证方式、目录浏览器、远端治理
-  - Microsoft：token / drive 选择、目录浏览器、远端治理
+  - Microsoft：Microsoft 数据源创建向导、token / drive / site 选择、目录浏览器、远端治理
   - Pan115：专用凭据区、专用根目录选择器、远端治理
   - Pan115Share：多分享项 CRUD、别名、排序、分享 Cookie 绑定、目录浏览器、远端治理
 - 永远不要在前端 DOM 直接渲染 token / password / cookie 等敏感值。

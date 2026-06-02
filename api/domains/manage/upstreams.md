@@ -10,10 +10,10 @@
 
 - 登录态
 - `manage:mounts`
-- 超级管理员身份
+- Admin 管理员身份
 - 相关来源类型的 license entitlement
 
-普通管理用户没有超级管理员身份时会得到 `403`。
+缺少 Admin 身份、`manage:mounts` 或相关 entitlement 时会得到 `403`。
 
 ---
 

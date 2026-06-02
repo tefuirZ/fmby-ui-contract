@@ -217,7 +217,7 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 | 路径 | 权限 | 范围 |
 |---|---|---|
 | `/api/playback/realtime/ws` | 已登录用户 | 只接收当前用户自己的 session 事件和会话限制提示 |
-| `/api/playback/realtime/ws?scope=admin` | SuperAdmin + `manage:access` | 接收全局 snapshot、session 事件和会话限制提示 |
+| `/api/playback/realtime/ws?scope=admin` | Admin + `manage:access` | 接收全局 snapshot、session 事件和会话限制提示 |
 
 `scope=admin` 只表示订阅范围，不是 token。第一方 skin 不得用 query token、query `api_key`、Bearer 或 compat header 连接该通道。
 

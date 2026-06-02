@@ -22,7 +22,7 @@
 |---|---|---|
 | `/api/auth/entry/status` | GET | 登录入口状态：是否需要 setup、是否开放注册 |
 | `/api/auth/setup/status` | GET | 同上，兼容别名 |
-| `/api/auth/setup` | POST | 首次创建超级管理员并自动登录 |
+| `/api/auth/setup` | POST | 首次创建 Admin 管理员并自动登录 |
 | `/api/auth/login` | POST | 用户名密码登录 |
 | `/api/auth/mfa/totp/verify` | POST | TOTP 登录二次验证 |
 | `/api/auth/register` | POST | 使用注册码注册 |
@@ -76,13 +76,15 @@ Content-Type: application/json
     "id": "u_xxx",
     "name": "admin",
     "display_name": "管理员",
-    "roles": ["SuperAdmin"],
+    "roles": ["Admin"],
     "capabilities": ["manage:access"]
   }
 }
 ```
 
 响应会同时设置 `fmby_session` 与 `fmby_csrf`。
+
+历史兼容：旧后端或旧 skin 可能仍出现 `SuperAdmin` / `superadmin` 角色名，只能作为 Admin 兼容别名展示；前端权限判断必须继续以 `capabilities`、后端 capability guard 和 license entitlement 为准。
 
 ---
 

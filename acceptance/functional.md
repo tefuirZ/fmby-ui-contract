@@ -24,6 +24,7 @@
 - [ ] `/manage/media/items` 列表 + 筛选 + 详情 + 识别 + 刮削 + artwork + 字幕 + 元数据手改
 - [ ] `/manage/media/libraries` 列表 + 抽屉 + 数据源子路径选择 + 扫描
 - [ ] `/manage/media/mounts` 列表 + 抽屉 + pan115 扫码 + pan115-share 多分享项 + 挂载级分享 Cookie + 浏览目录
+- [ ] `/manage/media/mounts` 创建 Microsoft 数据源闭环：选择 microsoft-global / microsoft-china → OneDrive / SharePoint → 授权地址展示 / 打开 / 复制 → 粘贴完整 callback URL → token complete → drive/site → 导入持久账号 → 选择 root path → 创建来源
 - [ ] `/manage/media/upstreams` AppleCMS / Emby 上游源 + 绑定 + 同步 + 导入预览
 - [ ] `/manage/media/probe-tasks` 列表 + 立即排队
 - [ ] `/manage/media/naming-scrape` 设置 + imghost 开关 + 批量重刮
@@ -50,3 +51,8 @@
 - [ ] 危险操作二次确认
 - [ ] 长任务提交后 toast + 跳任务中心
 - [ ] mutation 后失效相关查询自动刷新
+
+## 安全存储
+
+- [ ] Microsoft 授权地址、完整 callback URL、access token、refresh token、tenant 信息和中间授权态仅保存在页面内存，不写 localStorage / sessionStorage / IndexedDB / URL query / 日志 / 持久表单草稿
+- [ ] Microsoft 创建向导不得只提供孤立“导入持久账号”按钮；导入后必须继续目录选择和创建来源
