@@ -17,6 +17,7 @@
 | 创建 / 编辑抽屉 | sourceType、baseUrl、authMethod、密钥、userAgent、referer、extraHeaders、enabled |
 | 健康检查 | 手动触发并展示 server_name / server_version / message |
 | AppleCMS 分类绑定 | 发现分类、绑定本地媒体库、同步单页、同步全部已绑定分类 |
+| Emby 局域网发现 | 使用 `/api/manage/upstreams/emby/discover-lan` 扫描局域网候选，发现为空时仍允许手动填写内网地址 |
 | Emby library 绑定 | 发现 library、绑定本地媒体库、常规同步 |
 | Emby 接管导入 | preview、import、job 列表与详情 |
 
@@ -32,3 +33,5 @@
 - 不要把 `password` / `apiKey` / `extraHeaders` 中的敏感值写入 localStorage。
 - 同步和导入是不同语义，按钮文案必须区分。
 - 导入预览结果不应自动执行 import。
+- Emby 只支持用户自有局域网 / 本机 / Docker 内网服务器；不得把公网公益服或第三方付费服包装成合法上游。
+- Emby 导入入口必须显式可见，不能只藏在普通编辑按钮里。

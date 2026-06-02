@@ -28,6 +28,7 @@
 | POST | `/api/manage/upstreams/{source_id}/enable` | 启用 |
 | POST | `/api/manage/upstreams/{source_id}/disable` | 禁用 |
 | POST | `/api/manage/upstreams/{source_id}/health-check` | 健康检查 |
+| POST | `/api/manage/upstreams/emby/discover-lan` | 发现局域网 Emby 服务器 |
 | GET | `/api/manage/upstreams/{source_id}/apple-cms/categories` | AppleCMS 分类 |
 | POST | `/api/manage/upstreams/{source_id}/apple-cms/discover-categories` | 发现 AppleCMS 分类 |
 | PUT | `/api/manage/upstreams/{source_id}/apple-cms/category-bindings` | 替换分类到媒体库绑定 |
@@ -54,7 +55,7 @@
   "name": "Main Emby",
   "source_type": "emby",
   "source_type_label": "Emby",
-  "base_url": "https://emby.example.com",
+  "base_url": "http://192.168.1.10:8096",
   "auth_method": "api-key",
   "status": "active",
   "username": null,
@@ -86,7 +87,7 @@
 {
   "name": "Main Emby",
   "sourceType": "emby",
-  "baseUrl": "https://emby.example.com",
+  "baseUrl": "http://192.168.1.10:8096",
   "authMethod": "api-key",
   "username": null,
   "password": null,
@@ -100,6 +101,30 @@
 ```
 
 后端同时接受 snake_case。更新时如果不想改密钥，传 `retainSecret: true`。
+
+Emby 特殊约束：
+
+- `baseUrl` 只允许本机、局域网、Docker 内网、IPv6 ULA / link-local 等非公网目标。
+- 创建、更新、启用、健康检查、library 发现、同步和接管导入前，后端都会重新校验 LAN-only 约束。
+- 公网公益服、第三方付费服或解析到公网 IP 的域名不属于支持范围，前端必须明确提示这一点。
+
+局域网发现响应：
+
+```json
+{
+  "items": [
+    {
+      "name": "Home Emby",
+      "server_id": "server_001",
+      "base_url": "http://192.168.1.10:8096",
+      "endpoint_address": "192.168.1.10"
+    }
+  ],
+  "total": 1
+}
+```
+
+`POST /api/manage/upstreams/emby/discover-lan` 使用 Emby UDP 7359 局域网发现。Docker bridge、NAS 防火墙、交换机隔离或跨网段环境可能返回空列表；空列表不是错误，前端仍必须允许管理员手动填写局域网地址。
 
 ---
 
@@ -215,6 +240,8 @@ Emby 接管导入请求：
 ## 前端实现注意
 
 - 上游源页应清楚区分"同步"和"接管导入"；导入会创建 / 更新本地媒体与播放源。
+- Emby 创建 / 编辑流必须保留局域网说明和发现入口；发现为空不能阻塞手动填写内网地址。
+- Emby 导入入口不能隐藏在普通编辑含义里，列表和编辑流都要让管理员明确进入 library 发现、绑定、同步和接管导入。
 - `extra_headers` 可能含敏感业务 header 名，但后端不会回传密钥正文。
 - 健康检查可失败并返回 `status=unreachable`，不要把它当作页面级错误。
 - 长耗时导入建议按钮态锁定，不要自动轮询高频请求；用 job 列表查看结果。

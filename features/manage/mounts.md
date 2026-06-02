@@ -28,6 +28,7 @@
 - `Local`
   - 基本信息
   - 本机目录浏览器
+  - STRM 直入库开关（默认开启）
   - 能力声明
   - 路径策略
 - `AList` / `OpenList`
@@ -104,3 +105,5 @@
 4. 删除挂载前必须展示引用影响，不能静默删。
 5. 敏感字段不能直接渲染到 DOM；即便后端已脱敏，前端也应避免复制/回显原始密码、token、cookie。
 6. 缺少 `pan115-share` 分享 Cookie 时仍允许创建和扫描分享目录；播放、探测、sidecar 或资源读取失败时再引导绑定当前数据源的分享 Cookie。
+7. Local 数据源必须提供 `config_json.scan.strm_direct_url_import` 开关；开启后扫描 `.strm` 文件会持久化第一条 HTTP(S) URL，播放不再依赖运行时读取原始 `.strm` 文件。
+8. Docker 部署下 Local 目录浏览和扫描只看容器内文件系统，UI 必须提醒管理员先把宿主媒体目录挂载进容器。
