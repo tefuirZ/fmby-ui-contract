@@ -31,6 +31,7 @@
 | `/manage/media/add` | 新增媒体引导 | 媒体库 / 挂载相关 API |
 | `/manage/media/items` | 资源管理 | `GET /api/manage/media-items` |
 | `/manage/media/items/:itemId` | 资源详情 | `GET /api/manage/media-items/{itemId}` |
+| `/manage/media/reviews` | 待审核队列 / 人工匹配 | `GET /api/manage/media-reviews`、`GET /api/manage/media-reviews/provider-search` |
 | `/manage/media/libraries` | 媒体库管理 | `GET /api/manage/libraries` |
 | `/manage/media/mounts` | 数据来源 / 挂载点 | `GET /api/manage/mounts` |
 | `/manage/media/upstreams` | 上游源网关 | `GET /api/manage/upstreams` |
@@ -46,6 +47,7 @@
 | `/manage/site/security/runtime-logs` | 运行日志 | `GET /api/manage/runtime-logs` |
 | `/manage/site/license` | 授权与订阅 | `GET /api/manage/license/status` |
 | `/manage/site/developer-api` | 开发者 API / API Token / Explorer | `GET /api/manage/developer/endpoints`、`GET /api/manage/developer/api-tokens` |
+| `/manage/site/about` | 系统关于 / 版本与依赖摘要 | `GET /api/manage/system/about` |
 | `/manage/site/settings` | 站点设置聚合页 | settings + manage overview API |
 | `/manage/site/advanced` | 高级状态 | `GET /api/manage/advanced` |
 

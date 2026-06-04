@@ -50,6 +50,7 @@
 | [manage/task-center.md](./manage/task-center.md) | 任务中心 |
 | [manage/logs.md](./manage/logs.md) | 审计 / 运行日志 |
 | [manage/developer-api.md](./manage/developer-api.md) | 开放 API Token / endpoint catalog / API Explorer |
+| [manage/system-about.md](./manage/system-about.md) | 系统关于 / 版本与依赖摘要 |
 | [manage/license.md](./manage/license.md) | 授权与订阅 |
 | [manage/microsoft.md](./manage/microsoft.md) | Microsoft Graph 授权 |
 | [manage/pan115-imghost.md](./manage/pan115-imghost.md) | 115 图床治理 / 观测 |

@@ -1,58 +1,156 @@
 # Manage · Media Reviews
 
-元数据审核工单：刮削结果有歧义（多个 TMDB 候选 / 命名识别不出）时进入审核队列。
+元数据审核队列：识别 / 刮削低置信度、失败或需要人工指定外部 ID 的媒体项会进入这里。
 
 ## 端点
 
 | Method | Path | 说明 |
 |--------|------|------|
-| GET    | `/api/manage/media-reviews` | 列表 `?status=open|claimed|resolved&assignee&page&page_size` |
-| GET    | `/api/manage/media-reviews/{reviewId}` | 详情（候选列表 + 原始命名 + 关联文件） |
-| POST   | `/api/manage/media-reviews/{reviewId}/claim` | 当前管理员认领（独占） |
-| POST   | `/api/manage/media-reviews/{reviewId}/release` | 释放认领 |
-| POST   | `/api/manage/media-reviews/{reviewId}/resolve` | 决议：选定候选或自填 external_id |
+| GET | `/api/manage/media-reviews` | 列表，支持 `stage/status/mediaItemId/page/pageSize` |
+| GET | `/api/manage/media-reviews/provider-search` | 搜索 provider 候选 |
+| GET | `/api/manage/media-reviews/{reviewId}` | 详情 |
+| POST | `/api/manage/media-reviews/{reviewId}/claim` | 当前管理员认领 |
+| POST | `/api/manage/media-reviews/{reviewId}/release` | 释放认领 |
+| POST | `/api/manage/media-reviews/{reviewId}/resolve` | 解决审核项 |
 
-## DTO
+## 权限
 
-`MediaReview`：
+- Cookie session
+- `manage:access`
+- `manage:libraries`
+
+## 列表查询
+
+```text
+GET /api/manage/media-reviews?stage=Scrape&status=open&page=1&pageSize=50
+```
+
+响应：
+
 ```jsonc
 {
-  "id": "uuid",
-  "media_item_id": "uuid?",
-  "library_id": "uuid",
-  "raw_filename": "Some.Movie.2023.1080p.mkv",
-  "parsed":   { "title": "Some Movie", "year": 2023 },
-  "candidates": [
-    { "provider": "tmdb", "external_id": "12345", "title": "Some Movie", "year": 2023, "score": 0.92, "poster_url": "..." }
-  ],
-  "status": "open|claimed|resolved",
-  "claimed_by_user_id": "uuid?",
-  "claimed_at": "...",
-  "resolved_by_user_id": "uuid?",
-  "resolved_at": "...",
-  "resolution": { "provider": "tmdb", "external_id": "12345" }
+  "items": [/* ManagedMediaReviewQueueItem */],
+  "total": 1,
+  "page": 1,
+  "page_size": 50
 }
 ```
 
-`ResolveReq`：`{ provider: "tmdb|tvdb|douban", external_id: "12345" }` 或 `{ skip: true }`（标记忽略）
+`ManagedMediaReviewQueueItem` 关键字段：
 
-> 权威：`crates/fmby-api/src/manage/dto/media_reviews.rs`。
+```jsonc
+{
+  "id": "review-id",
+  "media_item_id": "item-id",
+  "media_item_title": "标题",
+  "context": {
+    "library_id": "library-id",
+    "library_name": "电影库",
+    "media_type": "Movie",
+    "title": "标题",
+    "season_number": null,
+    "episode_number": null,
+    "parsed": {
+      "title": "解析标题",
+      "year": 2026,
+      "season_number": null,
+      "episode_number": null,
+      "confidence": 0.42
+    },
+    "primary_source": {
+      "source_id": "source-id",
+      "mount_id": "mount-id",
+      "mount_name": "115 来源",
+      "provider_type": "Pan115",
+      "provider_label": "115",
+      "mount_status": "Active",
+      "source_status": "Playable",
+      "file_path": "/raw/path/file.mkv",
+      "display_path": "115 来源 / 片名/file.mkv"
+    },
+    "failure": {
+      "stage": "Scrape",
+      "reason_code": "LowConfidence",
+      "error_code": null,
+      "error_message": null
+    }
+  },
+  "review_stage": "Scrape",
+  "reason_code": "LowConfidence",
+  "status": "Open",
+  "priority": 100,
+  "claimed_by_user_id": null,
+  "claimed_at": null,
+  "resolved_by_user_id": null,
+  "resolved_at": null
+}
+```
 
-## 关键流程
+`context.primary_source.display_path / file_path` 是人工审核的必要上下文，UI 不能省略。
 
-1. claim → 列表行变灰、其它管理员看到「张三正在处理」
-2. resolve → 后端走 identify + scrape，结果落到对应 media_item
-3. release → 不决议直接放回开放队列
+## Provider 搜索
 
-## 错误
+```text
+GET /api/manage/media-reviews/provider-search?provider=tmdb&query=Movie&mediaType=Movie&year=2026
+```
 
-- `409 conflict`：claim 时已被他人认领
-- `410 gone`：resolve 时关联的文件已被删
-- `422 validation`：external_id 在 provider 不存在
+查询参数：
 
-## 皮肤实现建议
+- `provider`: `tmdb | douban`
+- `query`，别名 `q`
+- `mediaType`
+- `entityType`
+- `year`
+- `language`
+- `region`
 
-- 队列页双栏：左列表（按 library 分组）+ 右候选对比卡（标题/年份/海报/置信度）
-- 顶部「我的认领」筛选
-- 候选卡按 score 降序
-- 决议成功 → toast + 5s 后从队列移除（避免误重复点）
+响应候选字段：
+
+- `provider`
+- `entity_type`
+- `provider_item_id`
+- `title`
+- `original_title`
+- `year`
+- `confidence`
+- `external_ids[]`
+- `evidence_json`
+
+## Resolve
+
+请求体：
+
+```jsonc
+{
+  "action": "ManualMatch",
+  "payload": {
+    "provider": "tmdb",
+    "externalId": "12345",
+    "entityType": "Movie",
+    "title": "标题",
+    "originalTitle": "Original Title",
+    "year": 2026
+  },
+  "note": "人工确认"
+}
+```
+
+支持 action：
+
+- `ManualMatch`
+- `ApproveScraped`
+- `RejectScraped`
+- `Dismiss`
+- `RetryScrape`
+- `ReassignBinding`
+
+`ManualMatch` 成功后，后端写入 `Locked + Manual` identity binding，并异步触发强制重新刮削。前端提交成功后应立即更新队列状态，同时展示后台处理提示，不等待刮削完成。
+
+## UI 状态
+
+- claim 冲突：刷新该审核项并提示已被他人认领。
+- provider 搜索无结果：保留直接填写外部 ID。
+- resolve 成功：从待处理队列移除或标记已解决。
+- 关联媒体项不存在：展示不可恢复状态。
+
+> 权威：主仓 `crates/fmby-api/src/manage/dto/review_queue.rs` 与 `crates/fmby-api/src/manage/routes/media_reviews.rs`。

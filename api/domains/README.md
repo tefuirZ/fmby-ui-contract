@@ -35,9 +35,10 @@ skin 实现"后台管理"还需要以下域。**可分模块逐步实现**——
 | [`manage/mounts.md`](./manage/mounts.md) | mounts | 5 | 挂载点 + 浏览目录 + 校验 |
 | [`manage/upstreams.md`](./manage/upstreams.md) | upstreams | 19 | AppleCMS / Emby 上游源与导入 |
 | [`manage/media-items.md`](./manage/media-items.md) | media-items | 15 | 单条媒体管理（识别 / 刮削 / 元数据 / 美工 / 字幕） |
-| [`manage/media-reviews.md`](./manage/media-reviews.md) | media-reviews | 5 | 待审媒体队列 |
+| [`manage/media-reviews.md`](./manage/media-reviews.md) | media-reviews | 6 | 待审媒体队列 |
 | [`manage/tasks.md`](./manage/tasks.md) | tasks | 10 | 扫描 / 探测 / 命名刮削 / 命名清理 |
 | [`manage/task-center.md`](./manage/task-center.md) | task-center | 4 | 统一任务中心 |
+| [`manage/system-about.md`](./manage/system-about.md) | system-about | 1 | 系统关于 / 版本与依赖摘要 |
 | [`manage/source-availability.md`](./manage/source-availability.md) | source-availability | 1 | 单源恢复 |
 | [`manage/logs.md`](./manage/logs.md) | logs | 2 | 审计 / 运行日志 |
 | [`manage/license.md`](./manage/license.md) | license | 5 | 授权状态 / 设备码 / 激活 token |

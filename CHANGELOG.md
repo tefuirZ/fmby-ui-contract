@@ -11,6 +11,8 @@
 - 新增管理端运营看板实时合同，覆盖活跃播放快照、来源负载快照和 `GET /api/playback/realtime/ws?scope=admin`。
 - 新增第一方播放实时 WebSocket 合同，区分普通用户 scope 与管理端 admin scope，并固定事件 envelope、事件类型和降级行为。
 - 新增 WebSocket 安全验收项，约束 Cookie session + Origin、禁止 query token / `api_key`、禁止 Web Storage 和敏感 payload。
+- 新增管理端待审核队列人工匹配合同，覆盖 `/manage/media/reviews`、`provider-search` 和 `ManualMatch` resolve payload。
+- 新增系统关于页合同，覆盖 `/manage/site/about` 与 `GET /api/manage/system/about` 的脱敏版本、链接、依赖和部署摘要。
 
 ### Changed
 
@@ -19,6 +21,7 @@
 - `development/api-client.md` 明确普通浏览主题仍可只用轮询，管理端 operations dashboard 使用同源 WebSocket + HTTP fallback。
 - `features/manage/operations-dashboard.md` 扩展实时播放、来源负载、连接状态 badge、移动端布局和 degraded / disabled 状态矩阵。
 - `api/domains/manage/operations.md` 同步运行观测、active playback、source load 和管理端 realtime 通道示例。
+- `api/domains/manage/media-reviews.md` 更新为当前真实审核队列 API，明确来源路径展示、provider 搜索和异步重刮语义。
 
 ### Security
 
@@ -26,6 +29,7 @@
 - 第一方 `/api/playback/realtime/ws` 固定使用 Cookie session + Origin 校验；`scope=admin` 只表示订阅范围，不是认证材料。
 - 禁止 WebUI / skin 展示或缓存播放直链、stream token、Cookie、Authorization、PG / Redis URL、provider 凭据和授权材料。
 - 兼容入口 `/embywebsocket`、`/jellyfinwebsocket` 的 `api_key` 语义不得复用到第一方 realtime WS。
+- 系统关于页不得展示 PostgreSQL URL、Redis URL、密码、token、Cookie、license key 或 provider 凭据；GitHub 归属固定 `tefuirZ`，DockerHub 固定 `itefuir/fmby`。
 
 ### Compatibility
 

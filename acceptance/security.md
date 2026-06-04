@@ -49,3 +49,4 @@
 
 - [ ] CSP header 由后端发；皮肤不应触发 `unsafe-inline`
 - [ ] HTTPS 强制（生产）
+- [ ] 系统关于页只展示脱敏摘要，不展示 PG/Redis URL、密码、token、Cookie、license key 或 provider 凭据
