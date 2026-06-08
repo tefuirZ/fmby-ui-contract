@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { ServerSecuritySettings } from '@/domains/settings';
+import { ResetIpLoginRiskPanel } from './ResetIpLoginRiskPanel';
 import type { SiteSettingsDraft } from '../types';
 import { minutesFromSeconds, secondsFromMinutes } from '../formUtils';
 import { ManageSectionCard } from '../../components';
@@ -19,7 +20,7 @@ export function SiteSettingsSecuritySection({
   return (
     <ManageSectionCard
       title="登录安全"
-      description="先把登录入口守住，别让限流、锁定和敏感操作散在三四个页面里。"
+      description="站点级登录风控集中在这里配置，账号锁定和 IP 限流分开生效。"
     >
       <div id="site-security" className={styles.fieldGroup}>
         <div className={styles.fieldRow}>
@@ -105,15 +106,15 @@ export function SiteSettingsSecuritySection({
             }}
           />
           <div className={styles.stackText}>
-            <strong>限制短时间内的重复登录尝试</strong>
+            <strong>IP 登录限流</strong>
             <span className={styles.mutedText}>
-              开启后，密码被暴力尝试时更容易挡住。
+              按来源 IP 统计失败登录，用来压住同一出口的高频暴力尝试。
             </span>
           </div>
         </label>
         <div className={styles.fieldRow}>
           <label className={styles.label}>
-            限流次数
+            IP 限流阈值（次）
             <input
               className={styles.input}
               type="number"
@@ -137,7 +138,7 @@ export function SiteSettingsSecuritySection({
             />
           </label>
           <label className={styles.label}>
-            限流窗口（分钟）
+            IP 限流窗口（分钟）
             <input
               className={styles.input}
               type="number"
@@ -164,6 +165,14 @@ export function SiteSettingsSecuritySection({
             />
           </label>
         </div>
+        <ResetIpLoginRiskPanel
+          wrapperClassName={styles.ipRiskResetPanel}
+          fieldClassName={styles.label}
+          inputClassName={styles.input}
+          hintClassName={styles.fieldHint}
+          buttonClassName={styles.secondaryButton}
+          onSuccess={setSuccess}
+        />
 
         <label className={styles.checkboxRow}>
           <input
@@ -186,9 +195,9 @@ export function SiteSettingsSecuritySection({
             }}
           />
           <div className={styles.stackText}>
-            <strong>连续输错密码时临时锁定</strong>
+            <strong>账号失败锁定</strong>
             <span className={styles.mutedText}>
-              适合挡住反复试密码，也能提醒用户停一停。
+              按用户名统计失败登录，不会因为同 IP 下其它账号输错而连坐。
             </span>
           </div>
         </label>

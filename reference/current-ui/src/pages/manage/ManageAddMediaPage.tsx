@@ -30,8 +30,8 @@ export function ManageAddMediaPage() {
     queryFn: () => manageApi.getLibraries(),
   });
   const usersQuery = useQuery({
-    queryKey: queryKeys.manage.users.list(),
-    queryFn: () => manageApi.getUsers(),
+    queryKey: queryKeys.manage.users.list({ page: 1, pageSize: 100 }),
+    queryFn: () => manageApi.getUsers({ page: 1, pageSize: 100 }),
   });
   const namingSettingsQuery = useQuery({
     queryKey: queryKeys.manage.namingScrape.settings(),
@@ -108,7 +108,7 @@ export function ManageAddMediaPage() {
     overview,
     mountsCount: mounts.length,
     librariesCount: libraries.length,
-    usersCount: users.length,
+    usersCount: usersQuery.data?.total ?? users.length,
     namingReady: Boolean(namingSettingsQuery.data),
   });
   const mediaItemsCount = readKpiValue(overview.kpis, 'media-items');

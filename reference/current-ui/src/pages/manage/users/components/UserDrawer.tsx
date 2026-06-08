@@ -1,7 +1,9 @@
 import type {
+  ManageUserAccountKind,
   ManageMountRecord,
   ManageUserDetailRecord,
   ManageUserRole,
+  RoleTemplateRecord,
   UserStatus,
 } from '@/domains/manage';
 import type React from 'react';
@@ -18,8 +20,12 @@ import { SourceGrantEditor } from '../../source-governance-fields';
 import {
   getDrawerDescription,
   getDrawerTitle,
+  getUserAccountKindLabel,
   getUserStatusLabel,
   normalizeFormText,
+  normalizePositiveIntegerText,
+  parseOptionalDateTimeLocal,
+  parseOptionalPositiveInt,
 } from '../formUtils';
 
 interface MutationShape<TVars> {
@@ -42,9 +48,13 @@ interface UserDrawerProps {
   mounts: ManageMountRecord[];
   mountsLoading: boolean;
   mountsError?: string;
+  roleTemplates?: RoleTemplateRecord[];
+  roleTemplatesLoading?: boolean;
+  roleTemplatesError?: string;
   createUserMutation: MutationShape<import('@/domains/manage').CreateManageUserRequest>;
   updateUserMutation: MutationShape<{ userId: string; payload: import('@/domains/manage').UpdateManageUserRequest }>;
   setDrawerState: (state: UserDrawerState | null) => void;
+  onResetPassword: (user: ManageUserDetailRecord) => void;
   onClose: () => void;
 }
 
@@ -56,9 +66,13 @@ export function UserDrawer({
   mounts,
   mountsLoading,
   mountsError,
+  roleTemplates = [],
+  roleTemplatesLoading = false,
+  roleTemplatesError,
   createUserMutation,
   updateUserMutation,
   setDrawerState,
+  onResetPassword,
   onClose,
 }: UserDrawerProps) {
   const currentDetail = userDetailQuery.data;
@@ -67,6 +81,10 @@ export function UserDrawer({
     name: mount.name,
     pathLabel: mount.pathLabel,
   }));
+  const activeRoleTemplates = roleTemplates.filter((template) => template.status === 'active');
+  const selectedTemplate = roleTemplates.find(
+    (template) => template.id === formState.roleTemplateId,
+  );
 
   return (
     <SideDrawer
@@ -99,6 +117,43 @@ export function UserDrawer({
           </div>
           <div className={styles.fieldRow}>
             <label className={styles.label}>
+              邮箱
+              <input
+                className={styles.input}
+                type="email"
+                value={formState.email}
+                onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+                placeholder="用于后续重置密码验证"
+              />
+            </label>
+            <label className={styles.label}>
+              用户模板
+              <select
+                className={styles.select}
+                value={formState.roleTemplateId}
+                onChange={(event) => setFormState((current) => ({ ...current, roleTemplateId: event.target.value }))}
+                disabled={roleTemplatesLoading}
+              >
+                <option value="">不套用模板</option>
+                {activeRoleTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>{template.name}</option>
+                ))}
+              </select>
+              <span className={styles.fieldHint}>模板只作为本次创建的默认授权和限制快照，不会持续绑定。</span>
+            </label>
+          </div>
+          {roleTemplatesError ? (
+            <InlineBanner variant="warning" title="用户模板加载失败" description={roleTemplatesError} />
+          ) : null}
+          {selectedTemplate ? (
+            <InlineBanner
+              variant="info"
+              title={`将套用模板：${selectedTemplate.name}`}
+              description={`默认媒体库 ${selectedTemplate.defaultLibraries.length} 个，来源路径 ${selectedTemplate.sourceGrants.length} 条，登录会话 ${selectedTemplate.defaultMaxSessions ?? '不限制'}，同时播放 ${selectedTemplate.defaultMaxConcurrentPlaybacks ?? '不限制'}。显式填写的字段优先。`}
+            />
+          ) : null}
+          <div className={styles.fieldRow}>
+            <label className={styles.label}>
               初始密码
               <input
                 className={styles.input}
@@ -121,19 +176,82 @@ export function UserDrawer({
                 <option value="disabled">已停用</option>
               </select>
             </label>
+            <label className={styles.label}>
+              账号类型
+              <select
+                className={styles.select}
+                value={formState.accountKind}
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    accountKind: event.target.value as ManageUserAccountKind,
+                  }))
+                }
+              >
+                <option value="human">人工账号</option>
+                <option value="service">服务账号</option>
+              </select>
+              <span className={styles.fieldHint}>服务账号不能交互式登录，主要用于开放 API Token owner。</span>
+            </label>
           </div>
-          <label className={styles.label}>
-            角色
-            <select
-              className={styles.select}
-              value={formState.role}
-              onChange={(event) => setFormState((current) => ({ ...current, role: event.target.value as ManageUserRole }))}
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
+          <div className={styles.fieldRow}>
+            <label className={styles.label}>
+              角色
+              <select
+                className={styles.select}
+                value={formState.role}
+                onChange={(event) => setFormState((current) => ({ ...current, role: event.target.value as ManageUserRole }))}
+              >
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.label}>
+              最大登录会话数
+              <input
+                className={styles.input}
+                inputMode="numeric"
+                value={formState.maxSessions}
+                onChange={(event) => {
+                  const next = normalizePositiveIntegerText(event.target.value);
+                  if (next !== undefined) {
+                    setFormState((current) => ({ ...current, maxSessions: next }));
+                  }
+                }}
+                placeholder="留空表示不限制"
+              />
+              <span className={styles.fieldHint}>限制 WebUI / API 登录会话数，不是播放设备数。</span>
+            </label>
+          </div>
+          <div className={styles.fieldRow}>
+            <label className={styles.label}>
+              有效期截止
+              <input
+                className={styles.input}
+                type="datetime-local"
+                value={formState.validUntil}
+                onChange={(event) => setFormState((current) => ({ ...current, validUntil: event.target.value }))}
+              />
+              <span className={styles.fieldHint}>留空表示不限制账号有效期。显示与填写按 Asia/Shanghai。</span>
+            </label>
+            <label className={styles.label}>
+              同时播放设备上限
+              <input
+                className={styles.input}
+                inputMode="numeric"
+                value={formState.maxConcurrentPlaybacks}
+                onChange={(event) => {
+                  const next = normalizePositiveIntegerText(event.target.value);
+                  if (next !== undefined) {
+                    setFormState((current) => ({ ...current, maxConcurrentPlaybacks: next }));
+                  }
+                }}
+                placeholder="留空表示不限制"
+              />
+              <span className={styles.fieldHint}>限制活跃播放会话，不限制登录会话。</span>
+            </label>
+          </div>
           {mountsLoading ? (
             <div className={styles.emptyInlineState}>正在加载数据源列表…</div>
           ) : mountsError ? (
@@ -157,10 +275,16 @@ export function UserDrawer({
                 createUserMutation.mutate({
                   username: formState.username,
                   displayName: normalizeFormText(formState.displayName),
+                  email: normalizeFormText(formState.email),
                   password: formState.password,
                   role: formState.role,
+                  roleTemplateId: normalizeFormText(formState.roleTemplateId),
                   status: formState.status,
-                  sourceGrants: formState.sourceGrants,
+                  accountKind: formState.accountKind,
+                  maxSessions: parseOptionalPositiveInt(formState.maxSessions),
+                  validUntil: parseOptionalDateTimeLocal(formState.validUntil),
+                  maxConcurrentPlaybacks: parseOptionalPositiveInt(formState.maxConcurrentPlaybacks),
+                  sourceGrants: selectedTemplate ? undefined : formState.sourceGrants,
                 })
               }
             >
@@ -205,11 +329,114 @@ export function UserDrawer({
               />
             </label>
             <label className={styles.label}>
+              邮箱
+              <input
+                className={styles.input}
+                type="email"
+                value={formState.email}
+                onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+                placeholder="用于后续重置密码验证"
+                disabled={updateUserMutation.isPending}
+              />
+            </label>
+          </div>
+          <div className={styles.fieldRow}>
+            <label className={styles.label}>
+              套用用户模板
+              <select
+                className={styles.select}
+                value={formState.roleTemplateId}
+                onChange={(event) => setFormState((current) => ({ ...current, roleTemplateId: event.target.value }))}
+                disabled={updateUserMutation.isPending || roleTemplatesLoading}
+              >
+                <option value="">不套用模板</option>
+                {activeRoleTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>{template.name}</option>
+                ))}
+              </select>
+              <span className={styles.fieldHint}>保存时一次性覆盖模板媒体库、来源路径和默认限制；不会持续绑定。</span>
+            </label>
+            <label className={styles.label}>
               状态
               <input className={styles.input} value={getUserStatusLabel(formState.status)} disabled />
               <span className={styles.fieldHint}>账号启停会吊销会话，继续走列表里的停用 / 恢复按钮，不在这里偷偷改。</span>
             </label>
           </div>
+          {roleTemplatesError ? (
+            <InlineBanner variant="warning" title="用户模板加载失败" description={roleTemplatesError} />
+          ) : null}
+          {selectedTemplate ? (
+            <InlineBanner
+              variant="warning"
+              title={`保存时会套用模板：${selectedTemplate.name}`}
+              description={`会替换为模板媒体库 ${selectedTemplate.defaultLibraries.length} 个、来源路径 ${selectedTemplate.sourceGrants.length} 条；空白的会话数、有效期和播放上限会使用模板默认值。`}
+            />
+          ) : null}
+          <label className={styles.label}>
+            账号类型
+            <select
+              className={styles.select}
+              value={formState.accountKind}
+              onChange={(event) =>
+                setFormState((current) => ({
+                  ...current,
+                  accountKind: event.target.value as ManageUserAccountKind,
+                }))
+              }
+              disabled={updateUserMutation.isPending}
+            >
+              <option value="human">人工账号</option>
+              <option value="service">服务账号</option>
+            </select>
+            <span className={styles.fieldHint}>切为服务账号后会禁用交互式登录并吊销现有 Web 会话。</span>
+          </label>
+          <div className={styles.fieldRow}>
+            <label className={styles.label}>
+              最大登录会话数
+              <input
+                className={styles.input}
+                inputMode="numeric"
+                value={formState.maxSessions}
+                onChange={(event) => {
+                  const next = normalizePositiveIntegerText(event.target.value);
+                  if (next !== undefined) {
+                    setFormState((current) => ({ ...current, maxSessions: next }));
+                  }
+                }}
+                placeholder="留空表示不限制"
+                disabled={updateUserMutation.isPending}
+              />
+              <span className={styles.fieldHint}>留空保存会清空账号级登录会话限制。</span>
+            </label>
+            <label className={styles.label}>
+              有效期截止
+              <input
+                className={styles.input}
+                type="datetime-local"
+                value={formState.validUntil}
+                onChange={(event) => setFormState((current) => ({ ...current, validUntil: event.target.value }))}
+                disabled={updateUserMutation.isPending}
+              />
+              <span className={styles.fieldHint}>留空保存会清空账号有效期；显示与填写按 Asia/Shanghai。</span>
+            </label>
+          </div>
+          <label className={styles.label}>
+            同时播放设备上限
+            <input
+              className={styles.input}
+              inputMode="numeric"
+              value={formState.maxConcurrentPlaybacks}
+              onChange={(event) => {
+                const next = normalizePositiveIntegerText(event.target.value);
+                if (next !== undefined) {
+                  setFormState((current) => ({ ...current, maxConcurrentPlaybacks: next }));
+                }
+              }}
+              placeholder="留空表示不限制"
+              disabled={updateUserMutation.isPending}
+            />
+            <span className={styles.fieldHint}>超过上限时拒绝新播放，不会踢掉已经播放中的设备。</span>
+          </label>
           {mountsLoading ? (
             <div className={styles.emptyInlineState}>正在加载数据源列表…</div>
           ) : mountsError ? (
@@ -217,11 +444,11 @@ export function UserDrawer({
           ) : (
             <SourceGrantEditor
               title="来源路径授权"
-              description="只要给了来源路径，这个用户的实际可见/可播就会优先按这里收口。留空表示继续用旧媒体库授权兜底。"
+              description={selectedTemplate ? '已选择用户模板，本次保存会使用模板来源路径授权；如需手工覆盖，请先取消模板。' : '只要给了来源路径，这个用户的实际可见/可播就会优先按这里收口。留空表示继续用旧媒体库授权兜底。'}
               mounts={mountOptions}
               value={formState.sourceGrants}
               onChange={(next) => setFormState((current) => ({ ...current, sourceGrants: next }))}
-              disabled={updateUserMutation.isPending}
+              disabled={updateUserMutation.isPending || Boolean(selectedTemplate)}
             />
           )}
           <div className={styles.buttonRow}>
@@ -241,9 +468,24 @@ export function UserDrawer({
                 updateUserMutation.mutate({
                   userId: currentDetail.id,
                   payload: {
-                    displayName: normalizeFormText(formState.displayName),
+                    displayName: normalizeFormText(formState.displayName) ?? null,
+                    email: normalizeFormText(formState.email) ?? null,
                     role: formState.role,
-                    sourceGrants: formState.sourceGrants,
+                    roleTemplateId: normalizeFormText(formState.roleTemplateId),
+                    accountKind: formState.accountKind,
+                    maxSessions:
+                      formState.maxSessions.trim() === ''
+                        ? selectedTemplate ? undefined : null
+                        : parseOptionalPositiveInt(formState.maxSessions),
+                    validUntil:
+                      formState.validUntil.trim() === ''
+                        ? selectedTemplate ? undefined : null
+                        : parseOptionalDateTimeLocal(formState.validUntil),
+                    maxConcurrentPlaybacks:
+                      formState.maxConcurrentPlaybacks.trim() === ''
+                        ? selectedTemplate ? undefined : null
+                        : parseOptionalPositiveInt(formState.maxConcurrentPlaybacks),
+                    sourceGrants: selectedTemplate ? undefined : formState.sourceGrants,
                   },
                 })
               }
@@ -268,7 +510,40 @@ export function UserDrawer({
             <article className={styles.entityCard}>
               <span className={styles.mutedText}>角色</span>
               <strong>{currentDetail.roleLabel}</strong>
-              <span className={styles.mutedText}>当前批次先保持单角色模型</span>
+              <span className={styles.mutedText}>系统角色与用户模板快照分离</span>
+            </article>
+            <article className={styles.entityCard}>
+              <span className={styles.mutedText}>账号类型</span>
+              <strong>{getUserAccountKindLabel(currentDetail.accountKind)}</strong>
+              <span className={styles.mutedText}>
+                {currentDetail.accountKind === 'service'
+                  ? '禁止交互式登录，可作为开放 API Token owner。'
+                  : '允许交互式登录，仍可作为开放 API Token owner。'}
+              </span>
+            </article>
+            <article className={styles.entityCard}>
+              <span className={styles.mutedText}>邮箱</span>
+              <strong>{currentDetail.email || '未设置'}</strong>
+              <span className={styles.mutedText}>用于后续注册验证和重置密码闭环。</span>
+            </article>
+            <article className={styles.entityCard}>
+              <span className={styles.mutedText}>登录会话</span>
+              <strong>{currentDetail.maxSessions ? `${currentDetail.maxSessions} 个` : '不限制'}</strong>
+              <span className={styles.mutedText}>限制认证会话数，不影响播放并发策略。</span>
+            </article>
+            <article className={styles.entityCard}>
+              <span className={styles.mutedText}>账号有效期</span>
+              <strong>{currentDetail.validUntil ? formatDateTime(currentDetail.validUntil) : '不限制'}</strong>
+              <span className={styles.mutedText}>{currentDetail.mustChangePassword ? '下次登录必须改密' : '未要求下次登录改密'}</span>
+            </article>
+            <article className={styles.entityCard}>
+              <span className={styles.mutedText}>同时播放设备</span>
+              <strong>
+                {currentDetail.maxConcurrentPlaybacks
+                  ? `${currentDetail.maxConcurrentPlaybacks} 个`
+                  : '不限制'}
+              </strong>
+              <span className={styles.mutedText}>超限时拒绝新播放，不影响既有播放。</span>
             </article>
             <article className={styles.entityCard}>
               <span className={styles.mutedText}>来源路径授权</span>
@@ -300,6 +575,15 @@ export function UserDrawer({
             >
               编辑资料
             </button>
+            {currentDetail.accountKind !== 'service' && currentDetail.status !== 'pending' ? (
+              <button
+                className={styles.secondaryButton}
+                type="button"
+                onClick={() => onResetPassword(currentDetail)}
+              >
+                重置密码
+              </button>
+            ) : null}
             <button className={styles.ghostButton} type="button" onClick={onClose}>关闭</button>
           </div>
         </div>

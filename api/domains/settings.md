@@ -19,7 +19,7 @@
 | 路径 | 方法 | 权限 | 用途 |
 |---|---|---|---|
 | `/api/settings/server/general` | GET, PUT | `manage:access` | 站点名、注册开关、active skin、功能开关 |
-| `/api/settings/server/security` | GET, PUT | `manage:access` | 登录限流、锁定、敏感操作确认 |
+| `/api/settings/server/security` | GET, PUT | `system:security` | IP 登录限流、账号失败锁定、敏感操作确认 |
 | `/api/settings/server/session-policy` | GET, PUT | `manage:access` | session TTL、记住我、兼容 fallback |
 
 ---
@@ -132,6 +132,21 @@
   "require_current_password_for_profile_change": true
 }
 ```
+
+字段语义：
+
+| 字段 | 说明 |
+|------|------|
+| `login_rate_limit_*` | 来源 IP 维度登录限流；只按标准化来源 IP 统计失败登录 |
+| `failed_login_lockout_*` | 账号维度失败锁定；只按 normalized username 统计失败登录 |
+| `sensitive_action_confirmation` | 高危操作确认策略，影响删除、会话吊销、账号/IP 风控解除等敏感操作 |
+
+手动解除风控不在 `PUT /api/settings/server/security` 里完成：
+
+- 账号级解除：`POST /api/manage/users/{userId}/login-risk/reset`
+- IP 级解除：`POST /api/manage/login-risk/ip/reset`
+
+两类解除都只写审计 marker，不删除失败登录审计。
 
 ---
 

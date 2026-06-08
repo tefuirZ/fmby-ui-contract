@@ -144,6 +144,25 @@ Content-Type: application/json
 
 成功响应同 setup 的 `{ "user": ... }`，并设置两个 Cookie。
 
+### 登录失败错误
+
+`POST /api/auth/login` 的失败响应仍使用统一 `ApiErrorResponse`，但 WebUI 登录表单必须按 `code` 区分可操作状态：
+
+| code | 展示语义 |
+|---|---|
+| `AUTH_INVALID_CREDENTIALS` | 账号或密码错误。用户名不存在和密码错误必须合并展示，避免枚举账号。 |
+| `AUTH_RATE_LIMITED` | 登录过于频繁，提示稍后重试。 |
+| `AUTH_ACCOUNT_LOCKED` | 账号处于临时锁定或风控窗口内，可联系管理员解除账号风控。 |
+| `AUTH_ACCOUNT_INACTIVE` | 账号待激活、挂起或停用；WebUI 可展示后端 message。 |
+| `AUTH_ACCOUNT_NOT_YET_VALID` | 账号尚未到生效时间。 |
+| `AUTH_ACCOUNT_EXPIRED` | 账号已过期。 |
+| `AUTH_PASSWORD_CHANGE_REQUIRED` | 旧导入或策略要求先改密；当前自助改密入口尚未纳入本合同。 |
+| `AUTH_INTERACTIVE_LOGIN_DISABLED` | 服务账号不允许 WebUI 交互式登录。 |
+
+这些登录提交返回的 401 只在登录表单内展示，不应触发全局 session 失效处理。全局跳登录只适用于已登录 API 请求返回 `AUTH_REQUIRED` / `AUTH_EXPIRED` 等 session/token 类错误。
+
+第三方 Emby/Jellyfin 兼容登录接口必须低泄露，只向客户端暴露三类：账号密码错误、频繁登录冷却、其他错误联系管理员。详细内部原因只进入管理审计日志。
+
 ---
 
 ## 注册
@@ -273,7 +292,7 @@ X-CSRF-Token: {fmby_csrf}
 - 不要把 `fmby_csrf` 或任何管理 API 响应发送到第三方域。
 - 不要在 URL query 中携带密码、token 或注册码。
 - API 失败分支只看 `ApiErrorResponse.code`，不要解析 `message`。
-- 401 全局跳 `/login?next=...`；403 渲染 forbidden 状态，不要静默 404。
+- 401 只有 session/token 类错误全局跳 `/login?next=...`；登录表单提交的细分认证错误只在表单内展示。403 渲染 forbidden 状态，不要静默 404。
 
 ---
 

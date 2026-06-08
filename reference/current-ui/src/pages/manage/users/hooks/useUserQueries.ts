@@ -1,12 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { manageApi } from '@/domains/manage';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { manageApi, type ManageUsersQuery } from '@/domains/manage';
 import { queryKeys } from '@/shared/query-keys';
 import type { UserDrawerState } from '../types';
 
-export function useUsersQuery() {
+export function useUsersQuery(query: ManageUsersQuery) {
   return useQuery({
-    queryKey: queryKeys.manage.users.list(),
-    queryFn: () => manageApi.getUsers(),
+    queryKey: queryKeys.manage.users.list(query),
+    queryFn: () => manageApi.getUsers(query),
+    placeholderData: keepPreviousData,
   });
 }
 

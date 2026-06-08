@@ -15,9 +15,12 @@
 - 新增 WebSocket 安全验收项，约束 Cookie session + Origin、禁止 query token / `api_key`、禁止 Web Storage 和敏感 payload。
 - 新增管理端待审核队列人工匹配合同，覆盖 `/manage/media/reviews`、`provider-search` 和 `ManualMatch` resolve payload。
 - 新增系统关于页合同，覆盖 `/manage/site/about` 与 `GET /api/manage/system/about` 的脱敏版本、链接、依赖和部署摘要。
+- 新增登录风控手动解除合同：账号级 `POST /api/manage/users/{userId}/login-risk/reset`，IP 级 `POST /api/manage/login-risk/ip/reset`。
 
 ### Changed
 
+- 管理端用户列表合同明确改为后端分页 / 后端筛选，`total` 是全站账号总数，前端不得只拉第一页后本地过滤；批量选择范围固定为当前页。
+- 站点安全策略合同明确拆分 IP 登录限流与账号失败锁定；`/api/settings/server/security` 要求 `system:security`。
 - `features/manage/microsoft.md`、`api/domains/manage/microsoft.md` 与 `api/domains/manage/mounts.md` 明确 Microsoft mount wizard contract，禁止只给孤立“导入持久账号”按钮。
 - `api/auth.md` 与管理端领域文档统一 Admin 管理员措辞；历史 SuperAdmin 仅作为兼容别名说明，不再作为前端权限判断依据。
 - `development/api-client.md` 明确普通浏览主题仍可只用轮询，管理端 operations dashboard 使用同源 WebSocket + HTTP fallback。

@@ -121,7 +121,9 @@ export const queryKeys = {
     },
 
     users: {
-      list: () => ['manage', 'users'] as const,
+      all: () => ['manage', 'users'] as const,
+      list: (query?: object) =>
+        ['manage', 'users', 'list', query ?? {}] as const,
       detail: (id?: string) =>
         id
           ? (['manage', 'users', 'detail', id] as const)

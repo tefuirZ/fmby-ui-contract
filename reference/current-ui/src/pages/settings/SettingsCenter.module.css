@@ -182,6 +182,18 @@
   gap: 2px;
 }
 
+.ipRiskResetPanel {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--surface-3);
+}
+
 .stickyBar {
   position: sticky;
   bottom: var(--space-4);
@@ -288,6 +300,10 @@
   }
 
   .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ipRiskResetPanel {
     grid-template-columns: 1fr;
   }
 }

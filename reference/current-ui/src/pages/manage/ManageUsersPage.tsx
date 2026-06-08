@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { type ManageUserRecord, type UserStatus } from '@/domains/manage';
+import { type ManageUserAccountKind, type UserStatus } from '@/domains/manage';
 import { manageApi } from '@/domains/manage';
 import { useSession } from '@/shared/hooks';
 import { FeedbackState } from '@/shared/ui/common/FeedbackState';
@@ -11,23 +11,38 @@ import styles from './ManagePages.module.css';
 import { ManagePageHeader } from './components';
 import { getErrorMessage } from '@/shared/utils/error';
 import type { BannerState } from '@/shared/types/ui';
-import { matchKeyword } from '@/shared/search/matchKeyword';
 import {
+  type PendingUserAction,
+  type ResetPasswordDialogState,
   type UserDrawerState,
   type UserFormState,
   DEFAULT_BATCH_EDIT_FORM_STATE,
   DEFAULT_FORM_STATE,
 } from './users/types';
-import { buildUserFormState, getNextUserAction } from './users/formUtils';
+import {
+  buildUserFormState,
+  canSelectUserForBatchAction,
+  getNextUserAction,
+  getRegistrationReviewAction,
+} from './users/formUtils';
 import { useUsersQuery, useUserDetailQuery, useUserMutations } from './users/hooks';
-import { BatchUserEditDrawer, UserTable, UserDrawer } from './users/components';
+import {
+  BatchUserEditDrawer,
+  ResetUserPasswordDialog,
+  UserTable,
+  UserDrawer,
+} from './users/components';
+
+const USER_PAGE_SIZE = 100;
 
 export function ManageUsersPage() {
   const { user: currentUser } = useSession();
   const [keyword, setKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | UserStatus>('all');
+  const [accountKindFilter, setAccountKindFilter] = useState<'all' | ManageUserAccountKind>('all');
+  const [page, setPage] = useState(1);
   const [banner, setBanner] = useState<BannerState | null>(null);
-  const [pendingUser, setPendingUser] = useState<ManageUserRecord | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingUserAction | null>(null);
   const [drawerState, setDrawerState] = useState<UserDrawerState | null>(null);
   const [formState, setFormState] = useState<UserFormState>(DEFAULT_FORM_STATE);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -35,28 +50,45 @@ export function ManageUsersPage() {
   const [batchEditConfirmOpen, setBatchEditConfirmOpen] = useState(false);
   const [batchEditFormState, setBatchEditFormState] = useState(DEFAULT_BATCH_EDIT_FORM_STATE);
   const [batchDeleteConfirmOpen, setBatchDeleteConfirmOpen] = useState(false);
+  const [resetPasswordDialog, setResetPasswordDialog] =
+    useState<ResetPasswordDialogState | null>(null);
   const deferredKeyword = useDeferredValue(keyword.trim());
 
-  const usersQuery = useUsersQuery();
+  const usersQuery = useUsersQuery({
+    page,
+    pageSize: USER_PAGE_SIZE,
+    search: deferredKeyword || undefined,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    accountKind: accountKindFilter === 'all' ? undefined : accountKindFilter,
+  });
   const userDetailQuery = useUserDetailQuery(drawerState);
   const mountsQuery = useQuery({
     queryKey: queryKeys.manage.mounts.list(),
     queryFn: () => manageApi.getMounts(),
     staleTime: 60_000,
   });
+  const roleTemplatesQuery = useQuery({
+    queryKey: queryKeys.manage.roleTemplates.list(),
+    queryFn: () => manageApi.getRoleTemplates(),
+    staleTime: 60_000,
+  });
   const {
     updateStatusMutation,
+    reviewRegistrationMutation,
     createUserMutation,
     updateUserMutation,
     batchUpdateUsersMutation,
     batchDeleteMutation,
+    resetUserLoginRiskMutation,
+    resetUserPasswordMutation,
   } = useUserMutations({
     setBanner,
     setDrawerState,
-    setPendingUser,
+    setPendingAction,
     setBatchEditDrawerOpen,
     setBatchEditConfirmOpen,
     setBatchDeleteConfirmOpen,
+    closeResetPasswordDialog: () => setResetPasswordDialog(null),
     resetBatchEditForm: () => setBatchEditFormState(DEFAULT_BATCH_EDIT_FORM_STATE),
     setSelectedUserIds,
   });
@@ -68,35 +100,43 @@ export function ManageUsersPage() {
     }
   }, [drawerState?.mode, userDetailQuery.data]);
 
-  const users = usersQuery.data?.items ?? [];
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const matchesKeyword = matchKeyword(
-        deferredKeyword,
-        user.username,
-        user.displayName,
-        user.roleLabel,
-        ...user.sourceGrants.map((grant) => `${grant.mountId} ${grant.pathPrefix}`),
-      );
-      const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-      return matchesKeyword && matchesStatus;
-    });
-  }, [deferredKeyword, statusFilter, users]);
+  const users = usersQuery.isPlaceholderData ? [] : (usersQuery.data?.items ?? []);
+  const totalUsers = usersQuery.data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalUsers / USER_PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+    setSelectedUserIds([]);
+  }, [accountKindFilter, deferredKeyword, statusFilter]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+      setSelectedUserIds([]);
+    }
+  }, [page, totalPages]);
 
   const selectedUsers = useMemo(
     () =>
       users.filter(
         (user) =>
-          selectedUserIds.includes(user.id) && user.id !== currentUser?.id,
+          selectedUserIds.includes(user.id) &&
+          canSelectUserForBatchAction(user, currentUser?.id),
       ),
     [currentUser?.id, selectedUserIds, users],
   );
+  const selectedSoftDeleteTargets = useMemo(
+    () => selectedUsers.filter((user) => user.status !== 'disabled'),
+    [selectedUsers],
+  );
+  const selectedAlreadyDisabledCount =
+    selectedUsers.length - selectedSoftDeleteTargets.length;
   const selectableUsers = useMemo(
     () =>
-      filteredUsers.filter(
-        (user) => user.status !== 'disabled' && user.id !== currentUser?.id,
+      users.filter(
+        (user) => canSelectUserForBatchAction(user, currentUser?.id),
       ),
-    [currentUser?.id, filteredUsers],
+    [currentUser?.id, users],
   );
 
   if (usersQuery.isPending) {
@@ -118,7 +158,7 @@ export function ManageUsersPage() {
       <ManagePageHeader
         title="用户管理"
         description="补齐账号详情、创建、编辑和批量软删除闭环，删除语义先明确收口为停用账号并吊销活跃会话。"
-        meta={<span className={styles.metaText}>共 {users.length} 个账号</span>}
+        meta={<span className={styles.metaText}>共 {totalUsers} 个账号，当前第 {page} / {totalPages} 页</span>}
         actions={
           <>
             <button className={styles.primaryButton} type="button" onClick={() => { setBanner(null); setDrawerState({ mode: 'create' }); }}>新建用户</button>
@@ -131,13 +171,39 @@ export function ManageUsersPage() {
 
       <UserTable
         users={users}
-        filteredUsers={filteredUsers}
+        total={totalUsers}
+        page={page}
+        pageSize={USER_PAGE_SIZE}
+        totalPages={totalPages}
+        isFetching={usersQuery.isFetching}
+        isPageTransitioning={usersQuery.isPlaceholderData}
         currentUserId={currentUser?.id}
         keyword={keyword}
         statusFilter={statusFilter}
+        accountKindFilter={accountKindFilter}
         selectedUserIds={selectedUserIds}
-        onKeywordChange={setKeyword}
-        onStatusFilterChange={setStatusFilter}
+        onKeywordChange={(value) => {
+          setKeyword(value);
+          setSelectedUserIds([]);
+        }}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setPage(1);
+          setSelectedUserIds([]);
+        }}
+        onAccountKindFilterChange={(value) => {
+          setAccountKindFilter(value);
+          setPage(1);
+          setSelectedUserIds([]);
+        }}
+        onPreviousPage={() => {
+          setPage((current) => Math.max(1, current - 1));
+          setSelectedUserIds([]);
+        }}
+        onNextPage={() => {
+          setPage((current) => Math.min(totalPages, current + 1));
+          setSelectedUserIds([]);
+        }}
         onSelectUser={(userId, checked) =>
           setSelectedUserIds((current) =>
             checked ? Array.from(new Set([...current, userId])) : current.filter((item) => item !== userId),
@@ -155,6 +221,10 @@ export function ManageUsersPage() {
         }
         onOpenView={(id) => { setBanner(null); setDrawerState({ mode: 'view', userId: id }); }}
         onOpenEdit={(id) => { setBanner(null); setDrawerState({ mode: 'edit', userId: id }); }}
+        onResetPassword={(user) => {
+          setBanner(null);
+          setResetPasswordDialog({ user });
+        }}
         onToggleUserStatus={(user) => {
           if (user.id === currentUser?.id) {
             setBanner({
@@ -165,7 +235,15 @@ export function ManageUsersPage() {
             return;
           }
           setBanner(null);
-          setPendingUser(user);
+          setPendingAction({ kind: 'status', user });
+        }}
+        onResetLoginRisk={(user) => {
+          setBanner(null);
+          setPendingAction({ kind: 'login-risk-reset', user });
+        }}
+        onReviewRegistration={(user, action) => {
+          setBanner(null);
+          setPendingAction({ kind: 'registration-review', user, action });
         }}
       />
 
@@ -174,7 +252,8 @@ export function ManageUsersPage() {
           <div className={styles.stackText}>
             <strong>已选择 {selectedUsers.length} 个账号</strong>
             <span className={styles.mutedText}>
-              当前删除语义为软删除：账号会停用并吊销活跃会话，已停用账号会自动跳过。
+              当前删除语义为软删除：账号会停用并吊销活跃会话，已停用账号仍可批量编辑或恢复。
+              待激活注册申请请走列表里的批准/拒绝注册。
             </span>
           </div>
           <div className={styles.rowActions}>
@@ -189,7 +268,14 @@ export function ManageUsersPage() {
             >
               批量编辑
             </button>
-            <button className={styles.dangerButton} type="button" onClick={() => setBatchDeleteConfirmOpen(true)}>批量删除</button>
+            <button
+              className={styles.dangerButton}
+              type="button"
+              disabled={selectedSoftDeleteTargets.length === 0}
+              onClick={() => setBatchDeleteConfirmOpen(true)}
+            >
+              {selectedSoftDeleteTargets.length === 0 ? '已处于软删除状态' : '批量删除'}
+            </button>
           </div>
         </div>
       ) : null}
@@ -202,10 +288,40 @@ export function ManageUsersPage() {
         mounts={mountsQuery.data?.items ?? []}
         mountsLoading={mountsQuery.isPending}
         mountsError={mountsQuery.isError ? getErrorMessage(mountsQuery.error) : undefined}
+        roleTemplates={roleTemplatesQuery.data?.items ?? []}
+        roleTemplatesLoading={roleTemplatesQuery.isPending}
+        roleTemplatesError={roleTemplatesQuery.isError ? getErrorMessage(roleTemplatesQuery.error) : undefined}
         createUserMutation={createUserMutation}
         updateUserMutation={updateUserMutation}
         setDrawerState={setDrawerState}
+        onResetPassword={(user) => {
+          setBanner(null);
+          setResetPasswordDialog({ user });
+        }}
         onClose={() => setDrawerState(null)}
+      />
+
+      <ResetUserPasswordDialog
+        user={resetPasswordDialog?.user ?? null}
+        pending={resetUserPasswordMutation.isPending}
+        error={resetUserPasswordMutation.error}
+        onOpenChange={(open) => {
+          if (!open && !resetUserPasswordMutation.isPending) {
+            setResetPasswordDialog(null);
+          }
+        }}
+        onConfirm={({ userId, newPassword, forceChange, confirmation }) => {
+          resetUserPasswordMutation.mutate({
+            userId,
+            payload: {
+              newPassword,
+              forceChange,
+              confirmAction: confirmation.confirmAction,
+              sessionConfirmation: confirmation.sessionConfirmation,
+              currentPassword: confirmation.currentPassword,
+            },
+          });
+        }}
       />
 
       <BatchUserEditDrawer
@@ -250,36 +366,60 @@ export function ManageUsersPage() {
       />
 
       <SensitiveActionDialog
-        open={pendingUser !== null}
-        actionKey="update-user-status"
-        title={pendingUser ? `${getNextUserAction(pendingUser).label}：${pendingUser.displayName || pendingUser.username}` : ''}
+        open={pendingAction !== null}
+        actionKey={getPendingActionKey(pendingAction)}
+        title={getPendingActionTitle(pendingAction)}
         description="关键账号状态调整需要二次确认，避免误操作。"
-        impact={pendingUser ? getNextUserAction(pendingUser).impact : undefined}
-        confirmLabel={pendingUser ? getNextUserAction(pendingUser).label : '确认'}
-        onOpenChange={(open) => { if (!open) setPendingUser(null); }}
+        impact={getPendingActionImpact(pendingAction)}
+        confirmLabel={getPendingActionLabel(pendingAction)}
+        onOpenChange={(open) => { if (!open) setPendingAction(null); }}
         onConfirm={(confirmation) => {
-          if (!pendingUser) return;
-          const nextAction = getNextUserAction(pendingUser);
+          if (!pendingAction) return;
+          if (pendingAction.kind === 'registration-review') {
+            reviewRegistrationMutation.mutate({
+              userId: pendingAction.user.id,
+              action: pendingAction.action,
+              confirmation,
+            });
+            return;
+          }
+          if (pendingAction.kind === 'login-risk-reset') {
+            resetUserLoginRiskMutation.mutate({
+              userId: pendingAction.user.id,
+              confirmation,
+            });
+            return;
+          }
+          const nextAction = getNextUserAction(pendingAction.user);
           updateStatusMutation.mutate({
-            userId: pendingUser.id,
+            userId: pendingAction.user.id,
             status: nextAction.status,
             confirmation,
           });
         }}
-        pending={updateStatusMutation.isPending}
+        pending={
+          updateStatusMutation.isPending ||
+          reviewRegistrationMutation.isPending ||
+          resetUserLoginRiskMutation.isPending
+        }
       />
 
       <SensitiveActionDialog
         open={batchDeleteConfirmOpen}
         actionKey="delete-users"
-        title={`批量删除 ${selectedUsers.length} 个账号`}
+        title={`批量删除 ${selectedSoftDeleteTargets.length} 个账号`}
         description="当前删除语义为软删除：系统会停用所选账号，并同时吊销其活跃会话。"
-        impact="当前登录账号会被自动跳过，已停用账号不会重复执行，也不会做物理删库。"
+        impact={[
+          '当前登录账号和待激活注册申请不会进入批量删除。',
+          selectedAlreadyDisabledCount > 0
+            ? `另有 ${selectedAlreadyDisabledCount} 个已停用账号已经处于软删除状态，不会重复提交。`
+            : '这次不会做物理删库。',
+        ]}
         confirmLabel="确认批量删除"
         onOpenChange={setBatchDeleteConfirmOpen}
         onConfirm={(confirmation) => {
           batchDeleteMutation.mutate({
-            userIds: selectedUsers.map((user) => user.id),
+            userIds: selectedSoftDeleteTargets.map((user) => user.id),
             confirmation,
           });
         }}
@@ -287,4 +427,43 @@ export function ManageUsersPage() {
       />
     </div>
   );
+}
+
+function getPendingActionKey(action: PendingUserAction | null) {
+  if (!action) return 'update-user-status';
+  if (action.kind === 'registration-review') {
+    return getRegistrationReviewAction(action.action).actionKey;
+  }
+  if (action.kind === 'login-risk-reset') return 'reset-user-login-risk';
+  return 'update-user-status';
+}
+
+function getPendingActionLabel(action: PendingUserAction | null) {
+  if (!action) return '确认';
+  if (action.kind === 'registration-review') {
+    return getRegistrationReviewAction(action.action).label;
+  }
+  if (action.kind === 'login-risk-reset') return '解除账号登录风控';
+  return getNextUserAction(action.user).label;
+}
+
+function getPendingActionImpact(action: PendingUserAction | null) {
+  if (!action) return undefined;
+  if (action.kind === 'registration-review') {
+    return getRegistrationReviewAction(action.action).impact;
+  }
+  if (action.kind === 'login-risk-reset') {
+    return [
+      '只解除该用户名当前失败登录窗口内的临时风控影响。',
+      '不会删除失败登录、限流或锁定审计记录。',
+      '不会修改账号状态、密码、角色或来源授权。',
+    ];
+  }
+  return getNextUserAction(action.user).impact;
+}
+
+function getPendingActionTitle(action: PendingUserAction | null) {
+  if (!action) return '';
+  const username = action.user.displayName || action.user.username;
+  return `${getPendingActionLabel(action)}：${username}`;
 }

@@ -99,8 +99,8 @@ export function ManageOverviewPage() {
     queryFn: () => manageApi.getLibraries(),
   });
   const usersQuery = useQuery({
-    queryKey: queryKeys.manage.users.list(),
-    queryFn: () => manageApi.getUsers(),
+    queryKey: queryKeys.manage.users.list({ page: 1, pageSize: 100 }),
+    queryFn: () => manageApi.getUsers({ page: 1, pageSize: 100 }),
   });
   const namingSettingsQuery = useQuery({
     queryKey: queryKeys.manage.namingScrape.settings(),
@@ -204,7 +204,7 @@ export function ManageOverviewPage() {
     overview,
     mountsCount: mountsQuery.data?.items.length ?? 0,
     librariesCount: librariesQuery.data?.items.length ?? 0,
-    usersCount: usersQuery.data?.items.length ?? 0,
+    usersCount: usersQuery.data?.total ?? 0,
     namingReady: Boolean(namingSettingsQuery.data),
   });
   const displayKpis = buildDisplayKpis(overview, mountsQuery.data?.items ?? []);

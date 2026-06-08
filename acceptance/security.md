@@ -50,3 +50,5 @@
 - [ ] CSP header 由后端发；皮肤不应触发 `unsafe-inline`
 - [ ] HTTPS 强制（生产）
 - [ ] 系统关于页只展示脱敏摘要，不展示 PG/Redis URL、密码、token、Cookie、license key 或 provider 凭据
+- [ ] IP 登录风控解除和账号登录风控解除必须走敏感操作确认，不得通过前端删除或隐藏失败审计来“解锁”
+- [ ] 安全策略页必须区分 IP 登录限流与账号失败锁定，并提示两类解除互不替代

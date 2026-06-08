@@ -1,5 +1,6 @@
 export type RiskLevel = "info" | "warning" | "critical";
 export type UserStatus = "active" | "disabled" | "locked" | "pending";
+export type ManageUserAccountKind = "human" | "service";
 export type ManageUserRole =
   | "user"
   | "restricted_user"
@@ -140,11 +141,17 @@ export interface ManageUserRecord {
   id: string;
   username: string;
   displayName?: string;
+  email?: string;
+  accountKind: ManageUserAccountKind;
   roles: ManageUserRole[];
   roleLabel: string;
   status: UserStatus;
   libraryScopes: string[];
   sourceGrants: ManageSourcePathGrantRecord[];
+  maxSessions?: number;
+  maxConcurrentPlaybacks?: number;
+  validUntil?: string;
+  mustChangePassword: boolean;
   lastLoginAt?: string;
   lastDevice?: string;
   createdAt?: string;
@@ -152,8 +159,17 @@ export interface ManageUserRecord {
   recentClientInfo?: string;
 }
 
+export interface ManageUsersQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: UserStatus;
+  accountKind?: ManageUserAccountKind;
+}
+
 export interface ManageUsersResponse {
   items: ManageUserRecord[];
+  total: number;
 }
 
 export interface ManageUserDetailRecord extends ManageUserRecord {}
@@ -161,16 +177,28 @@ export interface ManageUserDetailRecord extends ManageUserRecord {}
 export interface CreateManageUserRequest {
   username: string;
   displayName?: string;
+  email?: string;
   password: string;
   role: ManageUserRole;
+  roleTemplateId?: string;
   status: UserStatus;
+  accountKind?: ManageUserAccountKind;
+  maxSessions?: number;
+  validUntil?: string;
+  maxConcurrentPlaybacks?: number;
   sourceGrants?: ManageSourcePathGrantInput[];
 }
 
 export interface UpdateManageUserRequest {
-  displayName?: string;
+  displayName?: string | null;
+  email?: string | null;
   status?: UserStatus;
+  accountKind?: ManageUserAccountKind;
   role?: ManageUserRole;
+  roleTemplateId?: string;
+  maxSessions?: number | null;
+  validUntil?: string | null;
+  maxConcurrentPlaybacks?: number | null;
   sourceGrants?: ManageSourcePathGrantInput[];
   confirmAction?: string;
   sessionConfirmation?: string;
@@ -207,6 +235,19 @@ export interface UpdateUserStatusRequest {
   sessionConfirmation?: string;
   currentPassword?: string;
 }
+
+export interface ReviewUserRegistrationRequest {
+  confirmAction?: string;
+  sessionConfirmation?: string;
+  currentPassword?: string;
+}
+
+export interface ResetUserPasswordRequest extends DangerousActionRequest {
+  newPassword: string;
+  forceChange?: boolean;
+}
+
+export interface ResetUserLoginRiskRequest extends DangerousActionRequest {}
 
 export interface RegistrationCodeRecord {
   id: string;
@@ -315,6 +356,7 @@ export interface RoleTemplateRecord {
   defaultLibraries: string[];
   sourceGrants: ManageSourcePathGrantRecord[];
   defaultMaxSessions?: number;
+  defaultMaxConcurrentPlaybacks?: number;
   defaultValidDays?: number;
   isSystem: boolean;
   status: RoleTemplateStatus;
@@ -643,6 +685,10 @@ export interface DangerousActionRequest {
   confirmAction: string;
   sessionConfirmation?: string;
   currentPassword?: string;
+}
+
+export interface ResetIpLoginRiskRequest extends DangerousActionRequest {
+  ipAddress: string;
 }
 
 export interface TriggerManageLibraryScanRequest {

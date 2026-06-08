@@ -20,7 +20,7 @@
 | `/settings/playback` | 已登录 | 播放设置 | `GET/PUT /api/settings/user/playback` |
 | `/settings/appearance` | 已登录 | 外观 / 主题选择 | `GET/PUT /api/settings/user/appearance`、`GET /api/site/skins` |
 | `/settings/server/general` | `manage:access` | 服务器通用设置 | `GET/PUT /api/settings/server/general` |
-| `/settings/server/security` | `manage:access` | 服务器安全设置 | `GET/PUT /api/settings/server/security` |
+| `/settings/server/security` | `system:security` | 服务器安全设置 | `GET/PUT /api/settings/server/security`、`POST /api/manage/login-risk/ip/reset` |
 | `/settings/server/session-policy` | `manage:access` | 会话策略 | `GET/PUT /api/settings/server/session-policy` |
 
 ## 管理（manage:access）
@@ -49,7 +49,7 @@
 | `/manage/site/license` | 授权与订阅 | `GET /api/manage/license/status` |
 | `/manage/site/developer-api` | 开发者 API / API Token / Explorer | `GET /api/manage/developer/endpoints`、`GET /api/manage/developer/api-tokens` |
 | `/manage/site/about` | 系统关于 / 版本与依赖摘要 | `GET /api/manage/system/about` |
-| `/manage/site/settings` | 站点设置聚合页 | settings + manage overview API |
+| `/manage/site/settings` | 站点设置聚合页 | settings + manage overview API；安全分组可调用 `POST /api/manage/login-risk/ip/reset` |
 | `/manage/site/advanced` | 高级状态 | `GET /api/manage/advanced` |
 
 ## 默认落地策略

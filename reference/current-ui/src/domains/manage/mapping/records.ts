@@ -1,6 +1,7 @@
 import type {
   ManageActionResult,
   ManageAdvancedResponse,
+  ManageUserAccountKind,
   UpdateRegistrationCodeStatusRequest,
   UpdateUserStatusRequest,
 } from "../types";
@@ -40,6 +41,8 @@ export function mapUserRecord(raw: RawManagedUserRecord) {
     id: raw.id,
     username: raw.username,
     displayName: raw.display_name ?? undefined,
+    email: raw.email ?? undefined,
+    accountKind: mapUserAccountKind(raw.account_kind),
     roles: (raw.roles ?? []).map(mapRole),
     roleLabel:
       raw.roles.length > 0
@@ -48,12 +51,21 @@ export function mapUserRecord(raw: RawManagedUserRecord) {
     status: mapUserStatus(raw.status),
     libraryScopes: [],
     sourceGrants: (raw.source_grants ?? []).map(mapSourcePathGrantRecord),
+    maxSessions: raw.max_sessions ?? undefined,
+    maxConcurrentPlaybacks:
+      raw.max_concurrent_playbacks ?? undefined,
+    validUntil: raw.valid_until ?? undefined,
+    mustChangePassword: raw.must_change_password ?? false,
     lastLoginAt: raw.last_activity_at ?? undefined,
     lastDevice: raw.recent_client_info ?? undefined,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
     recentClientInfo: raw.recent_client_info ?? undefined,
   };
+}
+
+function mapUserAccountKind(raw?: string | null): ManageUserAccountKind {
+  return raw?.trim().toLowerCase() === "service" ? "service" : "human";
 }
 
 export function mapRegistrationCode(raw: RawRegistrationCodeRecord) {
@@ -113,6 +125,8 @@ export function mapRoleTemplateRecord(raw: RawRoleTemplateRecord) {
     defaultLibraries: raw.default_library_ids ?? [],
     sourceGrants: (raw.source_grants ?? []).map(mapSourcePathGrantRecord),
     defaultMaxSessions: raw.default_max_sessions ?? undefined,
+    defaultMaxConcurrentPlaybacks:
+      raw.default_max_concurrent_playbacks ?? undefined,
     defaultValidDays: raw.default_valid_days ?? undefined,
     isSystem: raw.is_system,
     status: mapRoleTemplateStatus(raw.status),

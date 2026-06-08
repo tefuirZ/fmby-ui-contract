@@ -44,6 +44,8 @@
 .metaRow,
 .headerActions,
 .toolbar,
+.paginationBar,
+.paginationActions,
 .buttonRow,
 .inlineMeta,
 .settingsRow,
@@ -249,6 +251,21 @@
   justify-content: space-between;
 }
 
+.paginationBar {
+  justify-content: space-between;
+}
+
+.paginationActions {
+  gap: var(--space-3);
+}
+
+.paginationLabel {
+  min-width: 88px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
 .searchInput,
 .select,
 .input,
@@ -258,6 +275,33 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.inputActionWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputActionWrapper .input {
+  padding-right: 44px;
+}
+
+.inputIconButton {
+  position: absolute;
+  right: var(--space-2);
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.inputIconButton:hover {
+  background: var(--surface-3);
   color: var(--text-primary);
 }
 
@@ -503,6 +547,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.ipRiskResetPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-3);
 }
 
 .entityGrid {
@@ -931,6 +986,7 @@
   .header,
   .sectionHeader,
   .toolbar,
+  .paginationBar,
   .stickyBar {
     flex-direction: column;
     align-items: stretch;
@@ -938,6 +994,7 @@
 
   .settingsGrid,
   .fieldRow,
+  .ipRiskResetPanel,
   .inlineForm,
   .sourceRow {
     grid-template-columns: 1fr;

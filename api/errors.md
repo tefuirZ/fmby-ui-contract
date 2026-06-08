@@ -63,7 +63,7 @@ try {
 | 204 | 成功，无 body | — |
 | 301 / 302 | 重定向（如 `/api/playback/items/{id}` redirect 到 CDN） | 客户端自动 follow |
 | 400 | 请求格式错（JSON 解析失败 / 缺字段 / 类型错） | ❌ 改请求 |
-| 401 | 未登录 / session 过期 | ❌ 跳 `/login` |
+| 401 | 未登录 / session 过期 / 登录提交失败 | ❌ session/token 类跳 `/login`；登录表单错误只在表单内展示 |
 | 403 | 已登录但无权限 / CSRF 校验失败 | ❌ 提示用户 |
 | 404 | 资源不存在 | ❌ |
 | 409 | 冲突（如重名） | ❌ 改请求 |
@@ -86,6 +86,15 @@ try {
 | code | HTTP | 含义 |
 |---|---|---|
 | `AUTH_REQUIRED` | 401 | 未登录、session 缺失或过期 |
+| `AUTH_EXPIRED` | 401 | session 或认证 token 已过期 |
+| `AUTH_INVALID_CREDENTIALS` | 401 | 登录用户名或密码错误；不得区分用户名不存在和密码错误 |
+| `AUTH_RATE_LIMITED` | 401 | 登录失败过多，处于冷却或限流窗口 |
+| `AUTH_ACCOUNT_LOCKED` | 401 | 账号临时锁定或账号级登录风控命中 |
+| `AUTH_ACCOUNT_INACTIVE` | 401 | 账号待激活、挂起或停用 |
+| `AUTH_ACCOUNT_NOT_YET_VALID` | 401 | 账号尚未到生效时间 |
+| `AUTH_ACCOUNT_EXPIRED` | 401 | 账号已过期 |
+| `AUTH_PASSWORD_CHANGE_REQUIRED` | 401 | 账号必须先修改密码；当前自助改密入口尚未纳入本合同 |
+| `AUTH_INTERACTIVE_LOGIN_DISABLED` | 401 | 服务账号不允许 WebUI 交互式登录 |
 | `PERM_DENIED` | 403 | 已登录但无对应 capability，或 CSRF 校验失败 |
 | `VALID_FIELD_INVALID` | 400/422 | 请求参数或业务字段不合法 |
 | `VALID_ENTITY_NOT_FOUND` | 404 | 资源不存在 |
@@ -95,6 +104,8 @@ try {
 | `SYSTEM_DATABASE_ERROR` | 500 | 数据库错误 |
 | `SYSTEM_INTERNAL` | 500 | 未分类内部错误 |
 | `HTTP_INVALID_RESPONSE` | client | skin 客户端发现 `/api/*` 返回非 JSON 或 JSON 无法解析 |
+
+登录表单提交的 `AUTH_INVALID_CREDENTIALS`、`AUTH_RATE_LIMITED`、`AUTH_ACCOUNT_*`、`AUTH_PASSWORD_CHANGE_REQUIRED`、`AUTH_INTERACTIVE_LOGIN_DISABLED` 不应触发全局登出或跳转；它们只用于当前登录表单展示。全局 session invalidation 只处理 `AUTH_REQUIRED`、`AUTH_EXPIRED` 以及明确的 token/session 失效类响应。
 
 安装模式 `/api/install/*` 另有 `INSTALL_BAD_REQUEST`、`INSTALL_CONFLICT`、`INSTALL_FORBIDDEN`、`INSTALL_INTERNAL_ERROR`，返回体是兼容子集。
 
@@ -140,7 +151,7 @@ try {
 | 429 | ✅ | 等待 `Retry-After` 秒 |
 | 423 | ⚠️ | 仅当用户明确触发（按钮）才重试 |
 | 4xx（非 401/429） | ❌ | 提示用户改请求 |
-| 401 | ❌ | 跳 `/login` |
+| 401 | ❌ | 已登录 API 的 session/token 类错误跳 `/login`；登录提交错误留在表单内展示 |
 
 推荐用 TanStack Query / SWR 的内置重试策略，配置：
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { settingsApi } from '@/domains/settings/api';
@@ -18,6 +18,8 @@ interface SensitiveActionDialogProps {
   errorMessage?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  extraConfirmDisabled?: boolean;
+  children?: ReactNode;
   pending?: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: (payload: DangerousActionRequest) => void;
@@ -32,6 +34,8 @@ export function SensitiveActionDialog({
   errorMessage,
   confirmLabel,
   cancelLabel,
+  extraConfirmDisabled = false,
+  children,
   pending = false,
   onOpenChange,
   onConfirm,
@@ -61,6 +65,7 @@ export function SensitiveActionDialog({
 
   const confirmDisabled =
     pending ||
+    extraConfirmDisabled ||
     securityQuery.isPending ||
     securityQuery.isError ||
     (confirmationMode === 'session' &&
@@ -138,6 +143,8 @@ export function SensitiveActionDialog({
             </label>
           </>
         ) : null}
+
+        {children}
       </div>
     </ConfirmDialog>
   );

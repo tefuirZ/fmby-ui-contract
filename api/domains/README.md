@@ -41,6 +41,7 @@ skin 实现"后台管理"还需要以下域。**可分模块逐步实现**——
 | [`manage/system-about.md`](./manage/system-about.md) | system-about | 1 | 系统关于 / 版本与依赖摘要 |
 | [`manage/source-availability.md`](./manage/source-availability.md) | source-availability | 1 | 单源恢复 |
 | [`manage/logs.md`](./manage/logs.md) | logs | 2 | 审计 / 运行日志 |
+| [`manage/login-risk.md`](./manage/login-risk.md) | login-risk | 1 | IP 登录风控手动解除 |
 | [`manage/license.md`](./manage/license.md) | license | 5 | 授权状态 / 设备码 / 激活 token |
 | [`manage/microsoft.md`](./manage/microsoft.md) | microsoft | 24 | Microsoft Graph 授权、账号、drive/site 操作 |
 | [`manage/pan115.md`](./manage/pan115.md) | pan115 | 8 | 115 网盘账号 / 扫码 / 浏览 |

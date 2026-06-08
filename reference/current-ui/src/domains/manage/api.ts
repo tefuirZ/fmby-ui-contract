@@ -31,11 +31,16 @@ import type {
   ManageRoleTemplatesResponse,
   ManageRuntimeLogsQuery,
   ManageRuntimeLogsResponse,
+  ResetIpLoginRiskRequest,
+  ResetUserLoginRiskRequest,
+  ResetUserPasswordRequest,
+  ReviewUserRegistrationRequest,
   ManageScanTriggerResult,
   ManageScansQuery,
   ManageScansResponse,
   ManageSourceAvailabilityRecoverResponse,
   ManageUserDetailRecord,
+  ManageUsersQuery,
   ManageSessionsResponse,
   TriggerManageLibraryScanRequest,
   UpdateManageLibraryRequest,
@@ -130,13 +135,23 @@ export const manageApi = {
     };
   },
 
-  async getUsers(): Promise<ManageUsersResponse> {
+  async getUsers(query?: ManageUsersQuery): Promise<ManageUsersResponse> {
     const raw =
       await httpClient.get<RawListResponse<RawManagedUserRecord>>(
         "/api/manage/users",
+        {
+          params: {
+            page: query?.page,
+            pageSize: query?.pageSize,
+            search: query?.search?.trim() || undefined,
+            status: query?.status ? mapUserStatusToApi(query.status) : undefined,
+            account_kind: query?.accountKind,
+          },
+        },
       );
     return {
       items: raw.items.map(mapUserRecord),
+      total: raw.total,
     };
   },
 
@@ -156,10 +171,18 @@ export const manageApi = {
         body: {
           username: payload.username,
           display_name: payload.displayName,
+          email: payload.email,
           password: payload.password,
           role: payload.role,
+          role_template_id: payload.roleTemplateId ?? null,
           status: mapUserStatusToApi(payload.status),
-          source_grants: payload.sourceGrants?.map(mapSourcePathGrantToApi) ?? [],
+          account_kind: payload.accountKind ?? "human",
+          max_sessions: payload.maxSessions ?? null,
+          valid_until: payload.validUntil
+            ? new Date(payload.validUntil).toISOString()
+            : null,
+          max_concurrent_playbacks: payload.maxConcurrentPlaybacks ?? null,
+          source_grants: payload.sourceGrants?.map(mapSourcePathGrantToApi),
         },
       },
     );
@@ -175,8 +198,19 @@ export const manageApi = {
       {
         body: {
           display_name: payload.displayName,
+          email: payload.email,
           status: payload.status ? mapUserStatusToApi(payload.status) : undefined,
+          account_kind: payload.accountKind,
           roles: payload.role ? [payload.role] : undefined,
+          role_template_id: payload.roleTemplateId,
+          max_sessions: payload.maxSessions,
+          valid_until:
+            payload.validUntil === undefined
+              ? undefined
+              : payload.validUntil
+                ? new Date(payload.validUntil).toISOString()
+                : null,
+          max_concurrent_playbacks: payload.maxConcurrentPlaybacks,
           source_grants: payload.sourceGrants?.map(mapSourcePathGrantToApi),
           confirm_action: payload.confirmAction,
           session_confirmation: payload.sessionConfirmation,
@@ -267,6 +301,99 @@ export const manageApi = {
         }),
       },
     });
+  },
+
+  async approveUserRegistration(
+    userId: string,
+    payload: ReviewUserRegistrationRequest,
+  ): Promise<ManageUserDetailRecord> {
+    const raw = await httpClient.post<RawManagedUserRecord>(
+      `/api/manage/users/${userId}/approve-registration`,
+      {
+        body: mapDangerousActionPayloadToApi({
+          confirmAction:
+            payload.confirmAction ?? "approve-user-registration",
+          sessionConfirmation: payload.sessionConfirmation,
+          currentPassword: payload.currentPassword,
+        }),
+      },
+    );
+    return mapUserRecord(raw);
+  },
+
+  async rejectUserRegistration(
+    userId: string,
+    payload: ReviewUserRegistrationRequest,
+  ): Promise<ManageUserDetailRecord> {
+    const raw = await httpClient.post<RawManagedUserRecord>(
+      `/api/manage/users/${userId}/reject-registration`,
+      {
+        body: mapDangerousActionPayloadToApi({
+          confirmAction:
+            payload.confirmAction ?? "reject-user-registration",
+          sessionConfirmation: payload.sessionConfirmation,
+          currentPassword: payload.currentPassword,
+        }),
+      },
+    );
+    return mapUserRecord(raw);
+  },
+
+  async resetUserPassword(
+    userId: string,
+    payload: ResetUserPasswordRequest,
+  ): Promise<ManageActionResult> {
+    const raw = await httpClient.post<RawManageActionResult>(
+      `/api/manage/users/${userId}/reset-password`,
+      {
+        body: {
+          new_password: payload.newPassword,
+          force_change: payload.forceChange ?? false,
+          ...mapDangerousActionPayloadToApi({
+            confirmAction: payload.confirmAction ?? "reset-user-password",
+            sessionConfirmation: payload.sessionConfirmation,
+            currentPassword: payload.currentPassword,
+          }),
+        },
+      },
+    );
+    return mapManageActionResult(raw);
+  },
+
+  async resetIpLoginRisk(
+    payload: ResetIpLoginRiskRequest,
+  ): Promise<ManageActionResult> {
+    const raw = await httpClient.post<RawManageActionResult>(
+      "/api/manage/login-risk/ip/reset",
+      {
+        body: {
+          ip_address: payload.ipAddress,
+          ...mapDangerousActionPayloadToApi({
+            confirmAction: payload.confirmAction ?? "reset-ip-login-risk",
+            sessionConfirmation: payload.sessionConfirmation,
+            currentPassword: payload.currentPassword,
+          }),
+        },
+      },
+    );
+    return mapManageActionResult(raw);
+  },
+
+  async resetUserLoginRisk(
+    userId: string,
+    payload: ResetUserLoginRiskRequest,
+  ): Promise<ManageActionResult> {
+    const raw = await httpClient.post<RawManageActionResult>(
+      `/api/manage/users/${userId}/login-risk/reset`,
+      {
+        body: mapDangerousActionPayloadToApi({
+          confirmAction: payload.confirmAction ?? "reset-user-login-risk",
+          sessionConfirmation: payload.sessionConfirmation,
+          currentPassword: payload.currentPassword,
+        }),
+      },
+    );
+    return mapManageActionResult(raw);
   },
 
   async getRegistrationCodes(): Promise<ManageRegistrationCodesResponse> {

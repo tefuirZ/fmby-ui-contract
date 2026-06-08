@@ -3,6 +3,16 @@ import { isApiError } from '@/shared/types';
 type AuthFailureListener = () => void;
 
 const AUTH_FAILURE_CODES = new Set(['AUTH_REQUIRED', 'AUTH_EXPIRED']);
+const AUTH_NON_SESSION_CODES = new Set([
+  'AUTH_INVALID_CREDENTIALS',
+  'AUTH_RATE_LIMITED',
+  'AUTH_ACCOUNT_LOCKED',
+  'AUTH_ACCOUNT_INACTIVE',
+  'AUTH_ACCOUNT_NOT_YET_VALID',
+  'AUTH_ACCOUNT_EXPIRED',
+  'AUTH_PASSWORD_CHANGE_REQUIRED',
+  'AUTH_INTERACTIVE_LOGIN_DISABLED',
+]);
 const AUTH_FAILURE_HTTP_CODES = new Set(['HTTP_401']);
 const AUTH_FAILURE_MESSAGE_PATTERNS = [
   '缺少认证令牌',
@@ -38,6 +48,10 @@ export function notifyAuthFailure(): void {
 
 export function isSessionInvalidationError(error: unknown): boolean {
   if (!isApiError(error)) {
+    return false;
+  }
+
+  if (AUTH_NON_SESSION_CODES.has(error.code)) {
     return false;
   }
 

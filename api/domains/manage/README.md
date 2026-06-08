@@ -22,6 +22,7 @@
 | [task-center.md](./task-center.md) | 任务中心聚合视图 | `GET /api/manage/task-center/overview`、`POST /api/manage/task-center/items/{cat}/{id}/actions` |
 | [source-availability.md](./source-availability.md) | 数据源可用性恢复 | `POST /api/manage/source-availability/{id}/recover` |
 | [logs.md](./logs.md) | 审计日志 / 运行日志 | `GET /api/manage/audit-logs`、`GET /api/manage/runtime-logs` |
+| [login-risk.md](./login-risk.md) | 登录风控手动解除 | `POST /api/manage/login-risk/ip/reset` |
 | [license.md](./license.md) | 授权与订阅 | `GET /api/manage/license/status`、`POST /api/manage/license/activation-token` |
 | [microsoft.md](./microsoft.md) | Microsoft Graph 授权账号 | `GET /api/manage/microsoft/auth/profiles`、`POST /api/manage/microsoft/auth/start` |
 | [developer-api.md](./developer-api.md) | 开放 API 目录、API Token、Explorer | `GET /api/manage/developer/endpoints`、`POST /api/manage/developer/api-tokens` |

@@ -57,9 +57,15 @@ export interface RawManagedUserRecord {
   id: string;
   username: string;
   display_name?: string | null;
+  email?: string | null;
+  account_kind?: string | null;
   status: string;
   roles: string[];
   source_grants?: RawManagedSourcePathGrantRecord[] | null;
+  max_sessions?: number | null;
+  max_concurrent_playbacks?: number | null;
+  valid_until?: string | null;
+  must_change_password?: boolean | null;
   created_at: string;
   updated_at: string;
   last_activity_at?: string | null;
@@ -122,6 +128,7 @@ export interface RawRoleTemplateRecord {
   default_library_ids?: string[] | null;
   source_grants?: RawManagedSourcePathGrantRecord[] | null;
   default_max_sessions?: number | null;
+  default_max_concurrent_playbacks?: number | null;
   default_valid_days?: number | null;
   is_system: boolean;
   status: string;

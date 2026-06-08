@@ -43,7 +43,7 @@ export function useMountsPickerQuery(enabled: boolean) {
 export function useUsersPickerQuery(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.manage.libraries.usersPicker(),
-    queryFn: () => manageApi.getUsers(),
+    queryFn: () => manageApi.getUsers({ page: 1, pageSize: 100 }),
     enabled,
   });
 }
