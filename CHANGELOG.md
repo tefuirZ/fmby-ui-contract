@@ -6,6 +6,8 @@
 
 ### Added
 
+- 新增人物合集合同：`/people/:personId`、`GET /api/items/people/{personId}` 和 `GET /api/items/people/{personId}/items`。
+- 新增 WebUI 默认 ArtPlayer 与远端视频不经服务端代理的播放边界合同。
 - 新增 Microsoft 数据源创建向导合同：从 `microsoft-global` / `microsoft-china`、OneDrive / SharePoint、token 授权、drive/site 选择、持久账号导入、目录选择到创建来源必须形成连续闭环。
 - 新增单一 Admin 管理员契约：管理后台只保留 Admin 作为管理员语义，权限边界以后端 capability guard 与 license entitlement 为准。
 - 新增管理端运营看板实时合同，覆盖活跃播放快照、来源负载快照和 `GET /api/playback/realtime/ws?scope=admin`。
@@ -25,6 +27,7 @@
 
 ### Security
 
+- WebUI 播放器不得为视频元素默认设置 `crossorigin` / `crossOrigin`，也不得用服务端视频代理、fetch/blob 中转或隐藏 iframe 代理规避 115 / Pan115 CDN CORS。
 - Microsoft 授权 URL、完整 callback URL、access token、refresh token、tenant 信息和中间授权态只能保存在页面内存态；不得写入 localStorage、sessionStorage、IndexedDB、URL query、日志或持久表单草稿。
 - 第一方 `/api/playback/realtime/ws` 固定使用 Cookie session + Origin 校验；`scope=admin` 只表示订阅范围，不是认证材料。
 - 禁止 WebUI / skin 展示或缓存播放直链、stream token、Cookie、Authorization、PG / Redis URL、provider 凭据和授权材料。

@@ -12,6 +12,7 @@
 /history                           播放历史
 /libraries                         媒体库列表
 /libraries/:libraryId              单库浏览
+/people/:personId                  人物合集
 /item/:itemId                      详情
 /play/:itemId                      播放页
 /settings/*                        个人设置
@@ -29,6 +30,7 @@
 | [browse/discover.md](./browse/discover.md) | 首页 / 推荐流 |
 | [browse/library.md](./browse/library.md) | 媒体库列表 + 筛选 |
 | [browse/item-detail.md](./browse/item-detail.md) | 条目详情：海报、演职员、相关 |
+| [browse/person-detail.md](./browse/person-detail.md) | 人物合集：头像、简介、相关作品 |
 | [browse/play.md](./browse/play.md) | 播放页：源选择、外部播放、进度 |
 | [browse/login.md](./browse/login.md) | 登录 + 注册 + 注册码 |
 | [browse/profile.md](./browse/profile.md) | 个人资料 / 头像 |

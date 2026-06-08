@@ -4,6 +4,8 @@
 
 skin 的播放器接到 fmby 后端的所有交互都在这里。
 
+WebUI 播放远端媒体必须保持 Direct Play 边界：后端只负责授权、选源、播放会话、同源播放入口签发和上游临时地址解析；远端视频字节流不得经 FMBY 服务端代理转发。默认网页播放器内核为 ArtPlayer，DPlayer 只能作为设置页备用内核。
+
 ---
 
 ## 端点速查
@@ -90,6 +92,13 @@ skin 的播放器接到 fmby 后端的所有交互都在这里。
 ```
 
 `play_method` 是后端当前播放决策的字符串值；skin 不应枚举兜底成错误含义。浏览器播放优先使用 `stream_url`，外部播放器可在存在时使用 `direct_url`。
+
+远端来源播放约束：
+
+- `/api/assets/streams/*` 对远端视频只能返回受控 `302/307` 跳转或等价直链播放决策，不能把视频字节流经服务端代理给浏览器。
+- 播放器适配器不得为 `<video>` 设置 `crossorigin` / `crossOrigin`，除非该能力明确限定在已确认支持 CORS 的来源。
+- 截图、canvas 抓帧、缩略图提取和会隐式开启视频 CORS 模式的字幕插件默认关闭。
+- 115 / Pan115 等 CDN 可能没有 CORS 响应头，skin 必须按原生视频直连播放处理。
 
 ### `POST /api/playback/sessions`
 

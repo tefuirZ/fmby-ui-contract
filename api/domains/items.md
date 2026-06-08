@@ -13,6 +13,8 @@
 | `/api/items/{itemId}/descendants` | GET | 所有后代（用于 series 直接拿全 episodes） |
 | `/api/items/{itemId}/sources` | GET | 该媒体可用的播放源 |
 | `/api/items/{itemId}/refresh-metadata` | POST | 触发重新刮削（异步） |
+| `/api/items/people/{personId}` | GET | 人物详情 |
+| `/api/items/people/{personId}/items` | GET | 人物关联作品 |
 
 普通用户都能调（要求登录）。`refresh-metadata` 通常需要 `manage:media-items` 或 owner-level 权限。
 
@@ -195,6 +197,49 @@ X-CSRF-Token: ...
 响应是刷新后的 `ItemDetailResponse`。
 
 错误：`task_already_running` / `forbidden`。
+
+### `GET /api/items/people/{personId}`
+
+返回当前用户可见的人物资料。后端必须先确认该人物至少有一条当前用户可见的关联作品；否则返回 `404`。
+
+```json
+{
+  "id": "person_abc",
+  "name": "周星驰",
+  "overview": "人物简介，可能为空",
+  "profile_url": "https://...",
+  "thumb_url": "/api/assets/people/person_abc/primary",
+  "provider": "tmdb",
+  "provider_person_id": "57607"
+}
+```
+
+约定：
+
+- `personId` 是真实人物 ID，不是 `person-image-*` 头像虚拟 ID。
+- `thumb_url` 必须是同源资源 URL，skin 不得直连上游头像。
+- `overview` 只展示 provider payload 已提供并缓存的简介，不伪造。
+
+### `GET /api/items/people/{personId}/items`
+
+| Query | 说明 |
+|---|---|
+| `page` | 页码，默认 1 |
+| `pageSize` / `page_size` | 每页数量，默认 20，后端 clamp 到 1-100 |
+
+返回：
+
+```json
+{
+  "items": [],
+  "total": 0
+}
+```
+
+约定：
+
+- 作品列表必须保留当前用户权限、来源可见性、分页和 `total` 语义。
+- skin 不得用首页、媒体库或搜索结果在本地过滤拼成人物合集。
 
 ---
 

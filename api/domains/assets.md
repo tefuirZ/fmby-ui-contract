@@ -92,8 +92,9 @@ skin 推荐：
 
 - ✅ 支持 `Range` header（resumable / seek）
 - ✅ HEAD 返回 `Content-Length`、`Accept-Ranges: bytes`、`Content-Type`，body 为空
-- ✅ 可能 `302` 重定向到 CDN 直链（115 / WebDAV 透传时）
+- ✅ 远端视频可能 `302/307` 重定向到 CDN 直链（115 / Pan115 / OpenList 等）
 - ✅ HTTP/1.1 keep-alive，TCP 流水线友好
+- ⚠️ 远端视频字节流不得经 FMBY 服务端代理转发；skin 不能把 CORS 问题转嫁成服务端视频代理
 
 skin 用法（最简单）：
 

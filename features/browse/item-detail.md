@@ -10,6 +10,7 @@
 - `GET /api/items/{id}/children`：季 / 集直接子项
 - `GET /api/items/{id}/descendants`：剧集后代
 - `GET /api/items/{id}/sources`：播放源
+- 演职员人物头像：`/api/assets/people/{personId}/primary`
 
 ## 必备 UI
 
@@ -29,5 +30,7 @@
 
 ## 皮肤建议
 - backdrop 优先 imghost 直链 + cache_path 兜底
-- 演员卡支持点击搜索同人作品（如果后端有）
+- 演员/导演卡有真实 `person.id` 时点击进入 `/people/:personId`
+- 缺少真实人物 ID 时只展示，不拼接搜索 URL 或上游人物 URL
+- 人物 rail 的固定宽度必须作用在真实 flex 子项上，不依赖跨 CSS module 的 `.rail > .card`
 - 长简介默认折叠 + "展开"

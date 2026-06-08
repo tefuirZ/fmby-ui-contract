@@ -13,6 +13,7 @@
 | `/history` | 已登录 | 播放历史 | `GET /api/browse/history` |
 | `/libraries` | 已登录 | 媒体库总览 | `GET /api/browse/libraries/home`、`GET /api/browse/libraries` |
 | `/libraries/:libraryId` | 已登录 | 单库浏览 + 筛选 | `GET /api/browse/libraries/{libraryId}` |
+| `/people/:personId` | 已登录 | 人物合集 | `GET /api/items/people/{personId}`、`GET /api/items/people/{personId}/items` |
 | `/item/:itemId` | 已登录 | 条目详情 | `GET /api/items/{itemId}` |
 | `/play/:itemId` | 已登录 | 播放页 | `GET /api/playback/items/{itemId}`、`POST /api/playback/sessions` |
 | `/settings/profile` | 已登录 | 资料设置 | `GET/PUT /api/settings/user/profile` |
