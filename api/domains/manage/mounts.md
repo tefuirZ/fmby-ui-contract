@@ -25,6 +25,25 @@
 | POST | `/api/manage/mounts/{mountId}/refresh-access` | 刷新远端访问信息 |
 | POST | `/api/manage/mounts/browse-directories` | 通用目录浏览 |
 
+### 删除挂载
+
+删除请求体沿用 `DangerousActionRequest`：
+
+```jsonc
+{
+  "confirm_action": "delete-mount",
+  "session_confirmation": "delete-mount",
+  "current_password": null
+}
+```
+
+约束：
+
+- `confirm_action` 固定为 `delete-mount`。
+- 站点敏感策略为 `session` 时，`session_confirmation` 也必须提交 `delete-mount`。
+- 站点敏感策略为 `password` 时，前端必须补交当前密码。
+- 前端必须在删除前先展示引用影响；后端会按真实引用决定是否允许删除。
+
 ## Provider 矩阵
 
 | provider_type | 创建态目录浏览 | 详情态目录浏览 | 说明 |
@@ -228,6 +247,7 @@ Local 数据源支持扫描 `.strm` 文件时读取第一条 HTTP(S) URL，并�
 7. Microsoft 向导不得只提供孤立“导入持久账号”按钮；导入账号只是创建来源闭环中的中间步骤。
 8. Microsoft 授权 URL、callback URL、access token、refresh token、tenant 信息和中间授权态只能存在页面内存，不得进入 Web Storage、日志或持久表单草稿。
 9. Local 数据源新建 / 编辑必须保留 STRM 直入库开关，默认开启，并清楚说明 Docker 容器内路径约束。
+10. 探活、刷新访问和保存凭据后的状态显示以后端最新响应为准；前端不得继续缓存或伪造“不可达”结论。
 
 ## 皮肤实现建议
 

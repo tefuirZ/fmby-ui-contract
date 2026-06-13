@@ -23,7 +23,8 @@
   "target_kind": "user|library|mount|...",
   "target_id": "uuid?",
   "summary": "alice disabled bob",
-  "diff": { "before": {...}, "after": {...} }
+  "diff": { "before": {...}, "after": {...} },
+  "detail_json": { "...": "..." }
 }
 ```
 
@@ -35,7 +36,10 @@
   "level": "info|warn|error",
   "module": "pan115|scrape|scan|...",
   "msg": "qr poll timeout",
-  "context": { "mount_id": "...", "trace_id": "..." }
+  "context": { "mount_id": "...", "trace_id": "..." },
+  "raw_line": "...",
+  "request_id": "req_xxx",
+  "source_file": "runtime.log"
 }
 ```
 

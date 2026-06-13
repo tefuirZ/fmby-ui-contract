@@ -14,6 +14,7 @@
 | [registration-codes.md](./registration-codes.md) | 注册码与批次 | `POST /api/manage/registration-codes`、`PATCH /api/manage/registration-codes/{id}` |
 | [sessions.md](./sessions.md) | 在线会话 / 强制下线 | `GET /api/manage/sessions`、`DELETE /api/manage/sessions/{id}` |
 | [libraries.md](./libraries.md) | 媒体库定义 / 扫描触发 | `POST /api/manage/libraries`、`POST /api/manage/libraries/{id}/scan` |
+| [collections.md](./collections.md) | 合集管理 / 预置 / 豆瓣 / 规则 | `GET /api/manage/collections`、`POST /api/manage/collections/{id}/members/reorder` |
 | [mounts.md](./mounts.md) | 数据源挂载 / 浏览 / 校验 | `POST /api/manage/mounts/browse-directories`、`POST /api/manage/mounts/{id}/validate` |
 | [upstreams.md](./upstreams.md) | 上游源网关 / AppleCMS / Emby 导入 | `GET /api/manage/upstreams`、`POST /api/manage/upstreams/{id}/emby/import` |
 | [media-items.md](./media-items.md) | 媒体条目细管 / 刮削 / artwork / subtitle | `GET /api/manage/media-items`、`POST /api/manage/media-items/{id}/scrape` |

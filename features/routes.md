@@ -34,6 +34,7 @@
 | `/manage/media/items/:itemId` | 资源详情 | `GET /api/manage/media-items/{itemId}` |
 | `/manage/media/reviews` | 待审核队列 / 人工匹配 | `GET /api/manage/media-reviews`、`GET /api/manage/media-reviews/provider-search` |
 | `/manage/media/libraries` | 媒体库管理 | `GET /api/manage/libraries` |
+| `/manage/media/collections` | 合集管理 | `GET /api/manage/collections`、`GET /api/manage/collections/{collectionId}` |
 | `/manage/media/mounts` | 数据来源 / 挂载点 | `GET /api/manage/mounts` |
 | `/manage/media/upstreams` | 上游源网关 | `GET /api/manage/upstreams` |
 | `/manage/media/probe-tasks` | 技术探测任务 | `GET /api/manage/probe-tasks` |

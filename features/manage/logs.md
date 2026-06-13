@@ -9,8 +9,8 @@
 
 ## UI
 
-**审计**：表格列 ts / actor / action / target / summary；行展开看 diff（before/after JSON 对比器）  
-**运行**：表格列 ts / level / module / msg；level 彩色徽标；trace_id 复制按钮  
+**审计**：表格列 ts / actor / action / target / summary；行展开看 diff（before/after JSON 对比器）与 `detail_json`
+**运行**：表格列 ts / level / module / msg；level 彩色徽标；trace_id 复制按钮；详情查看 `raw_line / request_id / source_file`
 快捷时间窗：1h / 24h / 7d / 自定义
 
 ## 状态

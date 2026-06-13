@@ -43,7 +43,8 @@
 | [manage/dashboard.md](./manage/dashboard.md) | 旧概览 + 高级状态 |
 | [manage/users.md](./manage/users.md) | 用户 + 角色模板 + 注册码 |
 | [manage/sessions.md](./manage/sessions.md) | 会话管理 |
-| [manage/libraries.md](./manage/libraries.md) | 媒体库 + 数据源 |
+| [manage/libraries.md](./manage/libraries.md) | 媒体库 + 扫描治理 |
+| [manage/collections.md](./manage/collections.md) | 合集管理 |
 | [manage/mounts.md](./manage/mounts.md) | 挂载（含 pan115 扫码） |
 | [manage/upstreams.md](./manage/upstreams.md) | 上游源 / AppleCMS / Emby 导入 |
 | [manage/media-items.md](./manage/media-items.md) | 资源管理 + 单条详情 |
